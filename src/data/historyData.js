@@ -296,3 +296,24 @@ export const REGION_BLURB = {
   "フランス王国": "ブルボン朝のもとで中央集権化を進め、三十年戦争を通じて大陸の主導権を握っていく。",
   "オスマン帝国": "東地中海から中東・北アフリカに及ぶ広大な版図を持つイスラム王朝。",
 };
+
+// src/data/historyData.js の末尾イメージ
+
+export const ERAS_DATA = {
+  "thirty-years-war": {
+    id: "thirty-years-war",
+    title: "三十年戦争",
+    period: "近世（15〜18世紀）",
+    cards: CARDS,
+    mapData: {
+      years: MAP_YEARS,
+      landPath: WORLD_LAND_PATH,
+      regions: MAP_REGIONS,
+      capitals: CAPITAL_CITIES,
+      rivers: RIVERS,
+      seas: SEA_LABELS,
+      blurb: REGION_BLURB,
+    }
+  },
+  // 今後ここへ "french-revolution": { ... } を追加可能！
+};

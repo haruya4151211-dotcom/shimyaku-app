@@ -1,4 +1,6 @@
-import { CARDS,
+import {
+  ERAS_DATA,
+  CARDS,
   MAP_YEARS,
   WORLD_LAND_PATH,
   HRE_POINTS_1618,
@@ -15,7 +17,8 @@ import { CARDS,
   CAPITAL_CITIES,
   RIVERS,
   SEA_LABELS,
-  REGION_BLURB, } from './data/historyData';
+  REGION_BLURB,
+} from './data/historyData';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
 
@@ -119,6 +122,19 @@ function spawnRipple(e) {
 }
 
 export default function App() {
+    // 現在選択されている時代ID（初期値: 三十年戦争）
+  const [selectedEraId, setSelectedEraId] = useState("thirty-years-war");
+
+  // 選択中時代のデータセットを一括取得
+  const currentEra = ERAS_DATA[selectedEraId] || ERAS_DATA["thirty-years-war"];
+  const CARDS = currentEra.cards;
+  const MAP_YEARS = currentEra.mapData.years;
+  const WORLD_LAND_PATH = currentEra.mapData.landPath;
+  const MAP_REGIONS = currentEra.mapData.regions;
+  const CAPITAL_CITIES = currentEra.mapData.capitals;
+  const RIVERS = currentEra.mapData.rivers;
+  const SEA_LABELS = currentEra.mapData.seas;
+  const REGION_BLURB = currentEra.mapData.blurb;
   const [progress, setProgress, progressLoaded] = useStorageState(STORAGE_PROGRESS_KEY, {});
   const [favorites, setFavorites, favLoaded] = useStorageState(STORAGE_FAVORITES_KEY, []);
   const [presets, setPresets, presetsLoaded] = useStorageState(STORAGE_PRESETS_KEY, []);
