@@ -12,6 +12,15 @@
 // - Wikimedia Commons の画像は原寸ではなく幅960pxのサムネイルURL（.../thumb/.../960px-ファイル名）を使う。
 //   原寸は数千px・数MBに及ぶことがあり、また960px以外の任意幅のサムネイルはエラーになる場合がある。
 // ---------------------------------------------------------------------------
+// データ生成ガイドライン（問題カードにする内容と、豆知識・解説に回す内容の切り分け）
+// - 【問題カード化】試験・教科書で直接問われる超重要用語、条約名、定番の風刺・名言は、独立した問題カードにする
+//   （例：「人権宣言」「ウェストファリア条約」、風刺「会議は踊る、されど進まず」）。
+//   穴埋め形式（cloze）では、問われる語句そのものを空欄（slots）にし、裏面の points で原因・経過・意義を解説する。
+// - 【豆知識・解説】理解を深める背景や因果関係、記憶のフックになるエピソードは、anecdote（豆知識）や
+//   points（解説）に書き、問題カードにはしない
+//   （例：ヴァルミーの戦いでのゲーテの言葉、ナポレオンの身長にまつわる俗説や遺言）。
+// - ある問題カードの答えになっている語句を、別のカードの豆知識・解説にそのまま書かない（答えが先に見えてしまうため）。
+// ---------------------------------------------------------------------------
 
 // 三十年戦争〜ウェストファリア体制（近世）のカード
 export const THIRTY_YEARS_WAR_CARDS = [
@@ -196,58 +205,427 @@ export const THIRTY_YEARS_WAR_CARDS = [
   },
 ];
 
-// 市民革命と国民国家（1789〜1871年頃）のカード：時代切り替え・地図タブとの連携検証用サンプル。
-// regionは地図の時代区分 "revolutions" の勢力IDと一致させ、勢力タップで該当カードが引けるようにする
+// 市民革命と国民国家（1789〜1871年頃）のカード。
+// フランス革命（1789〜1799年）とナポレオン時代（1799〜1815年）を中心に、ウィーン体制・国民国家の形成までを扱う。
+// region は地図の時代区分 "revolutions" の勢力ID（1812／1815／1871年のスナップショット）に合わせ、
+// 勢力タップで該当カードが引けるようにしている。厳密な当時の国号ではなく「地図上でどの勢力に紐づけるか」を表す
+// （例：1789〜1795年のフランス国内の出来事は1815年の「フランス王国」、ナポレオン期は1812年の「フランス帝国」）。
 export const FRENCH_REVOLUTION_CARDS = [
   {
-    id: "c17", year: 1789, difficulty: 0, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史"],
-    front: "1789年7月14日、パリの民衆が襲撃しフランス革命の発端となった施設は？",
-    back: "バスティーユ牢獄",
+    id: "c17", year: 1789, difficulty: 0, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史", "フランス革命"],
+    front: "1789年7月14日、パリの民衆が襲撃し、フランス革命の発端となった施設は？",
+    back: "",
+    cloze: {
+      template: "1789年7月14日、パリの民衆は国王の軍隊集結と、改革派の財務総監{{1}}の罷免に反発して武器を求め、圧政の象徴とされた{{2}}を襲撃した。",
+      slots: [
+        { id: 1, answer: "ネッケル", category: "人物" },
+        { id: 2, answer: "バスティーユ牢獄", category: "施設" },
+      ],
+      points: [
+        { label: "原因", text: "財政危機打開のため招集された三部会で第三身分が国民議会を結成し、国王がこれを武力で抑え込もうとした" },
+        { label: "経過", text: "襲撃の報が地方に伝わると農民蜂起（大恐怖）が広がり、8月4日に国民議会は封建的特権の廃止を決議した" },
+        { label: "意義", text: "民衆が直接行動で王権に対抗した最初の事件となり、革命が議会の外へ広がる転機となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Prise_de_la_Bastille_clean.jpg/960px-Prise_de_la_Bastille_clean.jpg",
+        caption: "ウエル「バスティーユ襲撃」（1789年）",
+        alt: "煙に包まれたバスティーユ牢獄の城塞に、民衆が押し寄せる様子を描いた水彩画",
+        credit: "Prise de la Bastille／Jean-Pierre Houël（1789年）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Charles_Th%C3%A9venin_-_Prise_de_la_Bastille%2C_le_14_juillet_1789_-_P572_-_Mus%C3%A9e_Carnavalet.jpg/960px-Charles_Th%C3%A9venin_-_Prise_de_la_Bastille%2C_le_14_juillet_1789_-_P572_-_Mus%C3%A9e_Carnavalet.jpg",
+        caption: "テヴナン「バスティーユ襲撃、1789年7月14日」（1793年）",
+        alt: "バスティーユの城門前で、武器を手にした民衆と守備兵が入り乱れて戦う場面を描いた油彩画",
+        credit: "Prise de la Bastille, le 14 juillet 1789／Charles Thévenin（1793年）, Musée Carnavalet, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：襲撃の時点でバスティーユに収監されていたのはわずか7人だった。7月14日は現在もフランスの国民祭典（革命記念日）として祝われている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/バスティーユ襲撃",
   },
   {
-    id: "c18", year: 1789, difficulty: 1, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史"],
-    front: "1789年に国民議会が採択し、自由・平等・国民主権・所有権の不可侵などを掲げた宣言は？",
-    back: "人権宣言（人間および市民の権利の宣言）",
+    id: "c18", year: 1789, difficulty: 1, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史", "フランス革命"],
+    front: "1789年8月に国民議会が採択した人権宣言は、誰が起草し、どのような原理を掲げたか？",
+    back: "",
+    cloze: {
+      template: "1789年8月、国民議会は{{1}}らが起草した人権宣言（人間および市民の権利の宣言）を採択し、人間の自由と権利における平等、{{2}}、所有権の不可侵などを掲げた。",
+      slots: [
+        { id: 1, answer: "ラファイエット", category: "人物" },
+        { id: 2, answer: "国民主権", category: "原理" },
+      ],
+      points: [
+        { label: "原因", text: "テニスコートの誓いで憲法制定まで解散しないと誓った国民議会が、新しい国家の基本原理を示す必要があった" },
+        { label: "経過", text: "アメリカ独立宣言や啓蒙思想（ロック、ルソーら）の影響を受けて起草され、のちの1791年憲法の前文となった" },
+        { label: "意義", text: "身分制社会を否定し、近代市民社会の基本原理を示した文書として、各国の憲法や人権思想に大きな影響を与えた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Gilbert_du_Motier_Marquis_de_Lafayette.jpg/960px-Gilbert_du_Motier_Marquis_de_Lafayette.jpg",
+        caption: "コート「ラファイエット侯爵の肖像」（1834年）",
+        alt: "軍服姿で書類を手に立つラファイエット侯爵の全身像",
+        credit: "Gilbert du Motier, Marquis de Lafayette／Joseph-Désiré Court（1834年）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Le_Serment_du_Jeu_de_paume.jpg/960px-Le_Serment_du_Jeu_de_paume.jpg",
+        caption: "ダヴィッド「テニスコートの誓い」（1791年、素描）",
+        alt: "球戯場に集まった第三身分の議員たちが、一斉に手を挙げて誓いを立てる場面の素描",
+        credit: "Le Serment du Jeu de paume／Jacques-Louis David（1791年）, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "逸話：ラファイエットはアメリカ独立戦争に義勇兵として参加し、ワシントンと親交を結んだ「両世界の英雄」。宣言の草案作成では駐仏アメリカ公使ジェファソンの助言も受けた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/人間と市民の権利の宣言",
   },
   {
-    id: "c19", year: 1804, difficulty: 2, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史"],
-    front: "1804年にナポレオンが制定し、法の前の平等や私有財産の不可侵を定めた法典は？",
-    back: "ナポレオン法典（フランス民法典）",
+    id: "c20", year: 1792, difficulty: 3, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史", "フランス革命"],
+    front: "ヴァルミーの戦い（1792年）の勝利は、フランスの政体にどのような変化をもたらしたか？",
+    back: "",
+    cloze: {
+      template: "1792年4月、フランスは{{1}}に宣戦して革命戦争が始まった。9月のヴァルミーの戦いで義勇兵を含むフランス軍がプロイセン軍を退けると、同じ日に開会した国民公会は翌日に王政の廃止を宣言し、{{2}}が成立した。",
+      slots: [
+        { id: 1, answer: "オーストリア", category: "国名" },
+        { id: 2, answer: "第一共和政", category: "政体" },
+      ],
+      points: [
+        { label: "原因", text: "ルイ16世一家の国外逃亡未遂（ヴァレンヌ逃亡事件）で王への信頼が失墜し、周辺諸国も革命への干渉を強めた" },
+        { label: "経過", text: "8月10日事件で王権が停止され、男子普通選挙で選ばれた国民公会が成立。翌1793年1月にルイ16世は処刑された" },
+        { label: "意義", text: "市民からなる軍隊が君主国の正規軍を退けたことで、「国民が国を守る」という国民国家の意識が芽生えた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Valmy_Battle_painting.jpg/960px-Valmy_Battle_painting.jpg",
+        caption: "オラース・ヴェルネ「ヴァルミーの戦い」（1826年）",
+        alt: "風車の立つ丘の上で、砲煙のなかフランス軍が隊列を組んでプロイセン軍と対峙する場面",
+        credit: "La Bataille de Valmy／Horace Vernet（1826年）, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "名言：プロイセン軍に従軍していた文豪ゲーテは、この戦いを目にして「ここから、そしてこの日から、世界史の新しい時代が始まる」と記した。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ヴァルミーの戦い",
   },
   {
-    id: "c10", year: 1812, difficulty: 2, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史"],
-    front: "1812年、ナポレオンが大陸封鎖令違反を理由に大軍を送った国は？",
-    back: "ロシア帝国（ロシア遠征）。厳冬とモスクワからの撤退により大敗し、帝国衰退の転機となった。",
+    id: "c21", year: 1795, difficulty: 4, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史", "フランス革命"],
+    front: "恐怖政治の終わりから総裁政府の成立までの流れと、総裁政府が不安定だった理由は？",
+    back: "",
+    cloze: {
+      template: "1794年の{{1}}でロベスピエールらジャコバン派が打倒されて恐怖政治は終わり、翌1795年に制定された新憲法のもとで、5人の総裁からなる{{2}}が成立した。",
+      slots: [
+        { id: 1, answer: "テルミドールのクーデタ", category: "事件" },
+        { id: 2, answer: "総裁政府", category: "政府" },
+      ],
+      points: [
+        { label: "原因", text: "公安委員会を中心とするジャコバン派の独裁と、反対派を次々に処刑した恐怖政治に、議会内外で反発が強まった" },
+        { label: "経過", text: "財産資格による制限選挙が復活し、王党派の反乱や私有財産廃止を唱えるバブーフの陰謀など、左右両派の揺さぶりが続いた" },
+        { label: "意義", text: "政府が反乱の鎮圧を軍に頼るようになり、軍人ナポレオンが台頭する土台がつくられた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Jean-Joseph-Fran%C3%A7ois_Tassaert_-_La_Nuit_du_9_au_10_thermidor_an_II%2C_Arrestation_de_Robespierre.jpg/960px-Jean-Joseph-Fran%C3%A7ois_Tassaert_-_La_Nuit_du_9_au_10_thermidor_an_II%2C_Arrestation_de_Robespierre.jpg",
+        caption: "タサール（アリエ原画）「テルミドール9日から10日の夜、ロベスピエールの逮捕」（1796年頃）",
+        alt: "松明に照らされた議場で、負傷したロベスピエールらが兵士に取り押さえられる場面",
+        credit: "La Nuit du 9 au 10 thermidor an II, Arrestation de Robespierre／Jean-Joseph-François Tassaert（Fulchran-Jean Harriet原画、1796年頃）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Robespierre.jpg/960px-Robespierre.jpg",
+        caption: "「ロベスピエールの肖像」（1790年頃、作者不詳）",
+        alt: "髪粉をつけたかつらに縞柄の上着姿で正面を向くロベスピエールの肖像",
+        credit: "Portrait of Maximilien Robespierre／作者不詳（1790年頃）, Musée Carnavalet, Wikimedia Commons・CC0",
+      },
+    ],
+    anecdote: "逸話：1795年10月、パリで起きた王党派の反乱（ヴァンデミエール13日事件）を大砲で鎮圧したのが、当時26歳のナポレオンだった。これを機に彼は国内軍司令官に抜擢される。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/総裁政府",
   },
   {
-    id: "c11", year: 1812, difficulty: 3, era: "近代（市民革命と国民国家）", region: "ワルシャワ大公国", theme: ["通史"],
+    id: "c22", year: 1799, difficulty: 2, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史", "ナポレオン"],
+    front: "1799年、ナポレオンが総裁政府を倒して権力を握ったクーデタと、その後に就いた地位は？",
+    back: "",
+    cloze: {
+      template: "1799年、エジプト遠征から帰国したナポレオンは{{1}}で総裁政府を倒して統領政府を樹立し、自ら{{2}}に就任して実権を握った。",
+      slots: [
+        { id: 1, answer: "ブリュメール18日のクーデタ", category: "事件" },
+        { id: 2, answer: "第一統領", category: "官職" },
+      ],
+      points: [
+        { label: "原因", text: "第2回対仏大同盟による対外危機と、総裁政府の政情不安を前に、有産市民層が強力な指導者による安定を望んだ" },
+        { label: "経過", text: "1802年にイギリスとアミアンの和約を結んで一時的な平和を実現し、国民投票で終身統領となった" },
+        { label: "意義", text: "ナポレオンは「革命は終わった」と宣言。革命の成果を守りつつ、軍事的英雄に権力が集中する体制へ移行した" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Bouchot_-_Le_general_Bonaparte_au_Conseil_des_Cinq-Cents.jpg/960px-Bouchot_-_Le_general_Bonaparte_au_Conseil_des_Cinq-Cents.jpg",
+        caption: "ブーショ「サン＝クルーの五百人会に臨むボナパルト将軍」（1840年）",
+        alt: "赤い法服の議員たちが詰め寄るなか、擲弾兵に守られて議場を去るボナパルト将軍",
+        credit: "Le général Bonaparte au Conseil des Cinq-Cents, à Saint-Cloud／François Bouchot（1840年）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/David_-_Napoleon_crossing_the_Alps_-_Malmaison2.jpg/960px-David_-_Napoleon_crossing_the_Alps_-_Malmaison2.jpg",
+        caption: "ダヴィッド「サン＝ベルナール峠を越えるボナパルト」（1801年）",
+        alt: "後ろ足で立ち上がる白馬にまたがり、アルプスの峠で前方を指さす第一統領ボナパルト",
+        credit: "Bonaparte franchissant le Grand-Saint-Bernard／Jacques-Louis David（1801年）, Château de Malmaison, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "逸話：クーデタ2日目、五百人会の議場に乗り込んだナポレオンは議員たちに詰め寄られて窮地に陥ったが、議長を務めていた弟リュシアンの機転で軍が突入し、議会は解散させられた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ブリュメール18日のクーデター",
+  },
+  {
+    id: "c19", year: 1804, difficulty: 1, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史", "ナポレオン"],
+    front: "1804年、ナポレオンが公布した法典と、同年に開いた新しい体制は？",
+    back: "",
+    cloze: {
+      template: "1804年、ナポレオンは法の前の平等や私有財産の不可侵を定めた{{1}}を公布し、同年、国民投票を経て皇帝に即位して{{2}}を開いた。",
+      slots: [
+        { id: 1, answer: "ナポレオン法典", category: "法典" },
+        { id: 2, answer: "第一帝政", category: "政体" },
+      ],
+      points: [
+        { label: "原因", text: "対外戦争の勝利と国内の安定で圧倒的な人気を得たナポレオンが、権力の世襲化と体制の永続化を図った" },
+        { label: "経過", text: "12月、パリのノートルダム大聖堂で、教皇ピウス7世の臨席のもと戴冠式が行われた" },
+        { label: "意義", text: "法典（フランス民法典）は革命の成果である市民社会の原理を法として定着させ、征服地を通じてヨーロッパ各国の民法に影響を与えた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Jacques-Louis_David_-_The_Coronation_of_Napoleon_%281805-1807%29.jpg/960px-Jacques-Louis_David_-_The_Coronation_of_Napoleon_%281805-1807%29.jpg",
+        caption: "ダヴィッド「ナポレオン1世の戴冠式と皇妃ジョゼフィーヌの戴冠」（1805〜1807年）",
+        alt: "ノートルダム大聖堂で、教皇や廷臣が見守るなか、ナポレオンが皇妃ジョゼフィーヌに冠を授ける場面",
+        credit: "Le Sacre de Napoléon／Jacques-Louis David（1805〜1807年）, Musée du Louvre, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Ingres%2C_Napoleon_on_his_Imperial_throne.jpg/960px-Ingres%2C_Napoleon_on_his_Imperial_throne.jpg",
+        caption: "アングル「玉座のナポレオン1世」（1806年）",
+        alt: "月桂冠をかぶり、白貂の毛皮の付いた戴冠衣装をまとって玉座に座るナポレオン",
+        credit: "Napoléon Ier sur le trône impérial／Jean-Auguste-Dominique Ingres（1806年）, Musée de l'Armée, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "逸話：戴冠式でナポレオンは教皇から冠を受けず、自らの手で頭上に載せた。ダヴィッドの絵は、その直後にナポレオンが皇妃ジョゼフィーヌに冠を授ける場面を描いている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ナポレオン一世の戴冠式と皇妃ジョゼフィーヌの戴冠",
+  },
+  {
+    id: "c23", year: 1805, difficulty: 4, era: "近代（市民革命と国民国家）", region: "ライン同盟", theme: ["通史", "ナポレオン"],
+    front: "アウステルリッツの戦い（1805年）の勝利は、神聖ローマ帝国にどのような結果をもたらしたか？",
+    back: "",
+    cloze: {
+      template: "1805年、ナポレオンは{{1}}の海戦でイギリスに敗れたが、陸ではアウステルリッツの戦い（三帝会戦）でオーストリア・ロシア連合軍を破った。翌1806年には西南ドイツ諸邦を{{2}}に組織し、神聖ローマ帝国は名実ともに消滅した。",
+      slots: [
+        { id: 1, answer: "トラファルガー", category: "海戦" },
+        { id: 2, answer: "ライン同盟", category: "同盟" },
+      ],
+      points: [
+        { label: "原因", text: "イギリス・オーストリア・ロシアなどが第3回対仏大同盟を結成し、皇帝となったナポレオンに対抗した" },
+        { label: "経過", text: "ネルソン率いるイギリス艦隊にトラファルガーで敗れてイギリス本土上陸を断念し、陸上で大陸の制圧を進めた" },
+        { label: "意義", text: "ナポレオンはライン同盟の保護者となり、1806年には大陸封鎖令を出してイギリスを経済的に孤立させようとした" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/La_bataille_d%27Austerlitz._2_decembre_1805_%28Fran%C3%A7ois_G%C3%A9rard%29.jpg/960px-La_bataille_d%27Austerlitz._2_decembre_1805_%28Fran%C3%A7ois_G%C3%A9rard%29.jpg",
+        caption: "ジェラール「アウステルリッツの戦い、1805年12月2日」（1810年）",
+        alt: "戦場の丘の上で、騎乗のナポレオンが幕僚とともに敵軍の軍旗を差し出す騎兵を迎える場面",
+        credit: "La bataille d'Austerlitz. 2 décembre 1805／François Gérard（1810年）, Château de Versailles, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：「三帝会戦」の三帝とは、フランス皇帝ナポレオン、ロシア皇帝アレクサンドル1世、神聖ローマ皇帝フランツ2世のこと。戦いは奇しくもナポレオンの戴冠一周年の12月2日だった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/アウステルリッツの戦い",
+  },
+  {
+    id: "c11", year: 1807, difficulty: 3, era: "近代（市民革命と国民国家）", region: "ワルシャワ大公国", theme: ["通史", "ナポレオン"],
     front: "ワルシャワ大公国はどの条約によって、どの国の領土から再建されたか？",
     back: "ティルジット条約（1807年）により、プロイセンが獲得していたポーランド分割地から再建された。",
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Tilsitz_1807.JPG/960px-Tilsitz_1807.JPG",
+        caption: "ロエン「ティルジットでのナポレオンとアレクサンドル1世の会見」（1808年）",
+        alt: "ネマン川の中央に浮かべた筏の上の天幕で、両皇帝が会見する様子を岸から描いた油彩画",
+        credit: "Entrevue de Napoléon Ier et d'Alexandre Ier sur le Niémen／Adolphe Roehn（1808年）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Bacciarelli_Granting_of_the_Constitution.jpg/960px-Bacciarelli_Granting_of_the_Constitution.jpg",
+        caption: "バッチャレッリ「ワルシャワ大公国憲法を授けるナポレオン」（1811年）",
+        alt: "玉座のナポレオンが、ポーランドの貴族たちに憲法を授ける場面",
+        credit: "Nadanie konstytucji Księstwu Warszawskiemu przez Napoleona／Marcello Bacciarelli（1811年）, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
-    id: "c12", year: 1815, difficulty: 2, era: "近代（市民革命と国民国家）", region: "ドイツ連邦", theme: ["通史"],
-    front: "ウィーン会議を主導し、正統主義・勢力均衡の原則を掲げたオーストリアの外相は？",
-    back: "メッテルニヒ",
+    id: "c10", year: 1812, difficulty: 2, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史", "ナポレオン"],
+    front: "ナポレオンのロシア遠征（1812年）の失敗後、ナポレオンの没落を決定づけた戦争と戦いは？",
+    back: "",
+    cloze: {
+      template: "大陸封鎖令に背いてイギリスとの貿易を再開したロシアに対し、ナポレオンは1812年に遠征したが、モスクワの大火と冬の寒さに阻まれて大敗した。これを機に各国で{{1}}が起こり、1813年の{{2}}（諸国民戦争）に敗れたナポレオンは、翌1814年に退位した。",
+      slots: [
+        { id: 1, answer: "解放戦争", category: "戦争" },
+        { id: 2, answer: "ライプツィヒの戦い", category: "戦い" },
+      ],
+      points: [
+        { label: "原因", text: "大陸封鎖令はイギリスへ穀物を輸出していたロシアなど大陸諸国の経済を圧迫し、各地で反発を招いた" },
+        { label: "経過", text: "約60万の大陸軍がモスクワを占領したが、ロシア側の焦土戦術で補給を断たれ、撤退中に大半の兵を失った" },
+        { label: "意義", text: "ナポレオン支配への抵抗を通じて、プロイセンなど各地で国民意識（ナショナリズム）が高まった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Napoleons_retreat_from_Moscow_by_Adolph_Northen.jpg/960px-Napoleons_retreat_from_Moscow_by_Adolph_Northen.jpg",
+        caption: "ノルテン「モスクワからのナポレオンの退却」（1851年）",
+        alt: "雪原を白馬で進むナポレオンと、凍えながら歩く兵士たち。足元には倒れた兵士が横たわる",
+        credit: "Napoleons Rückzug aus Moskau／Adolph Northen（1851年）, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：約60万の大陸軍のうち、ロシアから生きて帰還できたのは数万人ともいわれる。退位したナポレオンは地中海のエルバ島の領主として送られた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ロシア戦役",
+  },
+  {
+    id: "c12", year: 1815, difficulty: 3, era: "近代（市民革命と国民国家）", region: "ドイツ連邦", theme: ["通史", "ナポレオン"],
+    front: "ウィーン会議を主導した人物と、会議の基本原則は？",
+    back: "",
+    cloze: {
+      template: "ナポレオン没落後のヨーロッパ秩序を話し合うウィーン会議は、オーストリア外相{{1}}が主導し、フランス代表タレーランが唱えた{{2}}（革命前の王朝と領土を正統とする原則）と勢力均衡を基本とした。",
+      slots: [
+        { id: 1, answer: "メッテルニヒ", category: "人物" },
+        { id: 2, answer: "正統主義", category: "原則" },
+      ],
+      points: [
+        { label: "原因", text: "革命とナポレオン戦争で大きく塗り替えられた国境と王朝を、どのように戻すかを決める必要があった" },
+        { label: "経過", text: "各国の利害が対立して交渉は難航したが、ナポレオンのエルバ島脱出を受けて1815年6月に議定書が調印された" },
+        { label: "意義", text: "ドイツ連邦やネーデルラント連合王国が成立し、正統主義と勢力均衡にもとづく保守的な国際秩序が築かれた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Afgevaardigden_op_het_Congres_van_Wenen%2C_1814-1815_Der_Wiener_Congress_1815._Sitzung_der_Bevollm%C3%A4chtigten_der_acht_an_dem_Tractate_von_Paris_betheiligten_M%C3%A4chte_%28titel_op_object%29%2C_RP-P-OB-87.274_%28cropped%29.jpg/960px-thumbnail.jpg",
+        caption: "イザベイ原画「ウィーン会議」（銅版画）",
+        alt: "大きなテーブルを囲み、各国の全権代表たちが立ったり座ったりして話し合う会議の様子",
+        credit: "Der Wiener Congress 1815／Jean-Baptiste Isabey原画の銅版画, Rijksmuseum, Wikimedia Commons・CC0",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Prince_Metternich_by_Lawrence.jpeg/960px-Prince_Metternich_by_Lawrence.jpeg",
+        caption: "ローレンス「メッテルニヒの肖像」（1815年）",
+        alt: "勲章を付けた礼装で赤い椅子に腰掛けるメッテルニヒの肖像",
+        credit: "Klemens von Metternich／Thomas Lawrence（1815年）, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "逸話：敗戦国フランスの代表タレーランは、「革命前の王朝こそ正統」という正統主義を掲げて列強の対立につけ込み、フランスを戦勝国と対等な立場で交渉に加わらせることに成功した。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ウィーン会議",
+  },
+  {
+    id: "c26", year: 1815, difficulty: 2, era: "近代（市民革命と国民国家）", region: "オーストリア帝国", theme: ["通史", "ナポレオン"],
+    front: "ウィーン会議の交渉が長引いた様子を皮肉った言葉と、会議の結果成立した国際体制は？",
+    back: "",
+    cloze: {
+      template: "ウィーン会議では各国の領土要求が対立して交渉が長引き、連日の舞踏会ばかりが目立ったことから「会議は{{1}}、されど進まず」と皮肉られた。それでも1815年6月に議定書が調印され、正統主義と勢力均衡にもとづく{{2}}が成立した。",
+      slots: [
+        { id: 1, answer: "踊る", category: "語句" },
+        { id: 2, answer: "ウィーン体制", category: "国際体制" },
+      ],
+      points: [
+        { label: "原因", text: "ロシアのポーランド領有やプロイセンのザクセン併合の要求をめぐって列強が対立し、議論がまとまらなかった" },
+        { label: "経過", text: "ナポレオンのエルバ島脱出の報を受けて各国が妥協を急ぎ、ワーテルローの戦いの直前に議定書が調印された" },
+        { label: "意義", text: "ウィーン体制は神聖同盟・四国同盟に支えられ、自由主義・ナショナリズムの運動を抑え込む保守的な国際秩序となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Der_Kongress-1814.jpg",
+        caption: "風刺画「会議」（1814〜1815年、作者不詳）",
+        alt: "地図を広げた卓を囲んでヨーロッパの分け前を話し合うロシア・オーストリア・プロイセンの君主と、窓の外の島から望遠鏡でのぞくナポレオン",
+        credit: "Der Congress／作者不詳（1814〜1815年）, Deutsches Historisches Museum, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Afgevaardigden_op_het_Congres_van_Wenen%2C_1814-1815_Der_Wiener_Congress_1815._Sitzung_der_Bevollm%C3%A4chtigten_der_acht_an_dem_Tractate_von_Paris_betheiligten_M%C3%A4chte_%28titel_op_object%29%2C_RP-P-OB-87.274_%28cropped%29.jpg/960px-thumbnail.jpg",
+        caption: "イザベイ原画「ウィーン会議」（銅版画）",
+        alt: "大きなテーブルを囲み、各国の全権代表たちが立ったり座ったりして話し合う会議の様子",
+        credit: "Der Wiener Congress 1815／Jean-Baptiste Isabey原画の銅版画, Rijksmuseum, Wikimedia Commons・CC0",
+      },
+    ],
+    anecdote: "豆知識：この言葉はオーストリアの老将軍リーニュ侯の皮肉とされる。1931年にはこの言葉を題名にしたドイツ映画『会議は踊る』が作られ、日本でもヒットした。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ウィーン会議",
   },
   {
     id: "c13", year: 1815, difficulty: 3, era: "近代（市民革命と国民国家）", region: "ネーデルラント連合王国", theme: ["通史"],
     front: "ウィーン会議で、オランダと旧オーストリア領ネーデルラント（現ベルギー）が統合されて成立した国家は？",
     back: "ネーデルラント連合王国（1830年にベルギーが分離独立するまで存続）",
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/William_I_of_the_Netherlands.jpg/960px-William_I_of_the_Netherlands.jpg",
+        caption: "パーリンク「ネーデルラント国王ウィレム1世の肖像」（1819年）",
+        alt: "白貂の毛皮の付いた赤い王衣をまとい、王冠を置いた卓の横に立つウィレム1世の全身像",
+        credit: "Portret van Willem I, koning der Nederlanden／Joseph Paelinck（1819年）, Rijksmuseum, Wikimedia Commons・Public domain",
+      },
+    ],
+  },
+  {
+    id: "c25", year: 1815, difficulty: 2, era: "近代（市民革命と国民国家）", region: "ネーデルラント連合王国", theme: ["通史", "ナポレオン"],
+    front: "エルバ島を脱出して復位したナポレオンの短い支配と、彼を最終的に破った人物は？",
+    back: "",
+    cloze: {
+      template: "1815年、エルバ島を脱出したナポレオンはパリに戻って皇帝に復位した（{{1}}）が、ワーテルローの戦いでイギリスの{{2}}とプロイセンのブリュッヘルが率いる連合軍に敗れ、南大西洋のセントヘレナ島へ流された。",
+      slots: [
+        { id: 1, answer: "百日天下", category: "出来事" },
+        { id: 2, answer: "ウェリントン", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "ウィーン会議で列強の対立が続き、復古したブルボン朝への不満もフランス国内で高まっていた" },
+        { label: "経過", text: "ナポレオンは各国軍の合流前に各個撃破を狙ったが、プロイセン軍の来援でイギリス軍を中心とする連合軍に敗れた" },
+        { label: "意義", text: "ナポレオン時代が完全に終わり、列強の協調のもとで約40年にわたる大国間の平和が続くことになった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Battle_of_Waterloo_1815.PNG/960px-Battle_of_Waterloo_1815.PNG",
+        caption: "サドラー「ワーテルローの戦い」（1815年）",
+        alt: "砲煙が立ちこめる平原で、騎兵と歩兵の大軍が入り乱れて戦う様子を俯瞰した油彩画",
+        credit: "The Battle of Waterloo／William Sadler（1815年）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Sir_Thomas_Lawrence_-_Arthur_Wellesley%2C_1st_Duke_of_Wellington_-_WM.1567-1948_-_Apsley_House.jpg/960px-Sir_Thomas_Lawrence_-_Arthur_Wellesley%2C_1st_Duke_of_Wellington_-_WM.1567-1948_-_Apsley_House.jpg",
+        caption: "ローレンス「ウェリントン公爵の肖像」（1815年頃）",
+        alt: "赤い軍服に勲章を付け、腕を組んで正面を見据えるウェリントン公爵の肖像",
+        credit: "Arthur Wellesley, 1st Duke of Wellington／Thomas Lawrence（1815年頃）, Apsley House, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：ワーテルローは当時ネーデルラント連合王国の領内（現在のベルギー）にあった。ナポレオンはセントヘレナ島で1821年に51歳で没した。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ワーテルローの戦い",
   },
   {
     id: "c14", year: 1871, difficulty: 2, era: "近代（市民革命と国民国家）", region: "ドイツ帝国", theme: ["通史"],
     front: "1871年、普仏戦争の勝利を経てドイツ帝国の成立が宣言された場所は？",
     back: "ヴェルサイユ宮殿の鏡の間",
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/A_v_Werner_-_Kaiserproklamation_am_18_Januar_1871_%283._Fassung_1885%29.jpg/960px-A_v_Werner_-_Kaiserproklamation_am_18_Januar_1871_%283._Fassung_1885%29.jpg",
+        caption: "アントン・フォン・ヴェルナー「ドイツ皇帝即位宣言」（1885年、第3版）",
+        alt: "ヴェルサイユ宮殿鏡の間の壇上に立つヴィルヘルム1世に、軍服姿の諸侯や将校が歓呼を送る場面",
+        credit: "Die Proklamierung des Deutschen Kaiserreiches／Anton von Werner（1885年）, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
     id: "c15", year: 1871, difficulty: 3, era: "近代（市民革命と国民国家）", region: "フランス", theme: ["通史"],
     front: "普仏戦争の敗北により、フランスがドイツ帝国に割譲した地域は？",
     back: "アルザス・ロレーヌ",
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/1887_Bettannier_Der_Schwarze_Fleck_anagoria.jpg/960px-1887_Bettannier_Der_Schwarze_Fleck_anagoria.jpg",
+        caption: "ベタニエ「黒い染み」（1887年）",
+        alt: "教室で教師が、フランス地図の上で黒く塗られたアルザス・ロレーヌを生徒に指し示す場面",
+        credit: "La Tache noire／Albert Bettannier（1887年）, Deutsches Historisches Museum, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
     id: "c16", year: 1871, difficulty: 2, era: "近代（市民革命と国民国家）", region: "イタリア王国", theme: ["通史"],
     front: "1871年、イタリア王国による統一の最終段階として編入された都市は？",
     back: "ローマ（教皇領を占領し、新首都とした）",
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Breccia_di_Porta_Pia_Ademollo.jpg/960px-Breccia_di_Porta_Pia_Ademollo.jpg",
+        caption: "アデモッロ「ポルタ・ピアの突破」（1880年）",
+        alt: "砲撃で崩れたローマの城壁の突破口へ、イタリア軍の兵士たちが突撃していく場面",
+        credit: "La breccia di Porta Pia／Carlo Ademollo（1880年）, Wikimedia Commons・Public domain",
+      },
+    ],
   },
 ];
 
