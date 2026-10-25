@@ -17,6 +17,8 @@ import {
   RIVERS,
   SEA_LABELS,
   REGION_BLURB,
+  ANCIENT_CIVILIZATIONS_MAP,
+  ANCIENT_EMPIRES_MAP,
 } from './data/historyData';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
@@ -1874,7 +1876,14 @@ function swallowNextClick() {
   setTimeout(() => window.removeEventListener("click", handler, { capture: true }), 400);
 }
 
-function CardImages({ images, index, onIndexChange, height, showCredit = false }) {
+// キャプション・代替テキストに含まれる答えの語句を伏せ字にする（表面でのネタバレ防止）。
+// 短い語句が長い語句の一部として先に置換されないよう、長いものから順に置き換える
+function maskAnswers(text, words) {
+  if (!text || !words?.length) return text;
+  return [...words].sort((a, b) => b.length - a.length).reduce((t, w) => (w ? t.split(w).join("〔？〕") : t), text);
+}
+
+function CardImages({ images, index, onIndexChange, height, showCredit = false, maskWords }) {
   const [failed, setFailed] = useState(() => new Set()); // 読み込みに失敗した画像のURL（一覧から除外する）
   const [dragDx, setDragDx] = useState(0); // スワイプ中の横移動量（画像を指に追従させる）
   const dragRef = useRef(null); // { id, x, y, axis: null | "x" | "y" }
@@ -1882,6 +1891,8 @@ function CardImages({ images, index, onIndexChange, height, showCredit = false }
   if (visible.length === 0) return null;
   const activeIndex = Math.min(index, visible.length - 1);
   const current = visible[activeIndex];
+  const caption = maskAnswers(current.caption, maskWords);
+  const alt = maskAnswers(current.alt || current.caption || "", maskWords);
   const multi = visible.length > 1;
   // ドット操作がカード本体のタップ（表裏の反転）に伝播しないよう止める
   const stop = (e) => e.stopPropagation();
@@ -1942,7 +1953,7 @@ function CardImages({ images, index, onIndexChange, height, showCredit = false }
         <img
           key={current.url}
           src={current.url}
-          alt={current.alt || current.caption || ""}
+          alt={alt}
           draggable={false}
           className="max-w-full max-h-full object-contain rounded-sm"
           style={{
@@ -1978,9 +1989,9 @@ function CardImages({ images, index, onIndexChange, height, showCredit = false }
           ))}
         </div>
       )}
-      {current.caption && (
+      {caption && (
         <figcaption className={`font-body text-[11px] leading-snug text-center ${visible.length > 1 ? "" : "mt-1.5"}`} style={{ color: "#7A6A4E" }}>
-          {current.caption}
+          {caption}
         </figcaption>
       )}
       {showCredit && current.credit && (
@@ -2245,7 +2256,8 @@ function StudyStage({
               <FavButton active={isFavorite} onClick={onToggleFavorite} />
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto my-3 pr-1">
-              <CardImages key={card.id} images={card.images} index={imageIndex} onIndexChange={setImageIndex} height={136} />
+              {/* 表面では、穴埋めの答えがキャプションに含まれていれば伏せる（裏面ではそのまま表示） */}
+              <CardImages key={card.id} images={card.images} index={imageIndex} onIndexChange={setImageIndex} height={136} maskWords={card.cloze?.slots.map((s) => s.answer)} />
               {card.cloze ? (
                 <ClozeFront cloze={card.cloze} tooltipArmed={tooltipArmed} onTooltipDismiss={onTooltipDismiss} />
               ) : (
@@ -3015,8 +3027,15 @@ const REVOLUTIONS_BLURB = {
 /* GEO_FRAMEWORK_DATA_END:revolutions */
 
 const ERA_PERIODS = [
-  { id: "ancient-civilizations", label: "古代文明の成立と地域世界", yearRange: [-3000, -500], hasContent: false },
-  { id: "ancient-empires", label: "古代帝国の時代", yearRange: [-500, 500], hasContent: false },
+  // 古代の2区分は historyData.js の ANCIENT_*_MAP（経度・緯度から投影した勢力・都市・河川）を展開して使う
+  {
+    id: "ancient-civilizations", label: "古代文明の成立と地域世界", yearRange: [-3000, -500],
+    hasContent: true, contentRange: [-3000, -500], ...ANCIENT_CIVILIZATIONS_MAP,
+  },
+  {
+    id: "ancient-empires", label: "古代帝国の時代", yearRange: [-500, 500],
+    hasContent: true, contentRange: [-500, 500], ...ANCIENT_EMPIRES_MAP,
+  },
   { id: "medieval-1", label: "中世①：イスラームの拡大と欧州再編", yearRange: [500, 1000], hasContent: false },
   { id: "medieval-2", label: "中世②：ユーラシアの再編とモンゴル", yearRange: [1000, 1500], hasContent: false },
   {
@@ -3042,11 +3061,12 @@ function getActiveEraPeriod(year) {
   return ERA_PERIODS.find((p) => year >= p.yearRange[0] && year <= p.yearRange[1]) || null;
 }
 
-// 年代 → ERAS_DATAの時代ID。地図の時代区分にカードデータ（ERAS_DATA）が紐づいていなければnull
+// 年代 → ERAS_DATAの時代ID。地図の時代区分にカードデータ（ERAS_DATA）が紐づいていなければnull。
+// mapPeriodIdは文字列のほか、複数の時代区分にまたがる時代（古代など）では配列も指定できる
 function findEraIdByYear(year) {
   const period = getActiveEraPeriod(year);
   if (!period) return null;
-  const era = Object.values(ERAS_DATA).find((e) => e.mapPeriodId === period.id);
+  const era = Object.values(ERAS_DATA).find((e) => [].concat(e.mapPeriodId).includes(period.id));
   return era ? era.id : null;
 }
 
@@ -3315,7 +3335,7 @@ function EraScrubber({ value, onChange, keyYears }) {
                   background: "transparent", border: "1px solid #3A4356", color: "#8A93A6",
                 }}
               >
-                {y}年
+                {formatYear(y)}
               </button>
             );
           })
@@ -3739,7 +3759,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   const periodRegions = activePeriod?.regionsByYear
     ? activePeriod.regionsByYear(year)
     : activePeriod?.regions ?? [];
-  const periodBackground = activePeriod?.background ?? [];
+  const periodBackground = activePeriod?.backgroundByYear ? activePeriod.backgroundByYear(year) : activePeriod?.background ?? [];
   const periodCapitals = activePeriod?.capitalsByYear ? activePeriod.capitalsByYear(year) : activePeriod?.capitals ?? [];
   const periodRivers = activePeriod?.riversByYear ? activePeriod.riversByYear(year) : activePeriod?.rivers ?? [];
   const periodSeaLabels = activePeriod?.seaLabelsByYear ? activePeriod.seaLabelsByYear(year) : activePeriod?.seaLabels ?? [];
@@ -3826,7 +3846,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
             <p className="font-display text-base mt-3" style={{ color: "#EFE3C8" }}>
               {formatYear(year)}{activePeriod ? `（${activePeriod.label}）` : ""}の勢力図データは準備中です
             </p>
-            <p className="font-body text-xs mt-2" style={{ color: "#8A93A6" }}>現在は近世ヨーロッパ（1550〜1700年）のみ対応しています</p>
+            <p className="font-body text-xs mt-2" style={{ color: "#8A93A6" }}>現在対応している時代：{ERA_PERIODS.filter((p) => p.hasContent).map((p) => p.label).join("、")}</p>
             <button
               onClick={() => changeYear(1648)}
               className="mt-5 font-body text-sm rounded-full px-5 py-2"
@@ -4048,12 +4068,23 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                         const dx = dir === "l" || dir === "tl" || dir === "bl" ? -3 : dir === "t" || dir === "b" ? 0 : 3;
                         const dy = dir === "t" || dir === "tl" ? -2.5 : dir === "b" || dir === "bl" || dir === "br" ? 3 : 1;
                         const anchor = dx < 0 ? "end" : dx === 0 ? "middle" : "start";
+                        // region を持つ都市（古代など）はタップでその勢力の詳細＝該当カードを開く。持たない都市は従来どおり装飾
+                        const tappable = !!c.region;
                         return (
                           <g
                             key={c.name}
                             transform={`translate(${c.x},${c.y}) scale(${1 / panZoom.zoom}) translate(${-c.x},${-c.y})`}
-                            style={{ opacity: cityOpacity, transition: "opacity 0.3s ease", pointerEvents: "none" }}
+                            style={{ opacity: cityOpacity, transition: "opacity 0.3s ease", pointerEvents: tappable ? "auto" : "none", cursor: tappable ? "pointer" : undefined, outline: "none" }}
+                            {...(tappable && {
+                              onClick: () => openRegion(c.region),
+                              role: "button",
+                              tabIndex: 0,
+                              "aria-label": `${c.name}（${c.region}）の詳細を見る`,
+                              onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openRegion(c.region); } },
+                            })}
                           >
+                            {/* 指で押しやすいよう、見た目より大きい透明の当たり判定を敷く */}
+                            {tappable && <circle cx={c.x} cy={c.y} r="6" fill="transparent" />}
                             <circle cx={c.x} cy={c.y} r="1.6" fill="none" stroke="#F1F5F9" strokeOpacity="0.85" strokeWidth="0.6" />
                             <text
                               x={c.x + dx} y={c.y + dy}
