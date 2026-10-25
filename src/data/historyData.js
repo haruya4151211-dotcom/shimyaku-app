@@ -1,14 +1,38 @@
+// ---------------------------------------------------------------------------
+// カード画像（image）の選定方針
+// - 学校の世界史資料集に載っているような、ひと目で場面や人物が分かる「象徴的資料」を優先する
+//   （有名な絵画・肖像画・風刺画・版画、または日本語表記／要素を絞ったシンプルな地図）。
+// - 文字で埋め尽くされた細かい地図、外国語（ペルシャ語・アラビア語など）表記の地図、
+//   スマホ幅で縮小すると判読できない高密度の図版は採用しない。
+// - 画像は著作権の切れたもの（Public domain／CC0）または CC BY-SA 等の再利用可能なライセンスに限り、
+//   credit に「作品名／作者（制作年）, 出典・ライセンス」を必ず記載する。
+// - データ構造は images: [{ url, caption, alt, credit }] の配列。caption はカード上で画像直下に表示する
+//   「何の資料・絵画か」の短い説明（例：「テル・ボルフ『ミュンスター講和条約の批准』（1648年）」）、
+//   alt は画面読み上げ用の情景説明。2枚以上あるとドットインジケーターで切り替えられる。
+// - Wikimedia Commons の画像は原寸ではなく幅960pxのサムネイルURL（.../thumb/.../960px-ファイル名）を使う。
+//   原寸は数千px・数MBに及ぶことがあり、また960px以外の任意幅のサムネイルはエラーになる場合がある。
+// ---------------------------------------------------------------------------
+
 // 三十年戦争〜ウェストファリア体制（近世）のカード
 export const THIRTY_YEARS_WAR_CARDS = [
   {
     id: "c1", year: 1648, difficulty: 0, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
     front: "1648年に三十年戦争を終結させた条約は？",
     back: "ウェストファリア条約",
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/e/ea/Holy_Roman_Empire_1648.png",
-      alt: "1648年時点の神聖ローマ帝国の領邦分立を示す地図",
-      credit: "Holy Roman Empire, 1648／Astrokey44, Wikimedia Commons・CC BY-SA 3.0",
-    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Der_Friedensreiter_von_M%C3%BCnster.JPG/960px-Der_Friedensreiter_von_M%C3%BCnster.JPG",
+        caption: "「ミュンスターの平和の使者」（1648年頃の木版画）",
+        alt: "ウェストファリア条約締結の報せを告げて駆ける「平和の使者」を描いた1648年の木版画",
+        credit: "Der Friedensreiter von Münster／作者不詳（1648年頃）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg/960px-Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg",
+        caption: "テル・ボルフ「ミュンスター講和条約の批准」（1648年）",
+        alt: "ミュンスター講和条約の批准式に臨む各国使節（テル・ボルフ画、1648年）",
+        credit: "The Ratification of the Treaty of Münster／Gerard ter Borch（1648年）, Wikimedia Commons・Public domain",
+      },
+    ],
     anecdote: "豆知識：交渉は戦時下での移動を伴い、約5年もの歳月を要した。当時としては異例の長期和平交渉だった。",
     anecdoteLink: "https://en.wikipedia.org/wiki/Peace_of_Westphalia",
   },
@@ -16,11 +40,14 @@ export const THIRTY_YEARS_WAR_CARDS = [
     id: "c2", year: 1644, difficulty: 1, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
     front: "三十年戦争の講和交渉が行われた2都市は？",
     back: "オスナブリュックとミュンスター（プロテスタント側とカトリック側で交渉地を分けて同時進行した）",
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/e/ea/Holy_Roman_Empire_1648.png",
-      alt: "1648年時点の神聖ローマ帝国の領邦分立を示す地図",
-      credit: "Holy Roman Empire, 1648／Astrokey44, Wikimedia Commons・CC BY-SA 3.0",
-    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/EinzugdesGesandten_AdriaenPauw.jpg/960px-EinzugdesGesandten_AdriaenPauw.jpg",
+        caption: "テル・ボルフほか「オランダ使節パウのミュンスター入城」",
+        alt: "講和会議の開催地ミュンスターへ入城するオランダ使節アドリアーン・パウの一行（ミュンスターの街並みを遠望）",
+        credit: "Der Einzug des Gesandten Adriaen Pauw in Münster／Gerard ter Borch ほか, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
     id: "c3", year: 1648, difficulty: 2, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
@@ -38,11 +65,14 @@ export const THIRTY_YEARS_WAR_CARDS = [
         { label: "意義", text: "神聖ローマ帝国は事実上、多数の主権的領邦からなる緩やかな連合体へ近づいた" },
       ],
     },
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/e/ea/Holy_Roman_Empire_1648.png",
-      alt: "1648年時点の神聖ローマ帝国の領邦分立を示す地図",
-      credit: "Holy Roman Empire, 1648／Astrokey44, Wikimedia Commons・CC BY-SA 3.0",
-    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Jan_van_den_Hoecke_-_Portrait_of_Emperor_Ferdinand_III.jpg/960px-Jan_van_den_Hoecke_-_Portrait_of_Emperor_Ferdinand_III.jpg",
+        caption: "神聖ローマ皇帝フェルディナント3世（ファン・デン・フッケ画、1643年）",
+        alt: "ウェストファリア条約締結時の神聖ローマ皇帝フェルディナント3世の肖像",
+        credit: "Portrait of Emperor Ferdinand III／Jan van den Hoecke（1643年）, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
     id: "c4", year: 1648, difficulty: 3, era: "近世（15〜18世紀）", region: "ヨーロッパ全域", theme: ["通史"],
@@ -60,11 +90,14 @@ export const THIRTY_YEARS_WAR_CARDS = [
         { label: "意義", text: "「ウェストファリア体制」と呼ばれる近代国際関係の出発点となった" },
       ],
     },
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Map_of_Europe_1648_FA.png",
-      alt: "1648年時点のヨーロッパの勢力図",
-      credit: "Map of Europe 1648／Wikimedia Commons",
-    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg/960px-Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg",
+        caption: "テル・ボルフ「ミュンスター講和条約の批准」（1648年）",
+        alt: "ミュンスター講和条約の批准式に臨む各国使節（テル・ボルフ画、1648年）",
+        credit: "The Ratification of the Treaty of Münster／Gerard ter Borch（1648年）, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
     id: "c5", year: 1650, difficulty: 4, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
@@ -82,11 +115,14 @@ export const THIRTY_YEARS_WAR_CARDS = [
         { label: "意義", text: "領邦ごとの統治強化は、後の絶対主義国家の基盤となった" },
       ],
     },
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/e/ea/Holy_Roman_Empire_1648.png",
-      alt: "1648年時点の神聖ローマ帝国の領邦分立を示す地図",
-      credit: "Holy Roman Empire, 1648／Astrokey44, Wikimedia Commons・CC BY-SA 3.0",
-    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Les_mis%C3%A8res_et_les_malheurs_de_la_guerre_-_11_-_La_pendaison.png/960px-Les_mis%C3%A8res_et_les_malheurs_de_la_guerre_-_11_-_La_pendaison.png",
+        caption: "カロ『戦争の惨禍』より「絞首刑」（1633年）",
+        alt: "三十年戦争下の兵士の略奪と処刑を描いたカロの版画連作『戦争の惨禍』より「絞首刑」",
+        credit: "Les Grandes Misères de la guerre「絞首刑」／Jacques Callot（1633年）, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
     id: "c6", year: 1660, difficulty: 5, era: "近世（15〜18世紀）", region: "ヨーロッパ全域", theme: ["通史"],
@@ -104,11 +140,14 @@ export const THIRTY_YEARS_WAR_CARDS = [
         { label: "意義", text: "宗教的統一ではなく主権国家間の勢力均衡を秩序原理とする、近代国際関係の起点となった" },
       ],
     },
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Map_of_Europe_1648_FA.png",
-      alt: "1648年時点のヨーロッパの勢力図",
-      credit: "Map of Europe 1648／Wikimedia Commons",
-    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Prager.Fenstersturz.1618.jpg/960px-Prager.Fenstersturz.1618.jpg",
+        caption: "プラハ窓外放出事件（1618年）を描いた銅版画",
+        alt: "三十年戦争の発端となった1618年のプラハ窓外放出事件を描いた銅版画",
+        credit: "Prager Fenstersturz 1618／Johann Philipp Abelinus『Theatrum Europaeum』所収, Wikimedia Commons・Public domain",
+      },
+    ],
     anecdote: "現代との繋がり：内政不干渉・主権平等の原則は、現在の国連憲章にも通じる国際関係の基本原則として残っている。",
     anecdoteLink: "https://en.wikipedia.org/wiki/Westphalian_sovereignty",
   },
@@ -123,11 +162,20 @@ export const THIRTY_YEARS_WAR_CARDS = [
     id: "c8", year: 1648, difficulty: 1, era: "近世（15〜18世紀）", region: "オランダ", theme: ["通史", "ハプスブルク家の歴史"],
     front: "ウェストファリア条約で国際的に独立が承認された国は？",
     back: "オランダ（ネーデルラント連邦共和国）とスイス",
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Map_of_Europe_1648_FA.png",
-      alt: "1648年時点のヨーロッパの勢力図（オランダの独立を含む）",
-      credit: "Map of Europe 1648／Wikimedia Commons",
-    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg/960px-Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg",
+        caption: "テル・ボルフ「ミュンスター講和条約の批准」（1648年）",
+        alt: "スペインがオランダの独立を承認したミュンスター講和条約の批准式（テル・ボルフ画、1648年）",
+        credit: "The Ratification of the Treaty of Münster／Gerard ter Borch（1648年）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/EinzugdesGesandten_AdriaenPauw.jpg/960px-EinzugdesGesandten_AdriaenPauw.jpg",
+        caption: "テル・ボルフほか「オランダ使節パウのミュンスター入城」",
+        alt: "講和会議に臨むためミュンスターへ入城するオランダ使節アドリアーン・パウの一行",
+        credit: "Der Einzug des Gesandten Adriaen Pauw in Münster／Gerard ter Borch ほか, Wikimedia Commons・Public domain",
+      },
+    ],
   },
   {
     id: "c9", year: 1648, difficulty: 4, era: "近世（15〜18世紀）", region: "ヨーロッパ全域", theme: ["通史"],

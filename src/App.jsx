@@ -1859,6 +1859,137 @@ function ClozeFront({ cloze, tooltipArmed, onTooltipDismiss }) {
 }
 
 
+// 問題カードの資料画像。画像全体をアスペクト比を保ったまま枠内に収め（トリミングしない）、直下に
+// 「何の資料・絵画か」を示すキャプションを控えめに表示する。2枚以上ある場合はドットインジケーターで切り替える。
+// 表・裏で同じ資料を見せ続けられるよう、表示中の番号（index）は親のStudyStageが持つ。
+// 画像エリアの左右スワイプ（マウスのドラッグも可）でも切り替えられる
+const IMAGE_SWIPE_THRESHOLD = 40; // これ以上横に動かして離したら前後の資料へ切り替える（px）
+const IMAGE_SWIPE_AXIS_LOCK = 8; // 縦スクロールか横スワイプかを判定し始める最小移動量（px）
+
+// スワイプ直後に発生するclickを1回だけ握りつぶす。ポインターキャプチャ中に画像エリアの外で指を離すと、
+// clickがカード本体で発火して表裏が反転してしまうため、Reactのイベント委譲より先にwindowのキャプチャ段階で止める
+function swallowNextClick() {
+  const handler = (e) => { e.stopPropagation(); e.preventDefault(); };
+  window.addEventListener("click", handler, { capture: true, once: true });
+  setTimeout(() => window.removeEventListener("click", handler, { capture: true }), 400);
+}
+
+function CardImages({ images, index, onIndexChange, height, showCredit = false }) {
+  const [failed, setFailed] = useState(() => new Set()); // 読み込みに失敗した画像のURL（一覧から除外する）
+  const [dragDx, setDragDx] = useState(0); // スワイプ中の横移動量（画像を指に追従させる）
+  const dragRef = useRef(null); // { id, x, y, axis: null | "x" | "y" }
+  const visible = (images || []).filter((img) => !failed.has(img.url));
+  if (visible.length === 0) return null;
+  const activeIndex = Math.min(index, visible.length - 1);
+  const current = visible[activeIndex];
+  const multi = visible.length > 1;
+  // ドット操作がカード本体のタップ（表裏の反転）に伝播しないよう止める
+  const stop = (e) => e.stopPropagation();
+
+  const onPointerDown = (e) => {
+    if (!multi || (e.pointerType === "mouse" && e.button !== 0)) return;
+    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY, axis: null };
+  };
+  const onPointerMove = (e) => {
+    const d = dragRef.current;
+    if (!d || d.id !== e.pointerId) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (!d.axis) {
+      if (Math.abs(dx) < IMAGE_SWIPE_AXIS_LOCK && Math.abs(dy) < IMAGE_SWIPE_AXIS_LOCK) return;
+      d.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      if (d.axis === "x") e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    if (d.axis !== "x") return;
+    // 先頭でさらに右・末尾でさらに左へ引いた場合は、抵抗をつけて少しだけ動かす
+    const atEdge = (dx > 0 && activeIndex === 0) || (dx < 0 && activeIndex === visible.length - 1);
+    setDragDx(atEdge ? dx / 3 : dx);
+  };
+  const onPointerUp = (e) => {
+    const d = dragRef.current;
+    if (!d || d.id !== e.pointerId) return;
+    dragRef.current = null;
+    setDragDx(0);
+    if (d.axis !== "x") return;
+    swallowNextClick();
+    const dx = e.clientX - d.x;
+    if (dx <= -IMAGE_SWIPE_THRESHOLD && activeIndex < visible.length - 1) onIndexChange(activeIndex + 1);
+    else if (dx >= IMAGE_SWIPE_THRESHOLD && activeIndex > 0) onIndexChange(activeIndex - 1);
+  };
+  // 縦スクロールが始まるとブラウザがpointercancelを送るので、切り替えずに元の位置へ戻す
+  const onPointerCancel = () => {
+    dragRef.current = null;
+    setDragDx(0);
+  };
+
+  return (
+    <figure className="mb-3">
+      {/* 複数資料のときは、画像エリア上のタップ・スワイプでカードが反転しないようclickを止める
+          （1枚だけのカードは従来どおり画像をタップしても反転する）。縦方向の指の動きはスクロールに譲る */}
+      <div
+        className="w-full rounded-md flex items-center justify-center p-1.5 overflow-hidden select-none"
+        onClick={multi ? stop : undefined}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
+        style={{
+          height, background: "#E3D6B4", boxShadow: "inset 0 0 0 1px rgba(122,106,78,0.18)",
+          touchAction: multi ? "pan-y" : undefined,
+          cursor: multi ? (dragDx ? "grabbing" : "grab") : undefined,
+        }}
+      >
+        <img
+          key={current.url}
+          src={current.url}
+          alt={current.alt || current.caption || ""}
+          draggable={false}
+          className="max-w-full max-h-full object-contain rounded-sm"
+          style={{
+            boxShadow: "0 2px 8px rgba(0,0,0,0.22)",
+            transform: `translateX(${dragDx}px)`,
+            transition: dragDx ? "none" : "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+          loading="lazy"
+          onError={() => setFailed((prev) => new Set(prev).add(current.url))}
+        />
+      </div>
+      {visible.length > 1 && (
+        <div className="flex items-center justify-center mt-1" onClick={stop} onKeyDown={stop}>
+          {visible.map((img, i) => (
+            <button
+              key={img.url}
+              type="button"
+              onClick={() => onIndexChange(i)}
+              aria-label={`資料${i + 1}／${visible.length}を表示`}
+              aria-current={i === activeIndex}
+              className="p-1.5"
+              style={{ background: "transparent", border: "none" }}
+            >
+              <span
+                className="block rounded-full"
+                style={{
+                  width: i === activeIndex ? 14 : 6, height: 6,
+                  background: i === activeIndex ? "#8C2F2F" : "rgba(122,106,78,0.35)",
+                  transition: "width 0.2s ease, background 0.2s ease",
+                }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
+      {current.caption && (
+        <figcaption className={`font-body text-[11px] leading-snug text-center ${visible.length > 1 ? "" : "mt-1.5"}`} style={{ color: "#7A6A4E" }}>
+          {current.caption}
+        </figcaption>
+      )}
+      {showCredit && current.credit && (
+        <p className="font-body text-[10px] leading-snug text-center mt-0.5" style={{ color: "#9B8A63" }}>出典：{current.credit}</p>
+      )}
+    </figure>
+  );
+}
+
 function ClozeBack({ cloze }) {
   const parts = cloze.template.split(/(\{\{\d+\}\})/g);
   return (
@@ -1900,6 +2031,10 @@ function StudyStage({
   const [diffDir, setDiffDir] = useState("asc");
   const [showSyncToast, setShowSyncToast] = useState(false);
   const [pulseId, setPulseId] = useState(null);
+  // 表示中の資料画像の番号。カードが変わったら（cardIdが一致しなくなったら）先頭の資料に戻す
+  const [imageState, setImageState] = useState({ cardId: card.id, index: 0 });
+  const imageIndex = imageState.cardId === card.id ? imageState.index : 0;
+  const setImageIndex = (i) => setImageState({ cardId: card.id, index: i });
   const toastTimer = useRef(null);
   const pulseTimer = useRef(null);
 
@@ -2110,16 +2245,7 @@ function StudyStage({
               <FavButton active={isFavorite} onClick={onToggleFavorite} />
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto my-3 pr-1">
-              {card.image && (
-                <img
-                  src={card.image.url}
-                  alt={card.image.alt}
-                  className="w-full h-32 object-cover rounded-md mb-3"
-                  style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.25)" }}
-                  loading="lazy"
-                  onError={(e) => { e.currentTarget.style.display = "none"; }}
-                />
-              )}
+              <CardImages key={card.id} images={card.images} index={imageIndex} onIndexChange={setImageIndex} height={136} />
               {card.cloze ? (
                 <ClozeFront cloze={card.cloze} tooltipArmed={tooltipArmed} onTooltipDismiss={onTooltipDismiss} />
               ) : (
@@ -2146,23 +2272,11 @@ function StudyStage({
               <FavButton active={isFavorite} onClick={onToggleFavorite} />
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto my-2 pr-1">
-              {card.image && (
-                <img
-                  src={card.image.url}
-                  alt={card.image.alt}
-                  className="w-full h-28 object-cover rounded-md mb-3"
-                  style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.25)" }}
-                  loading="lazy"
-                  onError={(e) => { e.currentTarget.style.display = "none"; }}
-                />
-              )}
+              <CardImages key={card.id} images={card.images} index={imageIndex} onIndexChange={setImageIndex} height={112} showCredit />
               {card.cloze ? (
                 <ClozeBack cloze={card.cloze} />
               ) : (
                 <p className="font-body text-base leading-relaxed" style={{ color: "#2A2118" }}>{card.back}</p>
-              )}
-              {card.image?.credit && (
-                <p className="font-body text-[10px] mt-1.5" style={{ color: "#9B8A63" }}>出典：{card.image.credit}</p>
               )}
               {card.anecdote && (
                 <div className="mt-3">
