@@ -1,6 +1,5 @@
 import {
   ERAS_DATA,
-  CARDS,
   MAP_YEARS,
   WORLD_LAND_PATH,
   HRE_POINTS_1618,
@@ -28,6 +27,23 @@ import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, Chevr
 
 
 const BOX_INTERVAL_DAYS = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 };
+
+// 全時代のカードを横断した一覧（お気に入り・時代フィルターの選択肢など、時代をまたぐ箇所で使う）
+const ALL_CARDS = Object.values(ERAS_DATA).flatMap((e) => e.cards);
+// 時代区分ラベル（カードのera）の一覧。出題フィルターの「時代」チップは全時代分を並べる
+const ALL_ERA_LABELS = [...new Set(ALL_CARDS.map((c) => c.era))];
+
+// カードのera（時代区分ラベル）→ ERAS_DATAの時代ID
+function findEraIdByLabel(label) {
+  const era = Object.values(ERAS_DATA).find((e) => e.cards.some((c) => c.era === label));
+  return era ? era.id : null;
+}
+
+// カードID → そのカードを収録しているERAS_DATAの時代ID
+function findEraIdByCardId(cardId) {
+  const era = Object.values(ERAS_DATA).find((e) => e.cards.some((c) => c.id === cardId));
+  return era ? era.id : null;
+}
 const DIFF_BAND = (d) => (d <= 1 ? "基礎" : d <= 3 ? "早慶標準" : "東大論述");
 
 // 検索の表記揺れ吸収：全角英数字→半角、全角スペース→半角、カタカナ→ひらがな、大文字→小文字
@@ -202,9 +218,20 @@ export default function App() {
     return () => clearTimeout(t);
   }, [draftSearch]);
 
-  const allThemes = useMemo(() => [...new Set(CARDS.flatMap((c) => c.theme))], []);
-  const allRegions = useMemo(() => [...new Set(CARDS.map((c) => c.region))], []);
-  const allEras = useMemo(() => [...new Set(CARDS.map((c) => c.era))], []);
+  // 出題フィルターで時代チップを選ぶと、決定前でもその時代のデータセットでテーマ・地域・件数をプレビューする。
+  // 複数の時代にまたがって選ばれた場合は最初に選ばれた時代を優先する
+  const draftEraId = useMemo(() => {
+    for (const label of draftEras) {
+      const id = findEraIdByLabel(label);
+      if (id) return id;
+    }
+    return selectedEraId;
+  }, [draftEras, selectedEraId]);
+  const draftCards = (ERAS_DATA[draftEraId] || currentEra).cards;
+
+  const allThemes = useMemo(() => [...new Set(draftCards.flatMap((c) => c.theme))], [draftCards]);
+  const allRegions = useMemo(() => [...new Set(draftCards.map((c) => c.region))], [draftCards]);
+  const allEras = ALL_ERA_LABELS;
 
   const filteredCards = useMemo(() => {
     const q = normalizeSearchText(debouncedQuery).trim();
@@ -212,18 +239,18 @@ export default function App() {
     return CARDS.filter((c) => matchesFilters(c, {
       selectedThemes, selectedRegions, selectedEras, modeFilter, diffMin, diffMax, favOnly, favorites, queryTokens,
     }));
-  }, [selectedThemes, selectedRegions, selectedEras, modeFilter, diffMin, diffMax, favOnly, favorites, debouncedQuery]);
+  }, [CARDS, selectedThemes, selectedRegions, selectedEras, modeFilter, diffMin, diffMax, favOnly, favorites, debouncedQuery]);
 
   // ボトムシート内の決定ボタンに表示するライブプレビュー件数（ドラフト条件ベース）
   const draftResultCount = useMemo(() => {
     const q = normalizeSearchText(draftDebouncedSearch).trim();
     const queryTokens = q ? q.split(/\s+/).filter(Boolean) : [];
-    return CARDS.filter((c) => matchesFilters(c, {
+    return draftCards.filter((c) => matchesFilters(c, {
       selectedThemes: draftThemes, selectedRegions: draftRegions, selectedEras: draftEras,
       modeFilter: draftMode, diffMin: draftDiffMin, diffMax: draftDiffMax, favOnly: draftFavOnly,
       favorites, queryTokens,
     })).length;
-  }, [draftThemes, draftRegions, draftEras, draftMode, draftDiffMin, draftDiffMax, draftFavOnly, favorites, draftDebouncedSearch]);
+  }, [draftCards, draftThemes, draftRegions, draftEras, draftMode, draftDiffMin, draftDiffMax, draftFavOnly, favorites, draftDebouncedSearch]);
 
   const startSession = useCallback(() => {
     setQueue(filteredCards.map((c) => c.id));
@@ -241,7 +268,7 @@ export default function App() {
     if (sessionDone || queue.length === 0) return null;
     const id = queue[index];
     return CARDS.find((c) => c.id === id) || null;
-  }, [queue, index, sessionDone]);
+  }, [CARDS, queue, index, sessionDone]);
 
   const toggleDraftSet = (setter, current, value) => {
     const next = new Set(current);
@@ -297,6 +324,8 @@ export default function App() {
     setDiffMax(draftDiffMax);
     setFavOnly(draftFavOnly);
     setActivePresetId(draftActivePresetId);
+    // 時代チップで別の時代を選んでいれば、カード・地図データごとその時代へ切り替える
+    if (draftEraId !== selectedEraId) setSelectedEraId(draftEraId);
     setFilterOpen(false);
   };
 
@@ -330,6 +359,9 @@ export default function App() {
   };
 
   const jumpToCard = (id) => {
+    // 別の時代のカード（お気に入りなど）へ飛ぶ場合は、そのカードを収録する時代へ切り替える
+    const eraId = findEraIdByCardId(id);
+    if (eraId && eraId !== selectedEraId) setSelectedEraId(eraId);
     setQueue([id]);
     setIndex(0);
     setFlipped(false);
@@ -365,6 +397,17 @@ export default function App() {
     setTooltipShown(false);
     setView("study");
   };
+
+  // 地図（年代シークバー・勢力タップ）からの時代切り替え。テーマ・地域などの条件は時代ごとのデータに
+  // 依存するためリセットする（条件のSetが更新されるので、startSessionのeffectで新しい時代のカードからセッションを組み直す）
+  const switchEra = useCallback((eraId) => {
+    if (!ERAS_DATA[eraId] || eraId === selectedEraId) return;
+    setSelectedEraId(eraId);
+    setSelectedThemes(new Set());
+    setSelectedRegions(new Set());
+    setSelectedEras(new Set());
+    setActivePresetId(null);
+  }, [selectedEraId]);
 
   const studyByRegion = (region) => {
     setSelectedRegions(new Set([region]));
@@ -427,7 +470,14 @@ export default function App() {
             onStartAll={startFavoritesSession}
           />
         ) : view === "map" ? (
-          <MapView onStudyRegion={studyByRegion} onStudyTheme={studyByTheme} onJumpToCard={jumpToCard} />
+          <MapView
+            cards={CARDS}
+            selectedEraId={selectedEraId}
+            onSelectEra={switchEra}
+            onStudyRegion={studyByRegion}
+            onStudyTheme={studyByTheme}
+            onJumpToCard={jumpToCard}
+          />
         ) : (
           <>
             <FilterPanel
@@ -1160,7 +1210,7 @@ function Header({ view, setView, favCount }) {
           <div className="flex items-center gap-2" style={{ color: "#C9A227" }}>
             <span className="text-xs tracking-[0.3em] font-body">SEKAISHI ACTIVE RECALL — PROTOTYPE</span>
           </div>
-          <h1 className="font-display text-3xl mt-1" style={{ color: "#EFE3C8" }}>史脈 <span style={{ color: "#8C2F2F" }}>・</span> 三十年戦争</h1>
+          <h1 className="font-display text-3xl mt-1" style={{ color: "#EFE3C8" }}>史脈</h1>
           <p className="font-body text-sm mt-1" style={{ color: "#8A93A6" }}>覚えるのではなく、思い出す。</p>
         </div>
       </div>
@@ -2543,7 +2593,7 @@ function CardListView({ cards, onSelectItem, pulseId, listOpen, currentCardId })
 }
 
 function FavoritesView({ favorites, onJump, onToggleFavorite, onStartAll }) {
-  const favCards = CARDS.filter((c) => favorites.includes(c.id));
+  const favCards = ALL_CARDS.filter((c) => favorites.includes(c.id));
   return (
     <div style={{ paddingBottom: favCards.length > 0 ? 96 : 0 }}>
       <h2 className="font-display text-lg mb-4 px-1" style={{ color: "#EFE3C8" }}>お気に入り一覧</h2>
@@ -2876,6 +2926,14 @@ const ERA_PERIODS = [
 // 現在の年代に対応する時代区分を返す（範囲外はnull）
 function getActiveEraPeriod(year) {
   return ERA_PERIODS.find((p) => year >= p.yearRange[0] && year <= p.yearRange[1]) || null;
+}
+
+// 年代 → ERAS_DATAの時代ID。地図の時代区分にカードデータ（ERAS_DATA）が紐づいていなければnull
+function findEraIdByYear(year) {
+  const period = getActiveEraPeriod(year);
+  if (!period) return null;
+  const era = Object.values(ERAS_DATA).find((e) => e.mapPeriodId === period.id);
+  return era ? era.id : null;
 }
 
 // 時代区分の境界年号（コンテンツの有無に関わらず、時代の切り替わりをスクラバー上で
@@ -3547,8 +3605,8 @@ function useMapPanZoom(containerRef) {
   return { zoom, panY, worldX, interacting, gestureRef, onMouseDown, onTouchStart, onWheel, onDoubleClick, zoomBy, resetView };
 }
 
-function MapView({ onStudyRegion, onStudyTheme, onJumpToCard }) {
-  const [year, setYear] = useState(1648);
+function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyTheme, onJumpToCard }) {
+  const [year, setYear] = useState(() => ERAS_DATA[selectedEraId]?.defaultMapYear ?? 1648);
   const [selectedId, setSelectedId] = useState(null);
   const [sheetState, setSheetState] = useState("closed"); // closed | half | full
   // 初回操作誘導ツールチップ：「地図」タブに来るたび（＝MapViewが再マウントされるたび）trueにリセットされる。
@@ -3576,8 +3634,8 @@ function MapView({ onStudyRegion, onStudyTheme, onJumpToCard }) {
 
   const selectedRegion = periodRegions.find((r) => r.id === selectedId);
   const matchedCards = useMemo(
-    () => CARDS.filter((c) => c.region === selectedId).sort((a, b) => a.difficulty - b.difficulty),
-    [selectedId]
+    () => cards.filter((c) => c.region === selectedId).sort((a, b) => a.difficulty - b.difficulty),
+    [cards, selectedId]
   );
   const relatedThemes = useMemo(
     () => [...new Set(matchedCards.flatMap((c) => c.theme))],
@@ -3587,7 +3645,19 @@ function MapView({ onStudyRegion, onStudyTheme, onJumpToCard }) {
 
   // 勢力エリアのタップ：常にハーフ表示から開く（フル展開中に別エリアをタップした場合も同様）。
   // いずれかの勢力をタップした瞬間、誘導ツールチップは即座にフェードアウトして破棄する
+  // 年代に対応する時代区分にカードデータ（ERAS_DATA）があれば、App側の時代も連動して切り替える
+  const syncEraToYear = (y) => {
+    const eraId = findEraIdByYear(y);
+    if (eraId && eraId !== selectedEraId) onSelectEra(eraId);
+  };
+  // 年代の変更（シークバーのドラッグ・タップ・キー操作、「移動」ボタン）
+  const changeYear = (y) => {
+    setYear(y);
+    syncEraToYear(y);
+  };
+
   const openRegion = (id) => {
+    syncEraToYear(year);
     setSelectedId(id);
     setSheetState("half");
     setMapTipArmed(false);
@@ -3633,7 +3703,7 @@ function MapView({ onStudyRegion, onStudyTheme, onJumpToCard }) {
             boxShadow: "0 10px 26px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.18)",
           }}
         >
-          <EraScrubber value={year} onChange={setYear} keyYears={periodKeyYears} />
+          <EraScrubber value={year} onChange={changeYear} keyYears={periodKeyYears} />
         </div>
 
         {!inCoveredEra ? (
@@ -3644,7 +3714,7 @@ function MapView({ onStudyRegion, onStudyTheme, onJumpToCard }) {
             </p>
             <p className="font-body text-xs mt-2" style={{ color: "#8A93A6" }}>現在は近世ヨーロッパ（1550〜1700年）のみ対応しています</p>
             <button
-              onClick={() => setYear(1648)}
+              onClick={() => changeYear(1648)}
               className="mt-5 font-body text-sm rounded-full px-5 py-2"
               style={{ background: "#C9A227", color: "#1B2430" }}
             >

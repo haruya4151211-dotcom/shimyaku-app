@@ -1,4 +1,5 @@
-export const CARDS = [
+// 三十年戦争〜ウェストファリア体制（近世）のカード
+export const THIRTY_YEARS_WAR_CARDS = [
   {
     id: "c1", year: 1648, difficulty: 0, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
     front: "1648年に三十年戦争を終結させた条約は？",
@@ -145,7 +146,26 @@ export const CARDS = [
       ],
     },
   },
-  // ---- 市民革命と国民国家（1789〜1871年頃）：地図タブとの連携検証用サンプル ----
+];
+
+// 市民革命と国民国家（1789〜1871年頃）のカード：時代切り替え・地図タブとの連携検証用サンプル。
+// regionは地図の時代区分 "revolutions" の勢力IDと一致させ、勢力タップで該当カードが引けるようにする
+export const FRENCH_REVOLUTION_CARDS = [
+  {
+    id: "c17", year: 1789, difficulty: 0, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史"],
+    front: "1789年7月14日、パリの民衆が襲撃しフランス革命の発端となった施設は？",
+    back: "バスティーユ牢獄",
+  },
+  {
+    id: "c18", year: 1789, difficulty: 1, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史"],
+    front: "1789年に国民議会が採択し、自由・平等・国民主権・所有権の不可侵などを掲げた宣言は？",
+    back: "人権宣言（人間および市民の権利の宣言）",
+  },
+  {
+    id: "c19", year: 1804, difficulty: 2, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史"],
+    front: "1804年にナポレオンが制定し、法の前の平等や私有財産の不可侵を定めた法典は？",
+    back: "ナポレオン法典（フランス民法典）",
+  },
   {
     id: "c10", year: 1812, difficulty: 2, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史"],
     front: "1812年、ナポレオンが大陸封鎖令違反を理由に大軍を送った国は？",
@@ -304,7 +324,9 @@ export const ERAS_DATA = {
     id: "thirty-years-war",
     title: "三十年戦争",
     period: "近世（15〜18世紀）",
-    cards: CARDS,
+    mapPeriodId: "early-modern", // 地図タブの時代区分（ERA_PERIODS）との対応キー
+    defaultMapYear: 1648, // 地図タブを開いたときの初期年代
+    cards: THIRTY_YEARS_WAR_CARDS,
     mapData: {
       years: MAP_YEARS,
       landPath: WORLD_LAND_PATH,
@@ -315,5 +337,18 @@ export const ERAS_DATA = {
       blurb: REGION_BLURB,
     }
   },
-  // 今後ここへ "french-revolution": { ... } を追加可能！
+  "french-revolution": {
+    id: "french-revolution",
+    title: "市民革命と国民国家",
+    period: "近代（市民革命と国民国家）",
+    mapPeriodId: "revolutions",
+    defaultMapYear: 1815,
+    cards: FRENCH_REVOLUTION_CARDS,
+    // 勢力ポリゴン・首都・河川・解説は、geo-frameworkが App.jsx の GEO_FRAMEWORK_DATA:revolutions ブロックへ
+    // 自動生成し、地図の時代区分 "revolutions"（mapPeriodId）として保持している。ここには年代とベースマップのみ持つ
+    mapData: {
+      years: [1812, 1815, 1871],
+      landPath: WORLD_LAND_PATH,
+    }
+  },
 };
