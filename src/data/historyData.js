@@ -964,6 +964,339 @@ export const ANCIENT_CARDS = [
   },
 ];
 
+// 近世（大航海時代・ルネサンス・宗教改革）のカード。
+// 14〜16世紀のイタリア・ルネサンス、ルター・カルヴァンの宗教改革、ポルトガル・スペインの大航海時代と新大陸の征服を扱う。
+// region は、Step 2 で作成予定のこの時代の地図（中世②／大航海時代・近世の時代区分）の勢力IDとして使う名前で統一している：
+//   フィレンツェ／ミラノ公国／ローマ教皇領（イタリア諸国家）、神聖ローマ帝国、ジュネーヴ、ポルトガル王国、スペイン王国、アステカ帝国。
+// 地図データを作るときは、この region と同じIDを勢力に付けること。c46 はアステカとインカの両方を扱うが、
+// region は先に征服されたアステカ帝国とした（インカ帝国は地図上の勢力として定義し、カードは今後追加する）。
+export const RENAISSANCE_CARDS = [
+  {
+    id: "c37", year: 1485, difficulty: 1, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "フィレンツェ", theme: ["通史", "ルネサンス"],
+    front: "ルネサンスの中心地フィレンツェで学芸を保護した一族と、『ヴィーナスの誕生』を描いた画家は？",
+    back: "",
+    cloze: {
+      template: "14世紀のイタリアに始まったルネサンスの中心地フィレンツェでは、銀行業で富を築いた{{1}}家が芸術家や学者を保護した。その庇護のもとで{{2}}は、ギリシア神話を題材とした『ヴィーナスの誕生』や『春（プリマヴェーラ）』を描いた。",
+      slots: [
+        { id: 1, answer: "メディチ", category: "一族" },
+        { id: 2, answer: "ボッティチェリ", category: "画家" },
+      ],
+      points: [
+        { label: "原因", text: "東方貿易や毛織物業・金融業で栄えたイタリア諸都市では、富裕な市民が新しい文化の担い手となった" },
+        { label: "経過", text: "衰退するビザンツ帝国から移り住んだギリシア人学者がもたらした古典研究が、人間性を重んじる人文主義を刺激した" },
+        { label: "意義", text: "神を中心とする中世的な世界観から、人間の個性や現世の生を肯定する近代的な価値観への転換点となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg/960px-Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+        caption: "ボッティチェリ『ヴィーナスの誕生』（1485年頃、ウフィツィ美術館）",
+        alt: "貝殻の上に立つ裸身の女神が、風の神に吹かれて岸辺へ運ばれてくる場面",
+        credit: "La nascita di Venere／Sandro Botticelli（1485年頃）, Galleria degli Uffizi, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Portrait_of_Lorenzo_de%27_Medici%2C_the_Magnificent_%281449%E2%80%931492%29%2C_by_Giorgio_Vasari_-_Uffizi_Gallery.jpg/960px-Portrait_of_Lorenzo_de%27_Medici%2C_the_Magnificent_%281449%E2%80%931492%29%2C_by_Giorgio_Vasari_-_Uffizi_Gallery.jpg",
+        caption: "ヴァザーリ「ロレンツォ・デ・メディチの肖像」（16世紀、ウフィツィ美術館）",
+        alt: "黒い服をまとい、物思いにふけるように椅子に座る男性の肖像",
+        credit: "Ritratto di Lorenzo il Magnifico／Giorgio Vasari（1533〜1534年頃）, Galleria degli Uffizi, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "逸話：最盛期の当主ロレンツォは「豪華王（イル・マニフィコ）」と呼ばれ、自ら詩も作る教養人だった。一族からは、のちにレオ10世ら複数のローマ教皇も出ている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/メディチ家",
+  },
+  {
+    id: "c38", year: 1503, difficulty: 0, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "ミラノ公国", theme: ["通史", "ルネサンス"],
+    front: "『最後の晩餐』『モナ・リザ』を描いた芸術家と、ルネサンスが理想とした人間像は？",
+    back: "",
+    cloze: {
+      template: "{{1}}は『最後の晩餐』『モナ・リザ』などの名画を残しただけでなく、解剖学・工学・天文学など幅広い分野に通じ、ルネサンスが理想とした「{{2}}（普遍人）」の典型とされる。",
+      slots: [
+        { id: 1, answer: "レオナルド・ダ・ヴィンチ", category: "人物" },
+        { id: 2, answer: "万能人", category: "人間像" },
+      ],
+      points: [
+        { label: "原因", text: "ルネサンスの人文主義は、人間がもつ多様な能力を最大限に伸ばすことを理想とした" },
+        { label: "経過", text: "フィレンツェで修業したのちミラノ公に仕え、晩年はフランス王フランソワ1世に招かれてフランスで没した" },
+        { label: "意義", text: "遠近法や解剖学にもとづく写実的な表現を確立し、観察と実験を重んじる近代科学の精神の先駆けともなった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/960px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+        caption: "レオナルド・ダ・ヴィンチ『モナ・リザ』（1503〜1519年頃、ルーヴル美術館）",
+        alt: "風景を背に、胸の前で手を重ねてほほえむ女性の半身像",
+        credit: "La Joconde／Leonardo da Vinci（1503〜1519年頃）, Musée du Louvre, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Leonardo_da_Vinci_%281452-1519%29_-_The_Last_Supper_%281495-1498%29.jpg/960px-Leonardo_da_Vinci_%281452-1519%29_-_The_Last_Supper_%281495-1498%29.jpg",
+        caption: "レオナルド・ダ・ヴィンチ『最後の晩餐』（1495〜1498年、ミラノのサンタ・マリア・デッレ・グラツィエ修道院）",
+        alt: "長い食卓の中央に座るキリストと、その左右で驚き動揺する12人の弟子たちを描いた壁画",
+        credit: "L'Ultima Cena／Leonardo da Vinci（1495〜1498年）, Santa Maria delle Grazie, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：手稿（ノート）は、鏡に映さないと読めない左右反転の「鏡文字」で書かれ、ヘリコプターや戦車の構想まで描き残されている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/レオナルド・ダ・ヴィンチ",
+  },
+  {
+    id: "c39", year: 1512, difficulty: 2, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "ローマ教皇領", theme: ["通史", "ルネサンス"],
+    front: "『ダヴィデ像』を制作し、ローマで巨大な天井画を描いた芸術家と、その礼拝堂は？",
+    back: "",
+    cloze: {
+      template: "フィレンツェ出身の{{1}}は、大理石の『ダヴィデ像』を制作したのち、ローマ教皇ユリウス2世の依頼で{{2}}の天井画を描き、のちに祭壇画『最後の審判』も完成させた。",
+      slots: [
+        { id: 1, answer: "ミケランジェロ", category: "人物" },
+        { id: 2, answer: "システィーナ礼拝堂", category: "建造物" },
+      ],
+      points: [
+        { label: "原因", text: "ルネサンスの中心はしだいにローマへ移り、教皇たちは権威を示すために芸術家を招いて大事業を進めた" },
+        { label: "経過", text: "約4年をかけ、足場の上でほぼ一人で旧約聖書の天地創造などの場面を描き上げた" },
+        { label: "意義", text: "力強い人体表現は盛期ルネサンスの頂点とされ、彫刻・絵画・建築（サン・ピエトロ大聖堂のドーム設計）のすべてで後世に影響を与えた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Michelangelo%27s_David_2015.jpg/960px-Michelangelo%27s_David_2015.jpg",
+        caption: "ミケランジェロ『ダヴィデ像』（1504年、フィレンツェのアカデミア美術館）",
+        alt: "投石器を肩に掛け、遠くを見すえて立つ若者の大理石像",
+        credit: "David, Galleria dell'Accademia／写真: Livioandronico2013（2015年）, Wikimedia Commons・CC BY-SA 4.0",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg/960px-Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg",
+        caption: "ミケランジェロ『アダムの創造』（1511年頃、システィーナ礼拝堂天井画）",
+        alt: "横たわるアダムと、天使たちに囲まれた神が、互いに指先を伸ばし合う場面",
+        credit: "La Creazione di Adamo／Michelangelo Buonarroti（1511年頃）, Cappella Sistina, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：『ダヴィデ像』は高さ5メートルを超え、都市の自由と独立の象徴としてフィレンツェの政庁前広場に置かれた。現在、広場に立っているのは複製である。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ミケランジェロ・ブオナローティ",
+  },
+  {
+    id: "c40", year: 1517, difficulty: 0, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "神聖ローマ帝国", theme: ["通史", "宗教改革"],
+    front: "1517年にルターが批判したローマ教会の販売物と、彼が発表した文書は？",
+    back: "",
+    cloze: {
+      template: "1517年、ローマ教皇レオ10世がサン・ピエトロ大聖堂の改築資金を集めるため{{1}}（免罪符）を販売すると、ヴィッテンベルク大学の神学教授ルターは「{{2}}の論題」を発表してこれを批判した。",
+      slots: [
+        { id: 1, answer: "贖宥状", category: "販売物" },
+        { id: 2, answer: "九十五箇条", category: "文書" },
+      ],
+      points: [
+        { label: "原因", text: "教皇の権威が強く及んだドイツは「ローマの牝牛」と呼ばれ、教会への献金などで富が吸い上げられていた" },
+        { label: "経過", text: "1521年のヴォルムス帝国議会で皇帝カール5世に自説の撤回を拒み、ザクセン選帝侯にかくまわれたヴァルトブルク城で新約聖書をドイツ語に訳した" },
+        { label: "意義", text: "人は信仰によってのみ救われる（信仰義認説）、聖書だけが信仰のよりどころ（聖書主義）と説き、プロテスタントの出発点となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Lucas_Cranach_d.%C3%84._-_Martin_Luther%2C_1528_%28Veste_Coburg%29.jpg/960px-Lucas_Cranach_d.%C3%84._-_Martin_Luther%2C_1528_%28Veste_Coburg%29.jpg",
+        caption: "クラナッハ「マルティン・ルターの肖像」（1528年）",
+        alt: "黒い帽子と黒い服を身に着け、まっすぐ前を見つめる男性の肖像",
+        credit: "Martin Luther／Lucas Cranach der Ältere（1528年）, Veste Coburg, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Luther95theses.jpg/960px-Luther95theses.jpg",
+        caption: "パウエルス『九十五箇条の論題を掲げるルター』（1872年）",
+        alt: "教会の扉に槌で文書を打ち付ける修道士と、それを見守る人々",
+        credit: "Luther schlägt die 95 Thesen an／Ferdinand Pauwels（1872年）, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：ルターの主張は、約70年前にグーテンベルクが実用化した活版印刷によってパンフレットとして大量に刷られ、わずか数週間でドイツ中に広まった。なお、論題を教会の扉に打ち付けたという有名な場面が史実かどうかには議論がある。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/95か条の論題",
+  },
+  {
+    id: "c41", year: 1555, difficulty: 3, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "神聖ローマ帝国", theme: ["通史", "宗教改革"],
+    front: "1555年、神聖ローマ帝国の諸侯に宗派の選択権を認めた和議と、そこで認められた新教の宗派は？",
+    back: "",
+    cloze: {
+      template: "1555年の{{1}}の和議で、神聖ローマ帝国の諸侯はカトリックと{{2}}のどちらかを選ぶ権利を認められ、領民は諸侯の選んだ宗派に従うことになった。ただし個人の信仰の自由は認められず、ほかの新教の宗派も対象外とされた。",
+      slots: [
+        { id: 1, answer: "アウクスブルク", category: "都市" },
+        { id: 2, answer: "ルター派", category: "宗派" },
+      ],
+      points: [
+        { label: "原因", text: "皇帝カール5世はカトリックによる帝国の統一を目指したが、新教を支持する諸侯はシュマルカルデン同盟を結んで対抗した" },
+        { label: "経過", text: "シュマルカルデン戦争で皇帝は一時勝利したものの新教諸侯を屈服させられず、妥協として和議が結ばれた" },
+        { label: "意義", text: "「支配者の宗教がその地の宗教」とする原則が確立して領邦ごとの宗派の分裂が固定化し、のちの三十年戦争の火種となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Titian_-_Emperor_Charles_V_at_M%C3%BChlberg_-_WGA22965.jpg/960px-Titian_-_Emperor_Charles_V_at_M%C3%BChlberg_-_WGA22965.jpg",
+        caption: "ティツィアーノ『ミュールベルクのカール5世』（1548年、プラド美術館）",
+        alt: "甲冑に身を包み、槍を手に黒馬にまたがって進む皇帝の騎馬像",
+        credit: "Carlos V en Mühlberg／Tiziano Vecellio（1548年）, Museo del Prado, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：和議の翌年、疲れ果てたカール5世は退位し、帝位を弟フェルディナント1世に、スペイン王位を息子フェリペ2世に譲った。ハプスブルク家はここでオーストリア系とスペイン系に分かれた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/アウクスブルクの和議",
+  },
+  {
+    id: "c42", year: 1541, difficulty: 2, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "ジュネーヴ", theme: ["通史", "宗教改革"],
+    front: "スイスのジュネーヴで宗教改革を指導した人物と、その中心となる教えは？",
+    back: "",
+    cloze: {
+      template: "フランス出身の{{1}}はスイスのジュネーヴで宗教改革を指導し、魂が救われるかどうかはあらかじめ神によって定められているとする{{2}}を説いた。",
+      slots: [
+        { id: 1, answer: "カルヴァン", category: "人物" },
+        { id: 2, answer: "予定説", category: "教え" },
+      ],
+      points: [
+        { label: "原因", text: "ドイツで始まった改革に刺激され、ヨーロッパ各地で教会の刷新を求める動きが広がった" },
+        { label: "経過", text: "ジュネーヴでは牧師と信徒の代表（長老）が教会を運営する長老制を取り入れ、厳格な神権政治を行った" },
+        { label: "意義", text: "職業に励み富を得ることを救いの証として肯定したため、フランスのユグノー、オランダのゴイセン、イギリスのピューリタンなど西ヨーロッパの商工業者に広まった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/1/19/John_Calvin_-_Young.jpg",
+        caption: "若き日のカルヴァンの肖像（16世紀、フランドル派）",
+        alt: "黒い帽子をかぶり、横を向いた細面であごひげの男性の肖像",
+        credit: "John Calvin（young）／Flemish school（16世紀）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Figures-ReformationWall-Geneva.jpg/960px-Figures-ReformationWall-Geneva.jpg",
+        caption: "ジュネーヴの宗教改革記念碑（1917年完成。左からファレル、カルヴァン、ベーズ、ノックス）",
+        alt: "石壁の前に並んで立つ、長い法衣をまとった4人の巨大な石像",
+        credit: "Reformation Wall, Geneva／写真: Acediscovery（2010年）, Wikimedia Commons・CC BY 4.0",
+      },
+    ],
+    anecdote: "豆知識：社会学者マックス・ヴェーバーは『プロテスタンティズムの倫理と資本主義の精神』で、こうした勤勉と禁欲の教えが近代資本主義を生む土壌になったと論じた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ジャン・カルヴァン",
+  },
+  {
+    id: "c43", year: 1498, difficulty: 1, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "ポルトガル王国", theme: ["通史", "大航海時代"],
+    front: "1488年にディアスが到達したアフリカ南端の岬と、1498年にインド航路を開いた航海者は？",
+    back: "",
+    cloze: {
+      template: "ポルトガルは香辛料を求めてアフリカ西岸の探検を進め、1488年にバルトロメウ・ディアスがアフリカ南端の{{1}}に到達した。1498年には{{2}}がインド西岸のカリカットに到達し、インド航路が開かれた。",
+      slots: [
+        { id: 1, answer: "喜望峰", category: "岬" },
+        { id: 2, answer: "ヴァスコ・ダ・ガマ", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "オスマン帝国が東地中海を押さえるなか、イタリア商人を介さずに香辛料を手に入れる新しい交易路が求められた" },
+        { label: "経過", text: "「航海王子」エンリケが航海者を支援し、羅針盤の改良や快速帆船の開発によって外洋航海が可能になった" },
+        { label: "意義", text: "ポルトガルはゴアやマラッカを拠点にアジア交易を握り、首都リスボンはヨーロッパ有数の商業都市として栄えた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Greg%C3%B3rio_Lopes_-_Vasco_da_Gama_%28ca_1524%29.jpg/960px-Greg%C3%B3rio_Lopes_-_Vasco_da_Gama_%28ca_1524%29.jpg",
+        caption: "グレゴリオ・ロペス「ヴァスコ・ダ・ガマの肖像」（1524年頃）",
+        alt: "黒い帽子をかぶり、豊かな白いあごひげをたくわえた初老の男性の肖像",
+        credit: "Vasco da Gama／Gregório Lopes（1524年頃）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Cape_Point_cliffs_%2840425061753%29.jpg/960px-Cape_Point_cliffs_%2840425061753%29.jpg",
+        caption: "喜望峰の東に連なるケープ半島南端の断崖（南アフリカ）",
+        alt: "青い海に突き出した岩がちの岬と、打ち寄せる白い波",
+        credit: "Cape Point cliffs／写真: Raita Futo（2017年）, Wikimedia Commons・CC BY 2.0",
+      },
+    ],
+    anecdote: "豆知識：嵐に苦しんだディアスはこの岬を「嵐の岬」と名付けたが、インド航路への希望を込めて、ポルトガル王ジョアン2世が現在の名に改めたと伝えられる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ヴァスコ・ダ・ガマ",
+  },
+  {
+    id: "c44", year: 1492, difficulty: 1, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "スペイン王国", theme: ["通史", "大航海時代"],
+    front: "1492年にカリブ海の島へ到達した航海者と、1494年にスペインとポルトガルが結んだ条約は？",
+    back: "",
+    cloze: {
+      template: "1492年、スペイン女王イサベルの支援を受けた{{1}}は大西洋を西へ進み、カリブ海の島に到達した。これを受けて1494年、スペインとポルトガルは{{2}}条約を結び、海外領土の分界線を定めた。",
+      slots: [
+        { id: 1, answer: "コロンブス", category: "人物" },
+        { id: 2, answer: "トルデシリャス", category: "条約" },
+      ],
+      points: [
+        { label: "原因", text: "地球球体説を信じたコロンブスは、大西洋を西回りに進めばアジアに着けると考えた" },
+        { label: "経過", text: "彼は到達地をアジアの一部と信じ続けたが、のちにアメリゴ・ヴェスプッチの探検で新大陸と確認され「アメリカ」と呼ばれるようになった" },
+        { label: "意義", text: "分界線の西をスペイン、東をポルトガルの勢力範囲とし、南アメリカでブラジルだけがポルトガル領となる根拠にもなった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Portrait_of_a_Man%2C_Said_to_be_Christopher_Columbus.jpg/960px-Portrait_of_a_Man%2C_Said_to_be_Christopher_Columbus.jpg",
+        caption: "セバスティアーノ・デル・ピオンボ「コロンブスとされる男性の肖像」（1519年、メトロポリタン美術館）",
+        alt: "黒い帽子と黒い服を身に着け、胸に手を当てて立つ男性の肖像",
+        credit: "Portrait of a Man, Said to be Christopher Columbus／Sebastiano del Piombo（1519年）, The Metropolitan Museum of Art, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Desembarco_de_Col%C3%B3n_de_Di%C3%B3scoro_Puebla.jpg/960px-Desembarco_de_Col%C3%B3n_de_Di%C3%B3scoro_Puebla.jpg",
+        caption: "ディオスコロ・プエブラ『コロンブスの新大陸上陸』（1862年）",
+        alt: "旗を掲げて浜辺に上陸した航海者と、ひざまずいて祈る乗組員たち、それを木陰から見る先住民",
+        credit: "Primer desembarco de Cristóbal Colón en América／Dióscoro Puebla（1862年）, Museo del Prado, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：1492年はスペインがイベリア半島最後のイスラーム王朝ナスル朝の都グラナダを陥落させ、レコンキスタ（国土回復運動）を完了した年でもある。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/トルデシリャス条約",
+  },
+  {
+    id: "c45", year: 1522, difficulty: 2, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "スペイン王国", theme: ["通史", "大航海時代"],
+    front: "スペイン王の支援で世界周航に出発した航海者と、彼が戦死した地は？",
+    back: "",
+    cloze: {
+      template: "スペイン王カルロス1世の支援を受けたポルトガル人{{1}}の船隊は、1519年に出航して南アメリカ南端の海峡を抜け、太平洋を横断した。隊長は{{2}}で先住民との戦いに倒れたが、生き残った部下が1522年にスペインへ帰り着き、史上初の世界周航を達成した。",
+      slots: [
+        { id: 1, answer: "マゼラン", category: "人物" },
+        { id: 2, answer: "フィリピン", category: "地名" },
+      ],
+      points: [
+        { label: "原因", text: "香辛料の産地モルッカ諸島に、ポルトガルとは逆の西回りで到達しようとした" },
+        { label: "経過", text: "出航した5隻・約270人のうち、帰国できたのはビクトリア号1隻とわずか18人だった" },
+        { label: "意義", text: "地球が球体であることが実証され、太平洋の広さが明らかになった。のちにフィリピンはスペインの植民地となり、マニラがアジア交易の拠点となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Retrato_de_Hernando_de_Magallanes.jpg/960px-Retrato_de_Hernando_de_Magallanes.jpg",
+        caption: "マゼランの肖像（作者不詳、19世紀の模写）",
+        alt: "黒い帽子をかぶり、地図を手にした髭の男性の肖像",
+        credit: "Retrato de Hernando de Magallanes／作者不詳（1848年の模写）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Nao_Victoria_%28ship%2C_1992%29%2C_S%C3%A8te_cf04.jpg/960px-Nao_Victoria_%28ship%2C_1992%29%2C_S%C3%A8te_cf04.jpg",
+        caption: "船隊で唯一帰還したビクトリア号の復元船（フランス・セート港）",
+        alt: "港に停泊する、帆柱が3本立った木造の帆船の復元船",
+        credit: "Nao Victoria（replica, 1992）／写真: Christian Ferrer, Wikimedia Commons・CC BY 4.0",
+      },
+    ],
+    anecdote: "豆知識：「太平洋（Pacific Ocean）」の名は、荒れた海峡を抜けたあとの穏やかな海を、彼が「平和な海」と呼んだことに由来する。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/フェルディナンド・マゼラン",
+  },
+  {
+    id: "c46", year: 1521, difficulty: 2, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "アステカ帝国", theme: ["通史", "大航海時代"],
+    front: "メキシコのアステカ王国と、ペルーのインカ帝国をそれぞれ滅ぼしたスペインの征服者は？",
+    back: "",
+    cloze: {
+      template: "スペインの征服者（コンキスタドール）{{1}}は1521年にメキシコのアステカ王国を、{{2}}は1533年にペルーのインカ帝国を滅ぼした。",
+      slots: [
+        { id: 1, answer: "コルテス", category: "人物" },
+        { id: 2, answer: "ピサロ", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "金銀と布教を求めるスペイン人が、新大陸の豊かな先住民文明に目を付けた" },
+        { label: "経過", text: "少数の兵力ながら鉄砲や馬を用い、さらにヨーロッパから持ち込まれた天然痘などの疫病で先住民の人口が激減した" },
+        { label: "意義", text: "先住民はエンコミエンダ制のもとで鉱山や農園で酷使され、ポトシ銀山などから流入した大量の銀がヨーロッパの物価を高騰させた（価格革命）" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Conquista-de-M%C3%A9xico-por-Cort%C3%A9s-Tenochtitlan-Painting.png/960px-Conquista-de-M%C3%A9xico-por-Cort%C3%A9s-Tenochtitlan-Painting.png",
+        caption: "「テノチティトラン征服」（17世紀後半、作者不詳）",
+        alt: "湖上の都市の神殿をめぐって、甲冑の兵士と先住民の戦士が入り乱れて戦う場面",
+        credit: "Conquista de México por Cortés／作者不詳（17世紀後半）, Library of Congress, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/80_-_Machu_Picchu_-_Juin_2009_-_edit.jpg/960px-80_-_Machu_Picchu_-_Juin_2009_-_edit.jpg",
+        caption: "インカ帝国の都市遺跡マチュ・ピチュ（15世紀、ペルー）",
+        alt: "険しい山の尾根に段々畑と石造りの建物群が広がる遺跡",
+        credit: "Machu Picchu／写真: Martin St-Amant（2009年）, Wikimedia Commons・CC BY-SA 3.0",
+      },
+    ],
+    anecdote: "豆知識：アステカの都テノチティトランは湖上に築かれた人口20万人以上の大都市で、その跡地に現在のメキシコシティが広がる。文字を持たなかったインカ帝国では、縄の結び目で数を記録するキープ（結縄）が使われた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/コンキスタドール",
+  },
+];
+
 export const MAP_YEARS = [1600, 1618, 1648, 1660];
 
 // 実地理データ（world-atlas land-110m、d3-geo geoMercatorで投影・事前計算済みのSVGパス文字列）。
@@ -1110,19 +1443,21 @@ const ANCIENT_COLORS = {
   "東ローマ帝国": ["#C98E82", "#EAC0B9"],
 };
 
-// label: { at: [経度, 緯度], lines: 表示する行, size: 文字サイズ }。表示名は時代ごとに変えてよい（id は固定）
-function ancientRegion(id, rings, label) {
-  const [fill, strokeColor] = ANCIENT_COLORS[id];
+// label: { at: [経度, 緯度], lines: 表示する行, size: 文字サイズ }。表示名は時代ごとに変えてよい（id は固定）。
+// colors は勢力ID → [塗り色, 輪郭色] の対応表（時代ごとに用意する）
+function mapRegion(colors, id, rings, label) {
+  const [fill, strokeColor] = colors[id];
   const d = ringsToPath(rings);
   const [labelX, labelY] = lonLatToXY(...label.at);
   return { id, fill, strokeColor, labelX, labelY, labelLines: label.lines, labelSize: label.size, shape: "path", dByYear: () => d };
 }
+const ancientRegion = (id, rings, label) => mapRegion(ANCIENT_COLORS, id, rings, label);
 // region を持つ都市はタップでその勢力の詳細（該当カード）を開く。dir はラベルの逃がし方向
-function ancientCity(name, lon, lat, region, dir) {
+function mapCity(name, lon, lat, region, dir) {
   const [x, y] = lonLatToXY(lon, lat);
   return { name, x, y, region, ...(dir ? { dir } : {}) };
 }
-function ancientBackground(name, rings, labelAt, fill) {
+function mapBackground(name, rings, labelAt, fill) {
   const [labelX, labelY] = lonLatToXY(...labelAt);
   return { name, d: ringsToPath(rings), fill, labelX, labelY };
 }
@@ -1171,8 +1506,8 @@ const ANCIENT_CIVILIZATIONS_SNAPSHOTS = {
       ]], { at: [45.4, 32.3], lines: ["シュメール"], size: 5.5 }),
     ],
     cities: [
-      ancientCity("メンフィス", 31.25, 29.85, "エジプト", "l"),
-      ancientCity("ウル", 46.10, 30.96, "メソポタミア"),
+      mapCity("メンフィス", 31.25, 29.85, "エジプト", "l"),
+      mapCity("ウル", 46.10, 30.96, "メソポタミア"),
     ],
   },
   [-1750]: {
@@ -1184,8 +1519,8 @@ const ANCIENT_CIVILIZATIONS_SNAPSHOTS = {
       ]], { at: [43.6, 34.0], lines: ["バビロン", "第1王朝"], size: 6 }),
     ],
     cities: [
-      ancientCity("バビロン", 44.42, 32.54, "メソポタミア", "l"),
-      ancientCity("テーベ", 32.65, 25.70, "エジプト", "r"),
+      mapCity("バビロン", 44.42, 32.54, "メソポタミア", "l"),
+      mapCity("テーベ", 32.65, 25.70, "エジプト", "r"),
     ],
   },
   [-600]: {
@@ -1198,19 +1533,19 @@ const ANCIENT_CIVILIZATIONS_SNAPSHOTS = {
       ]], { at: [41.0, 33.4], lines: ["新バビロニア"], size: 7 }),
     ],
     background: [
-      ancientBackground("メディア", [[
+      mapBackground("メディア", [[
         [35.5, 41.9], [41.5, 41.8], [49.5, 41.0], [50.5, 39.0], [53.8, 38.0], [59.0, 36.5], [58.0, 32.0], [50.0, 30.0],
         [48.6, 30.5], [47.8, 31.9], [46.6, 33.2], [45.6, 34.6], [43.9, 35.3], [42.4, 35.8], [40.5, 36.6], [38.5, 37.0],
         [36.6, 36.9], [35.5, 38.5], [34.5, 40.0],
       ]], [48.0, 36.0], "#7A8CA8"),
-      ancientBackground("リディア", [[
+      mapBackground("リディア", [[
         [26.2, 40.4], [29.0, 41.2], [33.5, 42.0], [35.5, 41.9], [34.5, 40.0], [35.5, 38.5], [33.0, 37.5], [30.0, 36.5],
         [27.5, 36.6], [26.4, 37.5], [25.9, 39.0],
       ]], [30.5, 39.0], "#8C9A7A"),
     ],
     cities: [
-      ancientCity("バビロン", 44.42, 32.54, "メソポタミア", "l"),
-      ancientCity("サイス", 30.77, 30.96, "エジプト", "l"),
+      mapCity("バビロン", 44.42, 32.54, "メソポタミア", "l"),
+      mapCity("サイス", 30.77, 30.96, "エジプト", "l"),
     ],
   },
 };
@@ -1234,15 +1569,15 @@ const ANCIENT_EMPIRES_SNAPSHOTS = {
         { at: [12.7, 42.0], lines: ["ローマ"], size: 4 }),
     ],
     cities: [
-      ancientCity("ペルセポリス", 52.89, 29.93, "アケメネス朝ペルシア"),
-      ancientCity("スサ", 48.25, 32.19, "アケメネス朝ペルシア", "r"),
-      ancientCity("バビロン", 44.42, 32.54, "アケメネス朝ペルシア", "l"),
-      ancientCity("サルデス", 28.04, 38.48, "アケメネス朝ペルシア", "r"),
-      ancientCity("メンフィス", 31.25, 29.85, "アケメネス朝ペルシア", "l"),
-      ancientCity("アテネ", 23.73, 37.98, "ギリシア", "r"),
-      ancientCity("スパルタ", 22.43, 37.07, "ギリシア", "bl"),
-      ancientCity("ローマ", 12.48, 41.89, "ローマ"),
-      ancientCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
+      mapCity("ペルセポリス", 52.89, 29.93, "アケメネス朝ペルシア"),
+      mapCity("スサ", 48.25, 32.19, "アケメネス朝ペルシア", "r"),
+      mapCity("バビロン", 44.42, 32.54, "アケメネス朝ペルシア", "l"),
+      mapCity("サルデス", 28.04, 38.48, "アケメネス朝ペルシア", "r"),
+      mapCity("メンフィス", 31.25, 29.85, "アケメネス朝ペルシア", "l"),
+      mapCity("アテネ", 23.73, 37.98, "ギリシア", "r"),
+      mapCity("スパルタ", 22.43, 37.07, "ギリシア", "bl"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ"),
+      mapCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
     ],
   },
   // アレクサンドロス大王の死（前323年）の時点
@@ -1261,14 +1596,14 @@ const ANCIENT_EMPIRES_SNAPSHOTS = {
       ]], { at: [13.3, 41.9], lines: ["ローマ"], size: 4.5 }),
     ],
     cities: [
-      ancientCity("ペラ", 22.52, 40.76, "マケドニア", "tl"),
-      ancientCity("バビロン", 44.42, 32.54, "マケドニア", "l"),
-      ancientCity("アレクサンドリア", 29.92, 31.20, "マケドニア", "tl"),
-      ancientCity("ペルセポリス", 52.89, 29.93, "マケドニア"),
-      ancientCity("アテネ", 23.73, 37.98, "ギリシア", "r"),
-      ancientCity("スパルタ", 22.43, 37.07, "ギリシア", "bl"),
-      ancientCity("ローマ", 12.48, 41.89, "ローマ"),
-      ancientCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
+      mapCity("ペラ", 22.52, 40.76, "マケドニア", "tl"),
+      mapCity("バビロン", 44.42, 32.54, "マケドニア", "l"),
+      mapCity("アレクサンドリア", 29.92, 31.20, "マケドニア", "tl"),
+      mapCity("ペルセポリス", 52.89, 29.93, "マケドニア"),
+      mapCity("アテネ", 23.73, 37.98, "ギリシア", "r"),
+      mapCity("スパルタ", 22.43, 37.07, "ギリシア", "bl"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ"),
+      mapCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
     ],
   },
   // 第2回ポエニ戦争の開始（前218年）
@@ -1285,9 +1620,9 @@ const ANCIENT_EMPIRES_SNAPSHOTS = {
       ]], { at: [9.6, 34.2], lines: ["カルタゴ"], size: 6.5 }),
     ],
     cities: [
-      ancientCity("ローマ", 12.48, 41.89, "ローマ"),
-      ancientCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
-      ancientCity("カルタゴ・ノウァ", -0.98, 37.60, "カルタゴ", "l"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ"),
+      mapCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
+      mapCity("カルタゴ・ノウァ", -0.98, 37.60, "カルタゴ", "l"),
     ],
   },
   // カエサル暗殺（前44年）のころ。エジプトはプトレマイオス朝（キプロス島を含む）
@@ -1308,10 +1643,10 @@ const ANCIENT_EMPIRES_SNAPSHOTS = {
         { at: [30.0, 27.0], lines: ["プトレマイオス朝", "エジプト"], size: 5.5 }),
     ],
     cities: [
-      ancientCity("ローマ", 12.48, 41.89, "ローマ"),
-      ancientCity("アテネ", 23.73, 37.98, "ローマ", "r"),
-      ancientCity("アンティオキア", 36.16, 36.20, "ローマ", "r"),
-      ancientCity("アレクサンドリア", 29.92, 31.20, "エジプト", "tl"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ"),
+      mapCity("アテネ", 23.73, 37.98, "ローマ", "r"),
+      mapCity("アンティオキア", 36.16, 36.20, "ローマ", "r"),
+      mapCity("アレクサンドリア", 29.92, 31.20, "エジプト", "tl"),
     ],
   },
   // トラヤヌス帝のもとで最大版図（117年）
@@ -1332,12 +1667,12 @@ const ANCIENT_EMPIRES_SNAPSHOTS = {
       ]], { at: [2.5, 46.5], lines: ["ローマ帝国"], size: 11 }),
     ],
     cities: [
-      ancientCity("ローマ", 12.48, 41.89, "ローマ"),
-      ancientCity("ロンディニウム", -0.12, 51.51, "ローマ", "r"),
-      ancientCity("カルタゴ", 10.32, 36.85, "ローマ"),
-      ancientCity("アテネ", 23.73, 37.98, "ローマ", "r"),
-      ancientCity("アンティオキア", 36.16, 36.20, "ローマ", "r"),
-      ancientCity("アレクサンドリア", 29.92, 31.20, "ローマ", "tl"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ"),
+      mapCity("ロンディニウム", -0.12, 51.51, "ローマ", "r"),
+      mapCity("カルタゴ", 10.32, 36.85, "ローマ"),
+      mapCity("アテネ", 23.73, 37.98, "ローマ", "r"),
+      mapCity("アンティオキア", 36.16, 36.20, "ローマ", "r"),
+      mapCity("アレクサンドリア", 29.92, 31.20, "ローマ", "tl"),
     ],
   },
   // テオドシウス帝の死による東西分割（395年）
@@ -1360,12 +1695,12 @@ const ANCIENT_EMPIRES_SNAPSHOTS = {
       ]], { at: [33.0, 39.0], lines: ["東ローマ帝国"], size: 9 }),
     ],
     cities: [
-      ancientCity("ローマ", 12.48, 41.89, "西ローマ帝国"),
-      ancientCity("ミラノ", 9.19, 45.46, "西ローマ帝国", "t"),
-      ancientCity("カルタゴ", 10.32, 36.85, "西ローマ帝国"),
-      ancientCity("コンスタンティノープル", 28.98, 41.01, "東ローマ帝国", "t"),
-      ancientCity("アンティオキア", 36.16, 36.20, "東ローマ帝国", "r"),
-      ancientCity("アレクサンドリア", 29.92, 31.20, "東ローマ帝国", "tl"),
+      mapCity("ローマ", 12.48, 41.89, "西ローマ帝国"),
+      mapCity("ミラノ", 9.19, 45.46, "西ローマ帝国", "t"),
+      mapCity("カルタゴ", 10.32, 36.85, "西ローマ帝国"),
+      mapCity("コンスタンティノープル", 28.98, 41.01, "東ローマ帝国", "t"),
+      mapCity("アンティオキア", 36.16, 36.20, "東ローマ帝国", "r"),
+      mapCity("アレクサンドリア", 29.92, 31.20, "東ローマ帝国", "tl"),
     ],
   },
 };
@@ -1412,21 +1747,314 @@ function nearestSnapshot(snapshots, year) {
   return snapshots[best];
 }
 // ERA_PERIODS の各時代区分にそのまま展開して使う（keyYears／regionsByYear／capitalsByYear など）
-function ancientMapPeriod(snapshots, rivers) {
+function snapshotMapPeriod(snapshots, { rivers, seaLabels, blurb }) {
   return {
     keyYears: Object.keys(snapshots).map(Number).sort((a, b) => a - b),
     regionsByYear: (year) => nearestSnapshot(snapshots, year).regions,
     capitalsByYear: (year) => nearestSnapshot(snapshots, year).cities,
     backgroundByYear: (year) => nearestSnapshot(snapshots, year).background ?? [],
     rivers,
-    seaLabels: ANCIENT_SEA_LABELS,
-    blurb: ANCIENT_BLURB,
+    seaLabels,
+    blurb,
   };
 }
-export const ANCIENT_CIVILIZATIONS_MAP = ancientMapPeriod(ANCIENT_CIVILIZATIONS_SNAPSHOTS, [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER]);
-export const ANCIENT_EMPIRES_MAP = ancientMapPeriod(ANCIENT_EMPIRES_SNAPSHOTS, [
-  NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER, INDUS_RIVER, ...RIVERS.filter((r) => r.name === "ライン川" || r.name === "ドナウ川"),
-]);
+export const ANCIENT_CIVILIZATIONS_MAP = snapshotMapPeriod(ANCIENT_CIVILIZATIONS_SNAPSHOTS, {
+  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER], seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
+});
+export const ANCIENT_EMPIRES_MAP = snapshotMapPeriod(ANCIENT_EMPIRES_SNAPSHOTS, {
+  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER, INDUS_RIVER, ...RIVERS.filter((r) => r.name === "ライン川" || r.name === "ドナウ川")],
+  seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
+});
+
+// =====================================================================
+// 近世（大航海時代・ルネサンス・宗教改革）の地図データ
+// 古代と同じく経度・緯度で定義し、lonLatToXY で投影する（輪郭は陸地で切り抜かれるので、海岸線は海上に大きめに取る）。
+// 1492年は地図の時代区分「中世②」、1517年・1555年は「大航海時代・近世」に属する。後者は1600年以降を
+// 三十年戦争期の勢力図（MAP_REGIONS など）が受け持つため、App.jsx の ERA_PERIODS で年ごとに切り替えている。
+// region の id は RENAISSANCE_CARDS の region と一致させている。輪郭は学習用の模式図。
+// =====================================================================
+const RENAISSANCE_COLORS = {
+  "フィレンツェ": ["#E07A8B", "#F2B8C2"],
+  "ミラノ公国": ["#8FBCC9", "#C3E0E6"],
+  "ローマ教皇領": ["#E8D27A", "#F5E9B8"],
+  "ヴェネツィア共和国": ["#7ECBA8", "#B8E5D2"],
+  "ナポリ王国": ["#C9A0DC", "#E4CFEE"],
+  "神聖ローマ帝国": ["#A8C686", "#D2E3BF"],
+  "ジュネーヴ": ["#F2A65A", "#F8D3AA"],
+  "フランス王国": ["#9AA8D9", "#C7D0EC"],
+  "ポルトガル王国": ["#5FB3A1", "#A9DBD0"],
+  "スペイン王国": ["#D9866B", "#F0B8A8"],
+  "アステカ帝国": ["#C9B458", "#E6DBA6"],
+  "インカ帝国": ["#B98E6E", "#DCC4B2"],
+};
+const renRegion = (id, rings, label) => mapRegion(RENAISSANCE_COLORS, id, rings, label);
+
+// --- ヨーロッパ ---
+const PORTUGAL_IBERIA = [
+  [-10.0, 42.1], [-8.2, 42.15], [-6.2, 41.9], [-6.9, 41.0], [-6.9, 39.9], [-7.5, 39.5], [-7.0, 38.9], [-7.3, 38.0],
+  [-7.4, 37.2], [-7.6, 36.8], [-9.5, 36.8], [-10.0, 38.5],
+];
+// ポルトガルとの国境は PORTUGAL_IBERIA の点を逆順にたどって共有する
+const SPAIN_IBERIA = [
+  [-9.9, 43.9], [-1.8, 43.6], [-1.4, 43.2], [-0.5, 42.8], [1.8, 42.6], [3.0, 42.9], [3.6, 42.6], [3.6, 41.8], [1.0, 40.6],
+  [0.6, 38.6], [-0.4, 37.4], [-1.8, 36.6], [-5.5, 35.95], [-6.6, 36.3], [-7.4, 36.9], [-7.4, 37.2], [-7.3, 38.0], [-7.0, 38.9],
+  [-7.5, 39.5], [-6.9, 39.9], [-6.9, 41.0], [-6.2, 41.9], [-8.2, 42.15], [-9.9, 42.2],
+];
+const SPAIN_SICILY = [[12.2, 38.4], [15.4, 38.4], [15.66, 38.3], [15.6, 37.9], [15.5, 36.5], [14.0, 36.6], [12.2, 37.4]];
+const SPAIN_SARDINIA = [[7.9, 41.3], [10.0, 41.3], [10.0, 38.7], [7.9, 38.7]];
+const SPAIN_BALEARICS = [[1.1, 40.2], [4.5, 40.2], [4.5, 38.6], [1.1, 38.6]];
+const FRANCE = [
+  [1.6, 51.1], [2.6, 51.15], [4.0, 49.8], [5.0, 49.5], [5.4, 48.5], [5.3, 47.0], [5.5, 46.3], [5.8, 45.9], [6.0, 45.3],
+  [6.6, 45.1], [7.0, 44.2], [7.5, 43.8], [7.5, 43.3], [4.5, 42.9], [3.3, 43.0], [3.0, 42.9], [1.8, 42.6], [-0.5, 42.8],
+  [-1.4, 43.2], [-1.8, 43.6], [-2.5, 44.5], [-5.5, 48.2], [-1.5, 50.0],
+];
+const HOLY_ROMAN_EMPIRE = [
+  [2.6, 51.15], [3.3, 51.7], [4.5, 53.3], [7.0, 53.9], [8.0, 54.0], [8.6, 54.3], [9.5, 54.3], [10.0, 54.4], [11.0, 54.5],
+  [12.5, 54.5], [14.2, 54.9], [16.8, 54.7], [17.0, 54.5], [16.5, 53.6], [15.7, 52.6], [17.8, 51.6], [18.6, 50.9], [18.8, 50.0],
+  [18.8, 49.5], [17.6, 48.8], [16.9, 48.1], [16.5, 47.5], [16.1, 46.7], [15.5, 45.9], [14.4, 45.4], [13.7, 45.6], [13.6, 46.4],
+  [12.4, 46.6], [11.6, 46.1], [11.1, 45.9], [10.6, 46.3], [10.4, 46.9], [9.6, 47.5], [8.5, 47.7], [7.6, 47.6], [7.0, 47.4],
+  [6.4, 46.9], [6.0, 46.5], [5.5, 46.3], [5.3, 47.0], [5.4, 48.5], [5.0, 49.5], [4.0, 49.8],
+];
+const GENEVA = [[5.95, 46.3], [6.3, 46.35], [6.35, 46.12], [6.0, 46.08]];
+// イタリア諸国家（隣り合う国とは同じ点で境界を共有する）
+const MILAN = [[8.5, 46.4], [9.4, 46.5], [9.6, 45.8], [9.5, 45.3], [9.2, 44.7], [8.5, 45.0], [8.4, 45.8]];
+const VENICE_TERRAFERMA = [
+  [9.6, 45.8], [10.0, 46.1], [10.6, 46.3], [11.1, 45.9], [11.6, 46.1], [12.4, 46.6], [13.6, 46.4], [13.7, 45.6], [13.2, 45.4],
+  [12.5, 45.0], [12.2, 45.0], [11.3, 45.1], [10.6, 45.2], [10.2, 45.2], [9.5, 45.3],
+];
+const VENICE_DALMATIA = [[14.6, 45.2], [15.6, 44.3], [16.6, 43.5], [17.4, 43.0], [18.5, 42.4], [18.2, 42.1], [16.5, 42.9], [15.0, 43.8], [14.0, 44.8]];
+const VENICE_CRETE = [[23.4, 35.8], [26.4, 35.8], [26.4, 34.8], [23.4, 34.8]];
+const VENICE_CYPRUS = [[32.2, 35.8], [34.7, 35.8], [34.7, 34.5], [32.2, 34.5]];
+const FLORENCE = [[10.2, 44.2], [11.4, 44.25], [12.2, 43.8], [11.9, 43.3], [11.2, 43.25], [10.6, 43.4], [10.2, 43.7]];
+const PAPAL_STATES = [
+  [11.4, 44.25], [11.3, 44.6], [12.5, 44.4], [13.7, 43.6], [14.0, 42.9], [13.2, 42.5], [13.6, 41.7], [13.0, 41.25], [12.0, 41.7],
+  [11.6, 42.2], [11.9, 42.8], [11.9, 43.3], [12.2, 43.8],
+];
+const NAPLES = [
+  [14.0, 42.9], [14.8, 42.4], [16.5, 42.0], [17.5, 41.2], [18.8, 40.2], [18.7, 39.7], [17.4, 38.7], [16.4, 37.6], [15.6, 37.9],
+  [15.62, 38.3], [15.6, 38.8], [14.5, 40.1], [13.6, 41.0], [13.0, 41.25], [13.6, 41.7], [13.2, 42.5],
+];
+
+// --- 新大陸・海外領土 ---
+const AZTEC = [
+  [-101.0, 20.8], [-98.6, 21.6], [-97.0, 21.0], [-95.8, 19.0], [-94.3, 18.4], [-94.5, 16.3], [-92.3, 15.0], [-92.5, 14.5],
+  [-96.5, 15.5], [-99.9, 16.6], [-101.6, 17.4], [-102.0, 19.0],
+];
+const INCA = [
+  [-81.0, 1.5], [-77.0, 1.0], [-76.5, -3.0], [-74.5, -8.0], [-71.5, -12.5], [-68.5, -15.0], [-66.0, -18.5], [-65.5, -24.0],
+  [-66.5, -28.0], [-69.5, -34.5], [-73.0, -35.5], [-71.8, -30.0], [-70.6, -20.0], [-76.5, -14.0], [-81.5, -6.0], [-81.2, -2.0],
+];
+const SPAIN_CARIBBEAN = [
+  [[-74.6, 20.1], [-68.2, 20.1], [-68.2, 17.5], [-74.6, 17.5]], // イスパニョーラ島
+  [[-85.0, 22.0], [-82.0, 23.3], [-77.0, 22.5], [-74.0, 20.3], [-75.0, 19.7], [-78.0, 19.7], [-82.0, 21.5], [-85.0, 21.6]], // キューバ島
+  [[-67.3, 18.6], [-65.5, 18.6], [-65.5, 17.8], [-67.3, 17.8]], // プエルトリコ島
+  [[-78.5, 18.6], [-76.1, 18.6], [-76.1, 17.6], [-78.5, 17.6]], // ジャマイカ島
+];
+const SPAIN_PANAMA = [[-80.5, 9.6], [-77.2, 9.0], [-77.0, 7.5], [-78.5, 7.6], [-80.5, 8.0]];
+// ヌエバ・エスパーニャ（メキシコ〜中央アメリカ）。1555年時点ではユカタン半島も含む
+const SPAIN_NEW_SPAIN = [
+  [-106.0, 25.0], [-98.5, 25.0], [-97.0, 22.0], [-95.5, 19.0], [-91.0, 19.0], [-90.8, 21.5], [-86.5, 21.6], [-86.8, 18.0],
+  [-88.0, 15.8], [-83.0, 15.8], [-82.5, 10.5], [-77.2, 9.0], [-77.0, 7.5], [-80.5, 7.0], [-86.0, 11.0], [-92.0, 14.0],
+  [-97.0, 15.5], [-105.5, 19.5],
+];
+// トルデシリャス条約の分界線（西経46度半ば）より東のブラジル
+const PORTUGAL_BRAZIL = [[-46.5, 0.0], [-46.5, -24.5], [-38.0, -25.0], [-33.0, -8.0], [-36.0, -2.5], [-44.0, 0.5]];
+const PORTUGAL_GOA = [[73.6, 15.8], [74.2, 15.8], [74.2, 15.1], [73.6, 15.1]];
+
+// --- 背景（タップ不可の周辺勢力） ---
+const OTTOMAN_BALKANS_ANATOLIA = [
+  [19.3, 42.0], [19.0, 43.0], [16.0, 44.5], [17.5, 45.1], [19.4, 44.9], [21.0, 44.6], [22.5, 44.6], [25.0, 43.7], [28.0, 44.2],
+  [28.8, 44.5], [31.0, 42.5], [36.0, 42.3], [41.5, 41.6], [42.0, 41.0], [39.5, 39.5], [38.5, 38.5], [36.0, 37.5], [34.0, 37.0],
+  [33.0, 36.1], [29.0, 35.8], [26.4, 37.5], [25.0, 37.5], [23.0, 36.2], [21.0, 36.6], [20.2, 38.8], [19.6, 39.8], [19.2, 41.5],
+];
+const OTTOMAN_LEVANT_EGYPT = [
+  [36.0, 37.5], [38.5, 38.5], [41.0, 38.5], [40.5, 36.8], [38.5, 34.5], [37.0, 31.0], [35.0, 29.4], [34.6, 28.0], [34.2, 27.3],
+  [35.3, 25.0], [35.6, 23.4], [32.5, 23.0], [30.0, 24.5], [28.0, 27.0], [25.0, 29.5], [25.0, 31.8], [27.0, 33.5], [32.0, 34.0],
+  [34.4, 34.0], [35.3, 35.0], [35.6, 36.1],
+];
+const OTTOMAN_HUNGARY = [[17.0, 46.0], [18.0, 47.5], [19.5, 48.0], [21.5, 47.5], [22.0, 46.5], [21.0, 45.2], [19.4, 44.9], [17.5, 45.1]];
+const OTTOMAN_IRAQ = [[42.0, 37.0], [46.0, 35.5], [47.8, 32.0], [48.6, 29.8], [47.5, 30.0], [44.0, 31.0], [41.0, 33.5], [40.5, 36.8]];
+const OTTOMAN_ALGIERS = [[-2.0, 35.0], [8.5, 36.3], [8.5, 37.2], [-2.0, 35.6]];
+const OTTOMAN_TRIPOLI = [[11.5, 33.4], [15.5, 32.6], [19.5, 31.0], [19.5, 30.2], [15.0, 31.0], [11.5, 32.5]];
+const HUNGARY = [
+  [16.1, 46.7], [16.5, 47.5], [16.9, 48.1], [17.6, 48.8], [18.8, 49.5], [20.5, 49.4], [22.5, 49.0], [24.5, 47.9], [26.5, 46.5],
+  [25.5, 45.4], [22.5, 44.6], [21.0, 44.6], [19.4, 44.9], [17.5, 45.1], [16.0, 44.5], [15.0, 44.8], [14.6, 45.2], [14.4, 45.4],
+  [15.5, 45.9],
+];
+const SWISS = [
+  [6.4, 46.9], [7.0, 47.4], [7.6, 47.6], [8.5, 47.7], [9.6, 47.5], [10.2, 46.9], [10.0, 46.3], [9.0, 45.9], [8.4, 46.2], [7.0, 45.9],
+  [6.8, 46.4], [6.3, 46.4],
+];
+const OTTOMAN_FILL = "#7A8CA8";
+
+const LABELS = {
+  florence: { at: [11.2, 43.65], lines: ["フィレンツェ"], size: 3.2 },
+  milan: { at: [9.0, 45.75], lines: ["ミラノ公国"], size: 3.2 },
+  papal: { at: [12.8, 42.9], lines: ["教皇領"], size: 3.4 },
+  venice: { at: [11.6, 45.65], lines: ["ヴェネツィア"], size: 3.2 },
+  naples: { at: [15.9, 40.6], lines: ["ナポリ王国"], size: 3.6 },
+  hre: { at: [10.5, 50.6], lines: ["神聖ローマ帝国"], size: 7 },
+  geneva: { at: [6.15, 45.95], lines: ["ジュネーヴ"], size: 2.6 },
+  france: { at: [2.3, 46.8], lines: ["フランス王国"], size: 7 },
+  portugal: { at: [-8.2, 39.8], lines: ["ポルトガル", "王国"], size: 3.6 },
+  spain: { at: [-3.0, 40.3], lines: ["スペイン王国"], size: 5 },
+  aztec: { at: [-97.6, 17.6], lines: ["アステカ帝国"], size: 5 },
+  inca: { at: [-73.0, -12.0], lines: ["インカ帝国"], size: 7 },
+};
+
+const RENAISSANCE_SNAPSHOTS_MEDIEVAL = {
+  // コロンブスの航海とグラナダ陥落（1492年）
+  [1492]: {
+    regions: [
+      renRegion("ポルトガル王国", [PORTUGAL_IBERIA], LABELS.portugal),
+      renRegion("スペイン王国", [SPAIN_IBERIA, SPAIN_SICILY, SPAIN_SARDINIA, SPAIN_BALEARICS], LABELS.spain),
+      renRegion("フランス王国", [FRANCE], LABELS.france),
+      renRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE], LABELS.hre),
+      renRegion("ミラノ公国", [MILAN], LABELS.milan),
+      renRegion("ヴェネツィア共和国", [VENICE_TERRAFERMA, VENICE_DALMATIA, VENICE_CRETE, VENICE_CYPRUS], LABELS.venice),
+      renRegion("フィレンツェ", [FLORENCE], LABELS.florence),
+      renRegion("ローマ教皇領", [PAPAL_STATES], LABELS.papal),
+      renRegion("ナポリ王国", [NAPLES], LABELS.naples),
+      renRegion("アステカ帝国", [AZTEC], LABELS.aztec),
+      renRegion("インカ帝国", [INCA], LABELS.inca),
+    ],
+    background: [
+      mapBackground("オスマン帝国", [OTTOMAN_BALKANS_ANATOLIA], [31.0, 39.5], OTTOMAN_FILL),
+      mapBackground("ハンガリー王国", [HUNGARY], [20.0, 47.2], "#8C9A7A"),
+      mapBackground("スイス", [SWISS], [8.2, 46.85], "#A89A8C"),
+    ],
+    cities: [
+      mapCity("リスボン", -9.14, 38.72, "ポルトガル王国", "l"),
+      mapCity("グラナダ", -3.60, 37.18, "スペイン王国", "b"),
+      mapCity("セビリャ", -5.98, 37.39, "スペイン王国", "l"),
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("ウィーン", 16.37, 48.21, "神聖ローマ帝国", "r"),
+      mapCity("ミラノ", 9.19, 45.46, "ミラノ公国", "l"),
+      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
+      mapCity("フィレンツェ", 11.25, 43.77, "フィレンツェ", "l"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ教皇領"),
+      mapCity("ナポリ", 14.25, 40.85, "ナポリ王国", "r"),
+      mapCity("テノチティトラン", -99.13, 19.43, "アステカ帝国"),
+      mapCity("クスコ", -71.97, -13.53, "インカ帝国"),
+      mapCity("イスタンブル", 28.98, 41.01, null, "t"),
+    ],
+  },
+};
+
+const RENAISSANCE_SNAPSHOTS_EARLY_MODERN = {
+  // ルターの「九十五箇条の論題」（1517年）。アステカ・インカはまだ健在、ナポリはスペイン王の支配下
+  [1517]: {
+    regions: [
+      renRegion("ポルトガル王国", [PORTUGAL_IBERIA, PORTUGAL_BRAZIL, PORTUGAL_GOA], LABELS.portugal),
+      renRegion("スペイン王国", [SPAIN_IBERIA, SPAIN_SICILY, SPAIN_SARDINIA, SPAIN_BALEARICS, NAPLES, ...SPAIN_CARIBBEAN, SPAIN_PANAMA], LABELS.spain),
+      renRegion("フランス王国", [FRANCE], LABELS.france),
+      renRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE], LABELS.hre),
+      renRegion("ジュネーヴ", [GENEVA], LABELS.geneva),
+      renRegion("ミラノ公国", [MILAN], LABELS.milan),
+      renRegion("ヴェネツィア共和国", [VENICE_TERRAFERMA, VENICE_DALMATIA, VENICE_CRETE, VENICE_CYPRUS], LABELS.venice),
+      renRegion("フィレンツェ", [FLORENCE], LABELS.florence),
+      renRegion("ローマ教皇領", [PAPAL_STATES], LABELS.papal),
+      renRegion("アステカ帝国", [AZTEC], LABELS.aztec),
+      renRegion("インカ帝国", [INCA], LABELS.inca),
+    ],
+    background: [
+      mapBackground("オスマン帝国", [OTTOMAN_BALKANS_ANATOLIA, OTTOMAN_LEVANT_EGYPT], [31.0, 39.5], OTTOMAN_FILL),
+      mapBackground("ハンガリー王国", [HUNGARY], [20.0, 47.2], "#8C9A7A"),
+      mapBackground("スイス", [SWISS], [8.2, 46.85], "#A89A8C"),
+    ],
+    cities: [
+      mapCity("リスボン", -9.14, 38.72, "ポルトガル王国", "l"),
+      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
+      mapCity("セビリャ", -5.98, 37.39, "スペイン王国", "l"),
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("ヴィッテンベルク", 12.65, 51.87, "神聖ローマ帝国", "r"),
+      mapCity("ウィーン", 16.37, 48.21, "神聖ローマ帝国", "r"),
+      mapCity("ジュネーヴ", 6.14, 46.20, "ジュネーヴ", "l"),
+      mapCity("ミラノ", 9.19, 45.46, "ミラノ公国", "l"),
+      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
+      mapCity("フィレンツェ", 11.25, 43.77, "フィレンツェ", "l"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ教皇領"),
+      mapCity("ナポリ", 14.25, 40.85, "スペイン王国", "r"),
+      mapCity("サント・ドミンゴ", -69.90, 18.47, "スペイン王国"),
+      mapCity("テノチティトラン", -99.13, 19.43, "アステカ帝国"),
+      mapCity("クスコ", -71.97, -13.53, "インカ帝国"),
+      mapCity("ゴア", 73.83, 15.49, "ポルトガル王国", "l"),
+      mapCity("イスタンブル", 28.98, 41.01, null, "t"),
+    ],
+  },
+  // アウクスブルクの和議（1555年）。アステカ・インカは滅亡し、ヌエバ・エスパーニャとペルーがスペイン領に
+  [1555]: {
+    regions: [
+      renRegion("ポルトガル王国", [PORTUGAL_IBERIA, PORTUGAL_BRAZIL, PORTUGAL_GOA], LABELS.portugal),
+      renRegion("スペイン王国", [
+        SPAIN_IBERIA, SPAIN_SICILY, SPAIN_SARDINIA, SPAIN_BALEARICS, NAPLES, ...SPAIN_CARIBBEAN, SPAIN_NEW_SPAIN, INCA,
+      ], LABELS.spain),
+      renRegion("フランス王国", [FRANCE], LABELS.france),
+      renRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE], LABELS.hre),
+      renRegion("ジュネーヴ", [GENEVA], LABELS.geneva),
+      renRegion("ミラノ公国", [MILAN], { ...LABELS.milan, lines: ["ミラノ公国", "（スペイン領）"] }),
+      renRegion("ヴェネツィア共和国", [VENICE_TERRAFERMA, VENICE_DALMATIA, VENICE_CRETE, VENICE_CYPRUS], LABELS.venice),
+      renRegion("フィレンツェ", [FLORENCE], { ...LABELS.florence, lines: ["フィレンツェ公国"] }),
+      renRegion("ローマ教皇領", [PAPAL_STATES], LABELS.papal),
+    ],
+    background: [
+      mapBackground("オスマン帝国", [
+        OTTOMAN_BALKANS_ANATOLIA, OTTOMAN_LEVANT_EGYPT, OTTOMAN_HUNGARY, OTTOMAN_IRAQ, OTTOMAN_ALGIERS, OTTOMAN_TRIPOLI,
+      ], [31.0, 39.5], OTTOMAN_FILL),
+      mapBackground("スイス", [SWISS], [8.2, 46.85], "#A89A8C"),
+    ],
+    cities: [
+      mapCity("リスボン", -9.14, 38.72, "ポルトガル王国", "l"),
+      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
+      mapCity("セビリャ", -5.98, 37.39, "スペイン王国", "l"),
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("ヴィッテンベルク", 12.65, 51.87, "神聖ローマ帝国", "r"),
+      mapCity("ウィーン", 16.37, 48.21, "神聖ローマ帝国", "r"),
+      mapCity("ジュネーヴ", 6.14, 46.20, "ジュネーヴ", "l"),
+      mapCity("ミラノ", 9.19, 45.46, "ミラノ公国", "l"),
+      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
+      mapCity("フィレンツェ", 11.25, 43.77, "フィレンツェ", "l"),
+      mapCity("ローマ", 12.48, 41.89, "ローマ教皇領"),
+      mapCity("ナポリ", 14.25, 40.85, "スペイン王国", "r"),
+      mapCity("メキシコシティ", -99.13, 19.43, "スペイン王国"),
+      mapCity("リマ", -77.03, -12.05, "スペイン王国", "l"),
+      mapCity("ポトシ", -65.75, -19.58, "スペイン王国"),
+      mapCity("ゴア", 73.83, 15.49, "ポルトガル王国", "l"),
+      mapCity("イスタンブル", 28.98, 41.01, null, "t"),
+    ],
+  },
+};
+
+const RENAISSANCE_SEA_LABELS = [
+  ...SEA_LABELS,
+  ...[["カリブ海", -75.0, 15.0, 6], ["メキシコ湾", -90.0, 25.0, 6], ["太平洋", -95.0, 5.0, 9], ["インド洋", 70.0, 0.0, 9]].map(([name, lon, lat, size]) => {
+    const [x, y] = lonLatToXY(lon, lat);
+    return { name, x, y, size };
+  }),
+];
+
+export const RENAISSANCE_BLURB = {
+  "フィレンツェ": "毛織物業と金融業で栄えたトスカーナ地方の共和国。富裕な市民が芸術家や学者を支え、ルネサンス文化の中心となった。1530年代に君主国（のちのトスカーナ大公国）へ移行した。",
+  "ミラノ公国": "北イタリアのロンバルディア地方を治めた公国。豊かな経済力から、イタリア戦争ではフランスとハプスブルク家の争奪の的となり、1535年以降はスペインの支配下に入った。",
+  "ローマ教皇領": "ローマ教皇が君主として治めたイタリア中部の国家。教皇たちは芸術家を招いてローマで大事業を進める一方、その財政負担が教会への批判を強めることにもなった。",
+  "ヴェネツィア共和国": "「アドリア海の女王」と呼ばれた海洋国家。東地中海の島々を拠点に香辛料などの東方貿易で栄えたが、新航路の開拓とオスマン帝国の進出で次第に地位を低下させた。",
+  "ナポリ王国": "イタリア半島南部を治めた王国。1504年以降はスペイン王の支配下に置かれ、副王が統治した。",
+  "神聖ローマ帝国": "ドイツを中心に多数の領邦（諸侯国・自由都市）からなる国家。皇帝の権力は弱く、16世紀には宗教改革をめぐって皇帝と新教派の諸侯が激しく対立した。",
+  "ジュネーヴ": "レマン湖畔の都市。司教の支配から独立したのち宗教改革を受け入れ、「プロテスタントのローマ」と呼ばれる新教の一大拠点となった。",
+  "フランス王国": "ヴァロワ朝のもとで中央集権化を進めた王国。イタリアの支配をめぐって、ハプスブルク家とイタリア戦争を戦った。",
+  "ポルトガル王国": "イベリア半島西端の王国。15世紀からアフリカ西岸の探検を進め、インド洋の交易拠点とブラジルを持つ海洋帝国となった。首都リスボンは香辛料貿易で繁栄した。",
+  "スペイン王国": "1479年にカスティリャとアラゴンが統合して成立した。1492年にグラナダを陥落させてレコンキスタを完了し、新大陸の征服によって「太陽の沈まぬ国」と呼ばれる大帝国を築いた。",
+  "アステカ帝国": "メキシコ高原に栄えた先住民の国家。湖上の都テノチティトランを中心に周辺の諸民族を支配し、太陽神をまつる壮大な神殿を築いた。",
+  "インカ帝国": "アンデス山脈に沿って南北4000kmに及んだ先住民の帝国。都クスコを中心に、「インカ道」と呼ばれる道路網を整備した。",
+};
+
+// 1492年（中世②区分）と、1517年・1555年（大航海時代・近世区分。1600年以降は三十年戦争期の地図に切り替え）
+export const RENAISSANCE_MEDIEVAL_MAP = snapshotMapPeriod(RENAISSANCE_SNAPSHOTS_MEDIEVAL, {
+  rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB,
+});
+export const RENAISSANCE_EARLY_MODERN_MAP = snapshotMapPeriod(RENAISSANCE_SNAPSHOTS_EARLY_MODERN, {
+  rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB,
+});
 
 // src/data/historyData.js の末尾イメージ
 
@@ -1447,11 +2075,29 @@ export const ERAS_DATA = {
       landPath: WORLD_LAND_PATH,
     }
   },
+  "renaissance-discovery": {
+    id: "renaissance-discovery",
+    title: "大航海時代・ルネサンス・宗教改革",
+    period: "近世（大航海時代・ルネサンス・宗教改革）",
+    // 地図では「中世②」（1000〜1500年）と「大航海時代・近世」（1500〜1789年）の2区分にまたがる。
+    // 後者は三十年戦争と共有するため、yearRange で1300〜1599年だけを受け持つ
+    mapPeriodId: ["medieval-2", "early-modern"],
+    yearRange: [1300, 1599],
+    defaultMapYear: 1517,
+    cards: RENAISSANCE_CARDS,
+    // この時代の勢力図・都市データは未作成（Step 2 で作成予定。地図タブでは「準備中」表示）。
+    // 作成する際は RENAISSANCE_CARDS の region と同じ勢力IDを付けること
+    mapData: {
+      years: [1492, 1517, 1555],
+      landPath: WORLD_LAND_PATH,
+    }
+  },
   "thirty-years-war": {
     id: "thirty-years-war",
     title: "三十年戦争",
     period: "近世（15〜18世紀）",
     mapPeriodId: "early-modern", // 地図タブの時代区分（ERA_PERIODS）との対応キー
+    yearRange: [1600, 1789], // 同じ時代区分を「大航海時代・ルネサンス・宗教改革」と分け合うため、受け持つ年の範囲
     defaultMapYear: 1648, // 地図タブを開いたときの初期年代
     cards: THIRTY_YEARS_WAR_CARDS,
     mapData: {

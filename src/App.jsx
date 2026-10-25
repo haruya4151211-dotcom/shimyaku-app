@@ -19,6 +19,8 @@ import {
   REGION_BLURB,
   ANCIENT_CIVILIZATIONS_MAP,
   ANCIENT_EMPIRES_MAP,
+  RENAISSANCE_MEDIEVAL_MAP,
+  RENAISSANCE_EARLY_MODERN_MAP,
 } from './data/historyData';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
@@ -2815,7 +2817,7 @@ function regionStatus(id, year) {
       ? { label: "独立国家（国際承認済）", disputed: false }
       : { label: "スペイン領ネーデルラント（独立闘争中）", disputed: true };
   }
-  if (id === "神聖ローマ帝国") {
+  if (id === "神聖ローマ帝国" && year >= RENAISSANCE_MAP_UNTIL) {
     return year >= 1648
       ? { label: "領邦分立が確定的に（皇帝権は形骸化）", disputed: false }
       : { label: "皇帝のもとでの統合を模索中", disputed: false };
@@ -2823,7 +2825,8 @@ function regionStatus(id, year) {
   return { label: null, disputed: false };
 }
 
-const COVERED_ERA = [1550, 1700]; // 大航海時代・近世のうち実際にコンテンツが存在する範囲
+const COVERED_ERA = [1500, 1700]; // 大航海時代・近世のうち実際にコンテンツが存在する範囲（1500〜1599年はルネサンス期、1600年以降は三十年戦争期の勢力図）
+const RENAISSANCE_MAP_UNTIL = 1600; // 大航海時代・近世の区分で、これより前はルネサンス期の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
 
 // ============================================================
 // 時代区分（ERA_PERIODS）
@@ -3037,12 +3040,22 @@ const ERA_PERIODS = [
     hasContent: true, contentRange: [-500, 500], ...ANCIENT_EMPIRES_MAP,
   },
   { id: "medieval-1", label: "中世①：イスラームの拡大と欧州再編", yearRange: [500, 1000], hasContent: false },
-  { id: "medieval-2", label: "中世②：ユーラシアの再編とモンゴル", yearRange: [1000, 1500], hasContent: false },
+  // 中世②のうち1450〜1500年だけ、ルネサンス・大航海時代初期（1492年）の勢力図を持つ
+  {
+    id: "medieval-2", label: "中世②：ユーラシアの再編とモンゴル", yearRange: [1000, 1500],
+    hasContent: true, contentRange: [1450, 1500], ...RENAISSANCE_MEDIEVAL_MAP,
+  },
   {
     id: "early-modern", label: "大航海時代・近世", yearRange: [1500, 1789],
     hasContent: true, contentRange: COVERED_ERA,
-    keyYears: MAP_YEARS, regions: MAP_REGIONS, background: BACKGROUND_TERRITORIES,
-    capitals: CAPITAL_CITIES, rivers: RIVERS, seaLabels: SEA_LABELS, blurb: REGION_BLURB,
+    // 1600年より前はルネサンス・宗教改革期（1517・1555年）の勢力図、以降は三十年戦争期の勢力図に切り替える
+    keyYears: [...RENAISSANCE_EARLY_MODERN_MAP.keyYears, ...MAP_YEARS],
+    regionsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.regionsByYear(y) : MAP_REGIONS),
+    backgroundByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.backgroundByYear(y) : BACKGROUND_TERRITORIES),
+    capitalsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.capitalsByYear(y) : CAPITAL_CITIES),
+    seaLabelsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.seaLabels : SEA_LABELS),
+    blurbByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.blurb : REGION_BLURB),
+    rivers: RIVERS,
   },
   {
     id: "revolutions", label: "市民革命と国民国家", yearRange: [1789,1871],
@@ -3062,11 +3075,13 @@ function getActiveEraPeriod(year) {
 }
 
 // 年代 → ERAS_DATAの時代ID。地図の時代区分にカードデータ（ERAS_DATA）が紐づいていなければnull。
-// mapPeriodIdは文字列のほか、複数の時代区分にまたがる時代（古代など）では配列も指定できる
+// mapPeriodIdは文字列のほか、複数の時代区分にまたがる時代（古代など）では配列も指定できる。
+// 1つの時代区分を複数の時代が分け合う場合（大航海時代・近世）は、各時代の yearRange で年ごとに振り分ける
 function findEraIdByYear(year) {
   const period = getActiveEraPeriod(year);
   if (!period) return null;
-  const era = Object.values(ERAS_DATA).find((e) => [].concat(e.mapPeriodId).includes(period.id));
+  const era = Object.values(ERAS_DATA).find((e) =>
+    [].concat(e.mapPeriodId).includes(period.id) && (!e.yearRange || (year >= e.yearRange[0] && year <= e.yearRange[1])));
   return era ? era.id : null;
 }
 
@@ -3763,7 +3778,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   const periodCapitals = activePeriod?.capitalsByYear ? activePeriod.capitalsByYear(year) : activePeriod?.capitals ?? [];
   const periodRivers = activePeriod?.riversByYear ? activePeriod.riversByYear(year) : activePeriod?.rivers ?? [];
   const periodSeaLabels = activePeriod?.seaLabelsByYear ? activePeriod.seaLabelsByYear(year) : activePeriod?.seaLabels ?? [];
-  const periodBlurb = activePeriod?.blurb ?? {};
+  const periodBlurb = activePeriod?.blurbByYear ? activePeriod.blurbByYear(year) : activePeriod?.blurb ?? {};
   const periodKeyYears = activePeriod?.hasContent && activePeriod.keyYears?.length ? activePeriod.keyYears : ERA_BOUNDARY_YEARS;
 
   const selectedRegion = periodRegions.find((r) => r.id === selectedId);
