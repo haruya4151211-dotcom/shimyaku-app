@@ -1,28 +1,15 @@
 import {
   ERAS_DATA,
-  MAP_YEARS,
   WORLD_LAND_PATH,
-  HRE_POINTS_1618,
-  HRE_POINTS_1648,
-  FR_POINTS_1618,
-  FR_POINTS_1648,
-  NL_POINTS,
-  SPAIN_AUSTRIA_PATH,
-  HRE_AUSTRIA_SUB,
-  HRE_BOHEMIA_SUB,
-  BACKGROUND_TERRITORIES,
-  OTTOMAN_PATH,
-  MAP_REGIONS,
-  CAPITAL_CITIES,
   RIVERS,
   SEA_LABELS,
-  REGION_BLURB,
   ANCIENT_CIVILIZATIONS_MAP,
   ANCIENT_EMPIRES_MAP,
   RENAISSANCE_MEDIEVAL_MAP,
   RENAISSANCE_EARLY_MODERN_MAP,
   MEDIEVAL_1_MAP,
   MEDIEVAL_2_MAP,
+  ABSOLUTISM_MAP,
 } from './data/historyData';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
@@ -145,10 +132,10 @@ function spawnRipple(e) {
 
 export default function App() {
     // 現在選択されている時代ID（初期値: 三十年戦争）
-  const [selectedEraId, setSelectedEraId] = useState("thirty-years-war");
+  const [selectedEraId, setSelectedEraId] = useState("absolutism");
 
   // 選択中時代のデータセットを一括取得
-  const currentEra = ERAS_DATA[selectedEraId] || ERAS_DATA["thirty-years-war"];
+  const currentEra = ERAS_DATA[selectedEraId] || ERAS_DATA["absolutism"];
   const CARDS = currentEra.cards;
   const MAP_YEARS = currentEra.mapData.years;
   const WORLD_LAND_PATH = currentEra.mapData.landPath;
@@ -2827,9 +2814,9 @@ function regionStatus(id, year) {
   return { label: null, disputed: false };
 }
 
-const COVERED_ERA = [1500, 1700]; // 大航海時代・近世のうち実際にコンテンツが存在する範囲（1500〜1599年はルネサンス期、1600年以降は三十年戦争期の勢力図）
+const COVERED_ERA = [1500, 1789]; // 大航海時代・近世のうち実際にコンテンツが存在する範囲（1500〜1599年はルネサンス期、1600年以降は絶対王政期の勢力図）
 const MEDIEVAL_MAP_UNTIL = 1450; // 中世②の区分で、これより前は中世ヨーロッパの勢力図、以降はルネサンス期（1492年）の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
-const RENAISSANCE_MAP_UNTIL = 1600; // 大航海時代・近世の区分で、これより前はルネサンス期の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
+const RENAISSANCE_MAP_UNTIL = 1600; // 大航海時代・近世の区分で、これより前はルネサンス期、以降は絶対王政期の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
 
 // ============================================================
 // 時代区分（ERA_PERIODS）
@@ -3061,13 +3048,13 @@ const ERA_PERIODS = [
   {
     id: "early-modern", label: "大航海時代・近世", yearRange: [1500, 1789],
     hasContent: true, contentRange: COVERED_ERA,
-    // 1600年より前はルネサンス・宗教改革期（1517・1555年）の勢力図、以降は三十年戦争期の勢力図に切り替える
-    keyYears: [...RENAISSANCE_EARLY_MODERN_MAP.keyYears, ...MAP_YEARS],
-    regionsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.regionsByYear(y) : MAP_REGIONS),
-    backgroundByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.backgroundByYear(y) : BACKGROUND_TERRITORIES),
-    capitalsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.capitalsByYear(y) : CAPITAL_CITIES),
-    seaLabelsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.seaLabels : SEA_LABELS),
-    blurbByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP.blurb : REGION_BLURB),
+    // 1600年より前はルネサンス・宗教改革期（1517・1555年）、以降は絶対王政期（1648・1715・1772年）の勢力図に切り替える
+    keyYears: [...RENAISSANCE_EARLY_MODERN_MAP.keyYears, ...ABSOLUTISM_MAP.keyYears],
+    regionsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).regionsByYear(y),
+    backgroundByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).backgroundByYear(y),
+    capitalsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).capitalsByYear(y),
+    seaLabelsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).seaLabels,
+    blurbByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).blurb,
     rivers: RIVERS,
   },
   {
@@ -4036,16 +4023,6 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                               <path d={shapeData} {...shapeProps} />
                             ) : (
                               <polygon points={shapeData} {...shapeProps} />
-                            )}
-                            {/* 神聖ローマ帝国の内部構造：オーストリア大公国・ベーメン王国を、独立した勢力IDではなく
-                                同一勢力内の「自然な小区分」として、少し濃いトーンで重ね描きする（タップは親のHRE領域と同じ扱い） */}
-                            {r.id === "神聖ローマ帝国" && (
-                              <>
-                                <path d={HRE_AUSTRIA_SUB} fill="#EFCB7A" fillOpacity={isSelected ? 0.42 : 0.3} stroke="none" clipPath="url(#landClip)" style={{ pointerEvents: "none" }} />
-                                <path d={HRE_BOHEMIA_SUB} fill="#B8D9A8" fillOpacity={isSelected ? 0.42 : 0.3} stroke="none" clipPath="url(#landClip)" style={{ pointerEvents: "none" }} />
-                                <text x="520" y="217" textAnchor="middle" className="font-body" fontSize="5.2" fontWeight={600} fill="#FFFFFF" style={{ pointerEvents: "none", opacity: Math.max(0, Math.min(1, (panZoom.zoom - 1.15) / 0.3)), filter: "drop-shadow(0 0.6px 1.5px rgba(10,14,20,0.85))" }} transform={`translate(520,217) scale(${1 / panZoom.zoom}) translate(-520,-217)`}>オーストリア</text>
-                                <text x="524" y="205" textAnchor="middle" className="font-body" fontSize="5.2" fontWeight={600} fill="#FFFFFF" style={{ pointerEvents: "none", opacity: Math.max(0, Math.min(1, (panZoom.zoom - 1.15) / 0.3)), filter: "drop-shadow(0 0.6px 1.5px rgba(10,14,20,0.85))" }} transform={`translate(524,205) scale(${1 / panZoom.zoom}) translate(-524,-205)`}>ベーメン</text>
-                              </>
                             )}
                             {/* 汎用subLabelsレンダラー：飛び地／二地域構成の勢力（旧プロイセン王国のラインラント、
                                 旧オーストリア帝国のロンバルド＝ヴェネト等）が持つ小区分ラベルを、勢力IDのハードコードではなく

@@ -25,186 +25,446 @@
 //   （例：キャプション「バスティーユ襲撃」に対し、答えは「バスティーユ牢獄」ではなく「バスティーユ」＋本文側に「牢獄」）。
 // ---------------------------------------------------------------------------
 
-// 三十年戦争〜ウェストファリア体制（近世）のカード
-export const THIRTY_YEARS_WAR_CARDS = [
+// 近世（絶対王政・主権国家体制）のカード。
+// 三十年戦争とウェストファリア条約による主権国家体制の成立から、各国の絶対王政・啓蒙専制、英国の市民革命、
+// オランダの独立と繁栄、スペインの盛衰までを扱う（c1・c6・c8 は旧「三十年戦争」の試作カードを改訂したもの）。
+// region は Step 2 で作成予定のこの時代の地図（大航海時代・近世区分の1600年以降）の勢力IDとして使う名前で統一し、
+// 各勢力に2問ずつ割り当てている：神聖ローマ帝国、オーストリア、プロイセン王国、ロシア帝国、フランス王国、イギリス、
+// スペイン王国、オランダ。地図データを作るときは、この region と同じIDを勢力に付けること。
+// レパントの海戦（1571年）とオランダ独立戦争（1568年〜）は、時代の担当年代（1600年〜）より前に始まるが、
+// スペインの最盛期とオランダ独立の前提として、この時代のカードに含めている。
+export const ABSOLUTISM_CARDS = [
   {
-    id: "c1", year: 1648, difficulty: 0, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
-    front: "1648年に三十年戦争を終結させた条約は？",
-    back: "ウェストファリア条約",
-    images: [
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Der_Friedensreiter_von_M%C3%BCnster.JPG/960px-Der_Friedensreiter_von_M%C3%BCnster.JPG",
-        caption: "「ミュンスターの平和の使者」（1648年頃の木版画）",
-        alt: "ウェストファリア条約締結の報せを告げて駆ける「平和の使者」を描いた1648年の木版画",
-        credit: "Der Friedensreiter von Münster／作者不詳（1648年頃）, Wikimedia Commons・Public domain",
-      },
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg/960px-Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg",
-        caption: "テル・ボルフ「ミュンスター講和条約の批准」（1648年）",
-        alt: "ミュンスター講和条約の批准式に臨む各国使節（テル・ボルフ画、1648年）",
-        credit: "The Ratification of the Treaty of Münster／Gerard ter Borch（1648年）, Wikimedia Commons・Public domain",
-      },
-    ],
-    anecdote: "豆知識：交渉は戦時下での移動を伴い、約5年もの歳月を要した。当時としては異例の長期和平交渉だった。",
-    anecdoteLink: "https://en.wikipedia.org/wiki/Peace_of_Westphalia",
-  },
-  {
-    id: "c2", year: 1644, difficulty: 1, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
-    front: "三十年戦争の講和交渉が行われた2都市は？",
-    back: "オスナブリュックとミュンスター（プロテスタント側とカトリック側で交渉地を分けて同時進行した）",
-    images: [
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/EinzugdesGesandten_AdriaenPauw.jpg/960px-EinzugdesGesandten_AdriaenPauw.jpg",
-        caption: "テル・ボルフほか「オランダ使節パウのミュンスター入城」",
-        alt: "講和会議の開催地ミュンスターへ入城するオランダ使節アドリアーン・パウの一行（ミュンスターの街並みを遠望）",
-        credit: "Der Einzug des Gesandten Adriaen Pauw in Münster／Gerard ter Borch ほか, Wikimedia Commons・Public domain",
-      },
-    ],
-  },
-  {
-    id: "c3", year: 1648, difficulty: 2, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
-    front: "ウェストファリア条約が神聖ローマ帝国に与えた政治的影響は？",
+    id: "c76", year: 1571, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "スペイン王国", theme: ["通史", "絶対王政"],
+    front: "「太陽の沈まぬ国」の最盛期を築いたスペイン国王と、1571年にオスマン帝国の艦隊を破った海戦は？",
     back: "",
     cloze: {
-      template: "帝国内の各領邦に{{1}}を含む高い自治権（領邦主権）が認められ、{{2}}は大きく低下した。帝国は事実上、多数の主権的領邦からなる緩やかな連合体へと近づいた。",
+      template: "スペイン国王{{1}}は、ポルトガルの王位も兼ねて「太陽の沈まぬ国」の最盛期を築き、1571年の{{2}}の海戦でオスマン帝国の艦隊を破った。しかし1588年、イギリス遠征に送った無敵艦隊（アルマダ）は大敗した。",
       slots: [
-        { id: 1, answer: "外交権", category: "権限" },
-        { id: 2, answer: "皇帝の求心力", category: "名詞句" },
+        { id: 1, answer: "フェリペ2世", category: "人物" },
+        { id: 2, answer: "レパント", category: "海戦" },
       ],
       points: [
-        { label: "原因", text: "ウェストファリア条約が各領邦に外交権を含む高い自治権を認めた" },
-        { label: "経過", text: "領邦ごとの主権（領邦主権）が確立し、皇帝への求心力が失われていった" },
-        { label: "意義", text: "神聖ローマ帝国は事実上、多数の主権的領邦からなる緩やかな連合体へ近づいた" },
+        { label: "原因", text: "父カール5世からスペイン本国・ネーデルラント・南イタリア・新大陸を受け継ぎ、新大陸の銀で莫大な富を得た" },
+        { label: "経過", text: "熱心なカトリックとして新教徒を弾圧したためネーデルラントの反乱を招き、反乱を支援したイギリスとも対立した" },
+        { label: "意義", text: "無敵艦隊の敗北後、相次ぐ戦争と銀の流入による物価高騰で国力は衰え、覇権はイギリス・オランダ・フランスへ移っていった" },
       ],
     },
     images: [
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Jan_van_den_Hoecke_-_Portrait_of_Emperor_Ferdinand_III.jpg/960px-Jan_van_den_Hoecke_-_Portrait_of_Emperor_Ferdinand_III.jpg",
-        caption: "神聖ローマ皇帝フェルディナント3世（ファン・デン・フッケ画、1643年）",
-        alt: "ウェストファリア条約締結時の神聖ローマ皇帝フェルディナント3世の肖像",
-        credit: "Portrait of Emperor Ferdinand III／Jan van den Hoecke（1643年）, Wikimedia Commons・Public domain",
-      },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Battle_of_Lepanto_1571.jpg/960px-Battle_of_Lepanto_1571.jpg", caption: "『レパントの海戦』（16世紀後半、作者不詳）",
+        alt: "海面を埋め尽くすガレー船の大艦隊が、砲煙のなかで入り乱れて戦う場面",
+        credit: "Battle of Lepanto 1571／作者不詳（16世紀後半）, National Maritime Museum, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Felipe_II_por_Sofonisba_Anguissola%2C_1573.jpg/960px-Felipe_II_por_Sofonisba_Anguissola%2C_1573.jpg", caption: "ソフォニスバ・アングイッソラ「フェリペ2世の肖像」（1573年、プラド美術館）",
+        alt: "黒い服に白い襟を着け、帽子をかぶって立つ王の肖像",
+        credit: "Felipe II／Sofonisba Anguissola（1573年）, Museo del Prado, Wikimedia Commons・Public domain" },
     ],
+    anecdote: "豆知識：この海戦には、のちに『ドン・キホーテ』を書くセルバンテスも兵士として参加し、左腕の自由を失った。彼はこれを「レパントの片腕」と誇りにしたという。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/レパントの海戦",
   },
   {
-    id: "c4", year: 1648, difficulty: 3, era: "近世（15〜18世紀）", region: "ヨーロッパ全域", theme: ["通史"],
-    front: "ウェストファリア条約が主権国家体制の成立に果たした役割は？",
+    id: "c8", year: 1581, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "オランダ", theme: ["通史", "絶対王政"],
+    front: "スペインに反乱を起こしたネーデルラント北部の指導者と、1581年に独立を宣言して建てた国家は？",
     back: "",
     cloze: {
-      template: "教皇・皇帝という超国家的権威ではなく、各国家の{{1}}と対等な国家間関係を国際秩序の原則とした。これが後に「{{2}}」と呼ばれる近代国際関係の出発点とされる。",
+      template: "スペイン国王のカトリック強制と重税に対し、ネーデルラントの新教徒は1568年に反乱を起こした。北部7州は指導者{{1}}のもとで抵抗を続け、1581年に独立を宣言して{{2}}を建てた。",
       slots: [
-        { id: 1, answer: "主権", category: "概念" },
-        { id: 2, answer: "ウェストファリア体制", category: "歴史的意義" },
+        { id: 1, answer: "オラニエ公ウィレム", category: "人物" },
+        { id: 2, answer: "ネーデルラント連邦共和国", category: "国家" },
       ],
       points: [
-        { label: "原因", text: "三十年戦争を終結させる中で、宗教的権威に代わる新しい国際秩序の原則が必要とされた" },
-        { label: "経過", text: "教皇・皇帝ではなく、各国家の主権と対等な国家間関係を秩序の基盤とした" },
-        { label: "意義", text: "「ウェストファリア体制」と呼ばれる近代国際関係の出発点となった" },
+        { label: "原因", text: "毛織物業や商業で栄えたネーデルラントにはカルヴァン派（ゴイセン）が広まり、スペインの宗教弾圧と自治の否定に強く反発した" },
+        { label: "経過", text: "カトリックの多い南部10州（現在のベルギー）はスペインに屈したが、北部は1609年の休戦で事実上の独立を得て、1648年の講和条約で国際的に承認された" },
+        { label: "意義", text: "王を持たない共和国として独立した北部は、宗教的に寛容な商業国家となり、17世紀に経済・文化の黄金時代を迎えた" },
       ],
     },
     images: [
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg/960px-Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg",
-        caption: "テル・ボルフ「ミュンスター講和条約の批准」（1648年）",
-        alt: "ミュンスター講和条約の批准式に臨む各国使節（テル・ボルフ画、1648年）",
-        credit: "The Ratification of the Treaty of Münster／Gerard ter Borch（1648年）, Wikimedia Commons・Public domain",
-      },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Portrait_of_William_I%2C_Prince_of_Orange%2C_by_Adriaen_Thomasz_Key.jpg/960px-Portrait_of_William_I%2C_Prince_of_Orange%2C_by_Adriaen_Thomasz_Key.jpg", caption: "キー「オラニエ公ウィレムの肖像」（1579年頃）",
+        alt: "白いひだ襟と黒い服を身に着け、厳しい表情でこちらを見る男性の肖像",
+        credit: "William I, Prince of Orange／Adriaen Thomasz. Key（1579年頃）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Veen%2C_Otto_van-The_Famished_People_after_the_Relief_of_the_Siege_of_Leiden-Rijksmuseum_SK-A-3911.jpg/960px-Veen%2C_Otto_van-The_Famished_People_after_the_Relief_of_the_Siege_of_Leiden-Rijksmuseum_SK-A-3911.jpg", caption: "オットー・ファン・フェーン『ライデン包囲の解放後、パンとニシンを配る人々』（1574年）",
+        alt: "包囲から解放された町の広場で、飢えた市民たちにパンと魚が配られる場面",
+        credit: "De uitdeling van haring en wittebrood na de opheffing van het beleg van Leiden／Otto van Veen（1574年）, Rijksmuseum, Wikimedia Commons・CC0" },
     ],
+    anecdote: "豆知識：1574年、スペイン軍に包囲されたライデンでは、堤防を切って周囲を水没させ、救援の船を町に届けた。解放を記念して大学が創設され、今も10月3日にはパンとニシンを食べて祝う。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/八十年戦争",
   },
   {
-    id: "c5", year: 1650, difficulty: 4, era: "近世（15〜18世紀）", region: "神聖ローマ帝国", theme: ["通史"],
-    front: "三十年戦争は神聖ローマ帝国の統治構造にどのような影響を与えたか？",
+    id: "c78", year: 1602, difficulty: 2, era: "近世（絶対王政・主権国家体制）", region: "オランダ", theme: ["通史", "絶対王政"],
+    front: "1602年にオランダが設立し、アジア貿易を握った会社と、そのアジアの本拠地は？",
     back: "",
     cloze: {
-      template: "戦争による荒廃と諸侯の自立化が進み、{{1}}は形骸化して帝国は名目的な存在に近づいた。一方で個々の領邦は{{2}}の整備を進め、後の絶対主義国家の基盤を築いた。",
+      template: "17世紀のオランダは、1602年に設立した{{1}}を通じてアジアの香辛料貿易を握り、ジャワ島の{{2}}（現在のジャカルタ）を本拠地とした。",
       slots: [
-        { id: 1, answer: "皇帝権力", category: "名詞句" },
-        { id: 2, answer: "常備軍・官僚制", category: "制度" },
+        { id: 1, answer: "東インド会社", category: "会社" },
+        { id: 2, answer: "バタヴィア", category: "都市" },
       ],
       points: [
-        { label: "原因", text: "長期にわたる戦争による荒廃と、諸侯の自立化が並行して進んだ" },
-        { label: "経過", text: "皇帝権力が形骸化する一方、個々の領邦は常備軍・官僚制の整備を進めた" },
-        { label: "意義", text: "領邦ごとの統治強化は、後の絶対主義国家の基盤となった" },
+        { label: "原因", text: "スペインから事実上独立したオランダは、造船業と海運業を背景に、ポルトガルに代わってアジアへ直接進出した" },
+        { label: "経過", text: "会社は条約の締結や軍隊の保有も認められ、1623年のアンボイナ事件でイギリス勢力を香辛料諸島から締め出した" },
+        { label: "意義", text: "アムステルダムは国際金融と中継貿易の中心となり、レンブラントらの絵画に代表される市民文化が花開いた" },
       ],
     },
     images: [
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Les_mis%C3%A8res_et_les_malheurs_de_la_guerre_-_11_-_La_pendaison.png/960px-Les_mis%C3%A8res_et_les_malheurs_de_la_guerre_-_11_-_La_pendaison.png",
-        caption: "カロ『戦争の惨禍』より「絞首刑」（1633年）",
-        alt: "三十年戦争下の兵士の略奪と処刑を描いたカロの版画連作『戦争の惨禍』より「絞首刑」",
-        credit: "Les Grandes Misères de la guerre「絞首刑」／Jacques Callot（1633年）, Wikimedia Commons・Public domain",
-      },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Andries_Beeckman_-_The_Castle_of_Batavia.jpg/960px-Andries_Beeckman_-_The_Castle_of_Batavia.jpg", caption: "ベークマン『バタヴィア城』（1662年、アムステルダム国立美術館）",
+        alt: "ヤシの木が立ち並ぶ水辺の向こうに、城壁と建物が広がるアジアの交易拠点",
+        credit: "Het kasteel van Batavia／Andries Beeckman（1662年）, Rijksmuseum, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg/960px-The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg", caption: "レンブラント『夜警』（1642年、アムステルダム国立美術館）",
+        alt: "旗や槍を手にした市民の自警団が、隊長を中心に出動しようとする場面",
+        credit: "De Nachtwacht／Rembrandt van Rijn（1642年）, Rijksmuseum, Wikimedia Commons・Public domain" },
     ],
+    anecdote: "豆知識：江戸幕府の鎖国のもとで、オランダは長崎の出島での交易を許された唯一のヨーロッパの国だった。オランダ語の書物を通じた「蘭学」は、日本の近代化を準備した。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/オランダ東インド会社",
   },
   {
-    id: "c6", year: 1660, difficulty: 5, era: "近世（15〜18世紀）", region: "ヨーロッパ全域", theme: ["通史"],
-    front: "16〜17世紀の宗教対立は、近代主権国家体制の成立にどう影響したか？",
+    id: "c6", year: 1618, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "神聖ローマ帝国", theme: ["通史", "主権国家体制"],
+    front: "1618年にベーメンの新教徒の反乱から始まった戦争と、新教側で参戦して活躍したスウェーデン王は？",
     back: "",
     cloze: {
-      template: "宗教改革以降のカトリックとプロテスタントの対立は諸侯・諸国間の争いと結びつき、{{1}}へと拡大した。これを終結させた{{2}}は、宗教的統一に代わり主権国家同士の勢力均衡を秩序原理とし、近代的な主権国家体制の起点となった。",
+      template: "1618年、ベーメン（ボヘミア）の新教徒が神聖ローマ皇帝のカトリック強制に反発して反乱を起こし、{{1}}が始まった。戦争は諸外国の介入で国際戦争となり、新教側で参戦したスウェーデン王{{2}}は各地で皇帝軍を破ったが、リュッツェンの戦いで戦死した。",
       slots: [
-        { id: 1, answer: "三十年戦争", category: "固有名詞" },
-        { id: 2, answer: "ウェストファリア条約", category: "固有名詞" },
+        { id: 1, answer: "三十年戦争", category: "戦争" },
+        { id: 2, answer: "グスタフ・アドルフ", category: "人物" },
       ],
       points: [
-        { label: "原因", text: "宗教改革以降の宗派対立が、神聖ローマ帝国内の諸侯・諸国間の政治的争いと結びついた" },
-        { label: "経過", text: "対立は三十年戦争として全ヨーロッパ規模に拡大し、多数の国が介入した" },
-        { label: "意義", text: "宗教的統一ではなく主権国家間の勢力均衡を秩序原理とする、近代国際関係の起点となった" },
+        { label: "原因", text: "アウクスブルクの和議で認められなかったカルヴァン派の広がりと、皇帝によるカトリック化政策が対立を深めた" },
+        { label: "経過", text: "デンマーク・スウェーデンに続き、カトリック国のフランスがハプスブルク家に対抗して新教側で参戦し、宗教戦争から国家間の勢力争いへと性格を変えた" },
+        { label: "意義", text: "主な戦場となったドイツは荒廃して人口が激減し、その近代化が遅れる一因となった" },
       ],
     },
     images: [
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Prager.Fenstersturz.1618.jpg/960px-Prager.Fenstersturz.1618.jpg",
-        caption: "プラハ窓外放出事件（1618年）を描いた銅版画",
-        alt: "三十年戦争の発端となった1618年のプラハ窓外放出事件を描いた銅版画",
-        credit: "Prager Fenstersturz 1618／Johann Philipp Abelinus『Theatrum Europaeum』所収, Wikimedia Commons・Public domain",
-      },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Prager.Fenstersturz.1618.jpg/960px-Prager.Fenstersturz.1618.jpg", caption: "プラハ窓外放出事件（1618年）を描いた銅版画",
+        alt: "城の一室で、男たちが役人を窓の外へ投げ落とそうとする場面",
+        credit: "Prager Fenstersturz 1618／Johann Philipp Abelinus『Theatrum Europaeum』所収, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Les_mis%C3%A8res_et_les_malheurs_de_la_guerre_-_11_-_La_pendaison.png/960px-Les_mis%C3%A8res_et_les_malheurs_de_la_guerre_-_11_-_La_pendaison.png", caption: "カロ『戦争の惨禍』より「絞首刑」（1633年）",
+        alt: "大木の枝に多くの人々が吊るされ、その周りを兵士たちが取り囲む銅版画",
+        credit: "Les Grandes Misères de la guerre「絞首刑」／Jacques Callot（1633年）, Wikimedia Commons・Public domain" },
     ],
-    anecdote: "現代との繋がり：内政不干渉・主権平等の原則は、現在の国連憲章にも通じる国際関係の基本原則として残っている。",
-    anecdoteLink: "https://en.wikipedia.org/wiki/Westphalian_sovereignty",
+    anecdote: "逸話：皇帝軍を率いた傭兵隊長ヴァレンシュタインは、占領地から税を取り立てて大軍を養った。その強大さを恐れた皇帝により、のちに暗殺された。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/三十年戦争",
   },
   {
-    id: "c7", year: 1648, difficulty: 2, era: "近世（15〜18世紀）", region: "スペイン・オーストリア", theme: ["ハプスブルク家の歴史"],
-    front: "三十年戦争を経て衰退が決定的になったハプスブルク家の系統は？",
-    back: "スペイン・ハプスブルク家。オランダの事実上の独立を認めるなど、ヨーロッパにおける覇権的地位を大きく後退させた。",
-    anecdote: "逸話：ハプスブルク家は「戦は他家に、汝は結婚せよ」という言葉で知られるほど、婚姻政策による領土拡大を重視した家系だった。",
-    anecdoteLink: "https://en.wikipedia.org/wiki/House_of_Habsburg",
-  },
-  {
-    id: "c8", year: 1648, difficulty: 1, era: "近世（15〜18世紀）", region: "オランダ", theme: ["通史", "ハプスブルク家の歴史"],
-    front: "ウェストファリア条約で国際的に独立が承認された国は？",
-    back: "オランダ（ネーデルラント連邦共和国）とスイス",
-    images: [
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg/960px-Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg",
-        caption: "テル・ボルフ「ミュンスター講和条約の批准」（1648年）",
-        alt: "スペインがオランダの独立を承認したミュンスター講和条約の批准式（テル・ボルフ画、1648年）",
-        credit: "The Ratification of the Treaty of Münster／Gerard ter Borch（1648年）, Wikimedia Commons・Public domain",
-      },
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/EinzugdesGesandten_AdriaenPauw.jpg/960px-EinzugdesGesandten_AdriaenPauw.jpg",
-        caption: "テル・ボルフほか「オランダ使節パウのミュンスター入城」",
-        alt: "講和会議に臨むためミュンスターへ入城するオランダ使節アドリアーン・パウの一行",
-        credit: "Der Einzug des Gesandten Adriaen Pauw in Münster／Gerard ter Borch ほか, Wikimedia Commons・Public domain",
-      },
-    ],
-  },
-  {
-    id: "c9", year: 1648, difficulty: 4, era: "近世（15〜18世紀）", region: "ヨーロッパ全域", theme: ["通史"],
-    front: "【文脈穴埋め】三十年戦争の講和と主権国家体制",
+    id: "c1", year: 1648, difficulty: 0, era: "近世（絶対王政・主権国家体制）", region: "神聖ローマ帝国", theme: ["通史", "主権国家体制"],
+    front: "1648年に結ばれ、主権国家体制の出発点とされる講和条約と、このときオランダとともに独立が承認された国は？",
     back: "",
     cloze: {
-      template: "三十年戦争は神聖ローマ帝国内の宗教対立から始まり、諸外国の介入によって全ヨーロッパ規模の戦争へと拡大した。1648年、{{1}}が結ばれて講和が成立し、{{2}}が国際的に承認されたことで、近代的な主権国家体制の基礎が築かれた。",
+      template: "1648年、ヨーロッパの大半を巻き込んだ宗教戦争の講和として{{1}}条約が結ばれた。神聖ローマ帝国内の諸侯（領邦）にはほぼ完全な主権が認められ、オランダと{{2}}の独立が国際的に承認された。",
       slots: [
-        { id: 1, answer: "ウェストファリア条約", category: "固有名詞" },
-        { id: 2, answer: "オランダの独立", category: "事象" },
+        { id: 1, answer: "ウェストファリア", category: "条約" },
+        { id: 2, answer: "スイス", category: "国名" },
       ],
       points: [
-        { label: "原因", text: "宗教改革以降のカトリックとプロテスタントの対立が諸侯間の争いに発展した" },
-        { label: "経過", text: "フランス・スウェーデンなど諸外国の介入によって戦争がヨーロッパ規模に拡大した" },
-        { label: "意義", text: "主権国家同士の対等な関係を原則とする近代国際秩序（ウェストファリア体制）の起点となった" },
+        { label: "原因", text: "長期化した戦争を終わらせるため、ミュンスターとオスナブリュックで、各国の代表が数年にわたる講和会議を開いた" },
+        { label: "経過", text: "フランスはアルザスの一部を、スウェーデンは北ドイツの沿岸部を獲得した。カルヴァン派も公認され、帝国は事実上、多数の主権的な領邦の連合体となった" },
+        { label: "意義", text: "教皇や皇帝の権威ではなく、主権を持つ国家どうしが対等な立場で外交を行う「主権国家体制」の出発点とされる" },
       ],
     },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Der_Friedensreiter_von_M%C3%BCnster.JPG/960px-Der_Friedensreiter_von_M%C3%BCnster.JPG", caption: "「ミュンスターの平和の使者」（1648年頃の木版画）",
+        alt: "講和成立の報せを告げて駆ける「平和の使者」を描いた1648年の木版画",
+        credit: "Der Friedensreiter von Münster／作者不詳（1648年頃）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg/960px-Westfaelischer_Friede_in_Muenster_%28Gerard_Terborch_1648%29.jpg", caption: "テル・ボルフ「ミュンスター講和条約の批准」（1648年）",
+        alt: "大広間で、各国の使節が手を挙げて条約の批准を誓う場面",
+        credit: "The Ratification of the Treaty of Münster／Gerard ter Borch（1648年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：交渉は戦時下での移動を伴い、約5年もの歳月を要した。当時としては異例の長期にわたる多国間の講和会議で、現代の国際会議の先駆けともいわれる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ヴェストファーレン条約",
+  },
+  {
+    id: "c74", year: 1649, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "イギリス", theme: ["通史", "市民革命"],
+    front: "ピューリタン革命で議会派を率いて国王軍を破った人物と、国王処刑後に成立した政体は？",
+    back: "",
+    cloze: {
+      template: "議会を無視して専制を行ったチャールズ1世に対し、1642年に内戦が起こった。議会派の{{1}}が率いる鉄騎隊が王党派を破り、1649年に国王は処刑されて{{2}}が成立した。",
+      slots: [
+        { id: 1, answer: "クロムウェル", category: "人物" },
+        { id: 2, answer: "共和政", category: "政体" },
+      ],
+      points: [
+        { label: "原因", text: "1628年に議会が国王に認めさせた「権利の請願」を国王が無視し、議会を開かずに課税を続けた" },
+        { label: "経過", text: "議会派の中心はピューリタン（イギリスのカルヴァン派）の地主や商工業者だった。彼はのちに護国卿となって独裁を行い、アイルランドを征服した" },
+        { label: "意義", text: "国王を裁判にかけて処刑した、ヨーロッパ史上前例のない革命となった。厳格な独裁は反発を招き、彼の死後の1660年に王政が復活した" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Robert_Walker_-_Portrait_of_Oliver_Cromwell_%28c._1649%29.jpg/960px-Robert_Walker_-_Portrait_of_Oliver_Cromwell_%28c._1649%29.jpg", caption: "ウォーカー「オリヴァー・クロムウェルの肖像」（1649年頃）",
+        alt: "甲冑を身に着けた軍人が、小姓に腰帯を結ばせている肖像",
+        credit: "Portrait of Oliver Cromwell／Robert Walker（1649年頃）, National Portrait Gallery, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/The_Execution_of_Charles_I.jpg/960px-The_Execution_of_Charles_I.jpg", caption: "チャールズ1世の処刑（1649年、同時代の版画）",
+        alt: "宮殿前の処刑台を、広場を埋めた群衆が取り囲む様子を描いた版画",
+        credit: "The Execution of Charles I／作者不詳（1649年頃）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "逸話：処刑の日は寒かったため、国王は「震えて民衆に恐れていると思われないように」と、シャツを2枚重ねて着たと伝えられる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/清教徒革命",
+  },
+  {
+    id: "c72", year: 1661, difficulty: 0, era: "近世（絶対王政・主権国家体制）", region: "フランス王国", theme: ["通史", "絶対王政"],
+    front: "「朕は国家なり」と言ったとされるフランス王と、王の権力は神から授かったとする思想は？",
+    back: "",
+    cloze: {
+      template: "「朕は国家なり」と言ったとされるフランス王{{1}}は、王の権力は神から授かったとする{{2}}を背景に絶対王政の最盛期を築き、パリ郊外に壮麗なヴェルサイユ宮殿を建てた。",
+      slots: [
+        { id: 1, answer: "ルイ14世", category: "人物" },
+        { id: 2, answer: "王権神授説", category: "思想" },
+      ],
+      points: [
+        { label: "原因", text: "幼くして即位した王は、貴族の反乱（フロンドの乱）を経験し、宰相の死後の1661年から自ら政治を行う親政を始めた" },
+        { label: "経過", text: "財務総監コルベールが国内産業を保護・育成する重商主義政策で財政を支え、王は常備軍を率いてたびたび対外戦争を行った" },
+        { label: "意義", text: "宮廷に貴族を集めて王に仕えさせる体制は各国の君主の手本となったが、度重なる戦争と宮廷の浪費が、のちの財政危機の原因となった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Portrait_of_Louis_XIV_of_France_in_Coronation_Robes_%28by_Hyacinthe_Rigaud%29_-_Louvre_Museum.jpg/960px-Portrait_of_Louis_XIV_of_France_in_Coronation_Robes_%28by_Hyacinthe_Rigaud%29_-_Louvre_Museum.jpg", caption: "リゴー「ルイ14世の肖像」（1701年、ルーヴル美術館）",
+        alt: "白貂の毛皮の付いた青い戴冠衣装をまとい、王笏を手に立つ王の全身像",
+        credit: "Portrait de Louis XIV en costume de sacre／Hyacinthe Rigaud（1701年）, Musée du Louvre, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Vue_a%C3%A9rienne_du_domaine_de_Versailles_par_ToucanWings_-_Creative_Commons_By_Sa_3.0_-_113.jpg/960px-Vue_a%C3%A9rienne_du_domaine_de_Versailles_par_ToucanWings_-_Creative_Commons_By_Sa_3.0_-_113.jpg", caption: "ヴェルサイユ宮殿と庭園の空撮（パリ郊外）",
+        alt: "左右対称に広がる広大な庭園と、その奥に一直線に延びる大運河を空から見た写真",
+        credit: "Domaine de Versailles, vue aérienne／写真: ToucanWings（2013年）, Wikimedia Commons・CC BY-SA 3.0" },
+    ],
+    anecdote: "豆知識：王はバレエの名手で、若いころ太陽神アポロンの役を踊ったことなどから「太陽王」と呼ばれた。在位72年は、ヨーロッパの君主として最長記録の一つである。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ルイ14世_(フランス王)",
+  },
+  {
+    id: "c66", year: 1683, difficulty: 2, era: "近世（絶対王政・主権国家体制）", region: "オーストリア", theme: ["通史", "絶対王政"],
+    front: "第2次ウィーン包囲の撃退後、1699年にオーストリアがオスマン帝国と結んだ条約と、その条約で獲得した地域は？",
+    back: "",
+    cloze: {
+      template: "1683年、オスマン帝国の大軍がハプスブルク家の都ウィーンを包囲したが（第2次ウィーン包囲）、ポーランド王らの援軍に撃退された。反攻に転じたオーストリアは、1699年の{{1}}条約で{{2}}を獲得し、東ヨーロッパの大国となった。",
+      slots: [
+        { id: 1, answer: "カルロヴィッツ", category: "条約" },
+        { id: 2, answer: "ハンガリー", category: "地域" },
+      ],
+      points: [
+        { label: "原因", text: "16世紀以来ハンガリーの大半を支配していたオスマン帝国が、ハプスブルク家の中心ウィーンの攻略をめざした" },
+        { label: "経過", text: "ポーランド王ヤン3世ソビエスキの率いる援軍がオスマン軍を打ち破り、その後の反攻でオーストリア軍は失地を回復していった" },
+        { label: "意義", text: "オスマン帝国が初めて大規模な領土を失った条約で、ヨーロッパとオスマン帝国の力関係が逆転する転機となった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Vienna_Battle_1683.jpg/960px-Vienna_Battle_1683.jpg", caption: "ゲッフェルス「第2次ウィーン包囲（1683年）」（17世紀後半）",
+        alt: "丘の上から見下ろした平原で、城壁都市を囲む大軍と援軍が激しく戦う場面",
+        credit: "Battle of Vienna 1683／Frans Geffels（1683〜1694年頃）, Wien Museum, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/King_John_III_Sobieski_sending_Message_of_Victory_to_the_Pope%2C_after_the_Battle_of_Vienna_111.png/960px-King_John_III_Sobieski_sending_Message_of_Victory_to_the_Pope%2C_after_the_Battle_of_Vienna_111.png", caption: "マテイコ『ウィーンの勝利を教皇に伝えるソビエスキ』（1883年、ヴァチカン美術館）",
+        alt: "戦場で馬上の王が、捕獲した軍旗とともに勝利の書状を使者に託す場面",
+        credit: "Sobieski sending Message of Victory to the Pope／Jan Matejko（1883年）, Musei Vaticani, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：包囲したオスマン軍が残していったコーヒー豆をきっかけに、ウィーンでカフェ文化が広まったという伝承がある。三日月形のパン（クロワッサン）も、このときの勝利にちなむという俗説がある。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/第二次ウィーン包囲",
+  },
+  {
+    id: "c73", year: 1685, difficulty: 2, era: "近世（絶対王政・主権国家体制）", region: "フランス王国", theme: ["通史", "絶対王政"],
+    front: "1598年にアンリ4世が新教徒に信仰の自由を認めた法令と、1685年のその廃止で国外へ亡命した新教徒の呼び名は？",
+    back: "",
+    cloze: {
+      template: "1598年、アンリ4世は{{1}}を出して新教徒に信仰の自由を認め、宗教戦争を終わらせた。しかし1685年に国王がこれを廃止すると、商工業者の多い{{2}}が大量に国外へ亡命し、フランスの産業は大きな打撃を受けた。",
+      slots: [
+        { id: 1, answer: "ナントの勅令", category: "法令" },
+        { id: 2, answer: "ユグノー", category: "新教徒" },
+      ],
+      points: [
+        { label: "原因", text: "16世紀後半のフランスでは、カトリックとカルヴァン派新教徒の内戦が約30年続き、1572年にはサン・バルテルミの虐殺が起こった" },
+        { label: "経過", text: "新教徒から改宗したアンリ4世はブルボン朝を開いて国内を安定させたが、のちの国王は「一つの王、一つの法、一つの信仰」を掲げて廃止に踏み切った" },
+        { label: "意義", text: "亡命した新教徒はオランダ・イギリス・プロイセンなどに移り住み、その技術と資本が亡命先の産業発展に貢献した" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Fran%C3%A7ois_Dubois_-_Le_massacre_de_la_Saint-Barth%C3%A9lemy_-_729_-DUBOIS_num4000_nr.jpg/960px-Fran%C3%A7ois_Dubois_-_Le_massacre_de_la_Saint-Barth%C3%A9lemy_-_729_-DUBOIS_num4000_nr.jpg", caption: "デュボワ『サン・バルテルミの虐殺』（16世紀後半）",
+        alt: "パリの街路や川岸のあちこちで、市民が武器を持った人々に襲われている場面",
+        credit: "Le massacre de la Saint-Barthélemy／François Dubois（1572〜1584年頃）, Musée cantonal des Beaux-Arts de Lausanne, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Pourbus%2C_Frans_-_Official_portrait_of_Henry_IV_as_King_of_France.jpg/960px-Pourbus%2C_Frans_-_Official_portrait_of_Henry_IV_as_King_of_France.jpg", caption: "プルビュス「アンリ4世の肖像」（1610年頃）",
+        alt: "百合の紋章が描かれた青いマントをまとい、王笏を手に立つ王の肖像",
+        credit: "Henri IV, roi de France／Frans Pourbus le Jeune（1610年頃）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "名言：新教徒だったアンリ4世はパリに入るためカトリックに改宗し、「パリはミサに値する」と言ったと伝えられる。また「日曜日にはどの農民の鍋にも鶏を」と国民の生活向上を願ったことでも知られる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ナントの勅令",
+  },
+  {
+    id: "c75", year: 1689, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "イギリス", theme: ["通史", "市民革命"],
+    front: "1688年に議会がカトリックの国王を追放して新国王を迎えた無血の政変と、翌年に制定された法は？",
+    back: "",
+    cloze: {
+      template: "1688年、カトリックの復活をめざすジェームズ2世を議会が追放し、オランダ総督ウィレム3世とその妻メアリ2世を共同の王に迎えた（{{1}}）。翌年、議会の承認なしの課税や法律の停止を禁じる{{2}}が制定され、立憲王政の基礎が築かれた。",
+      slots: [
+        { id: 1, answer: "名誉革命", category: "政変" },
+        { id: 2, answer: "権利の章典", category: "法" },
+      ],
+      points: [
+        { label: "原因", text: "王政復古後の国王たちがカトリックの復活と専制を図り、議会の中の二つの党派（トーリ党・ホイッグ党）がともに反発した" },
+        { label: "経過", text: "ほとんど血を流すことなく王が交代し、新国王は議会が示した「権利の宣言」を認めて即位した" },
+        { label: "意義", text: "「王は君臨すれども統治せず」とされる議会主権の原則が確立し、18世紀には内閣が議会に責任を負う責任内閣制が生まれた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/William_III_Landing_at_Brixham%2C_Torbay%2C_5_November_1688.jpg/960px-William_III_Landing_at_Brixham%2C_Torbay%2C_5_November_1688.jpg", caption: "ヤン・ウィック『ブリクサムに上陸するウィレム3世』（1688年）",
+        alt: "海岸に上陸した白馬の騎士が、帽子を掲げて人々の歓迎に応える場面",
+        credit: "William III Landing at Brixham, Torbay, 5 November 1688／Jan Wyck（1688年）, National Maritime Museum, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Charger_with_double_portrait_of_William_III_and_Mary_II_MET_DP-1687-007.jpg/960px-Charger_with_double_portrait_of_William_III_and_Mary_II_MET_DP-1687-007.jpg", caption: "ウィレム3世とメアリ2世の肖像を描いたデルフト焼の大皿（1690年頃、メトロポリタン美術館）",
+        alt: "王冠の下に並ぶ国王夫妻の横顔を、青い絵付けで描いた陶器の大皿",
+        credit: "Charger with double portrait of William III and Mary II／作者不詳（1690年頃）, The Metropolitan Museum of Art, Wikimedia Commons・CC0" },
+    ],
+    anecdote: "豆知識：新国王はオランダ総督を兼ねたため、イギリスとオランダは同じ君主を戴くことになった。英語の「ジン」は、このころオランダから伝わった蒸留酒「ジェネヴァ」が由来とされる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/名誉革命",
+  },
+  {
+    id: "c70", year: 1703, difficulty: 0, era: "近世（絶対王政・主権国家体制）", region: "ロシア帝国", theme: ["通史", "絶対王政"],
+    front: "西欧化改革を進めたロシアの皇帝と、彼がスウェーデンを破ってバルト海に進出した戦争は？",
+    back: "",
+    cloze: {
+      template: "ロシアの{{1}}は、自ら使節団に加わって西欧を視察し、技術や制度を取り入れる近代化を進めた。{{2}}でスウェーデンを破ってバルト海に進出し、その沿岸に新首都サンクトペテルブルクを建設した。",
+      slots: [
+        { id: 1, answer: "ピョートル1世", category: "人物" },
+        { id: 2, answer: "北方戦争", category: "戦争" },
+      ],
+      points: [
+        { label: "原因", text: "西欧に比べて技術や軍事で大きく遅れていたロシアには、凍らない海への出口と近代的な軍隊が必要だった" },
+        { label: "経過", text: "オランダの造船所で自ら職人として働いたとも伝えられる。帰国後は軍隊・行政・教育を改革し、貴族に西欧風の服装を強制した" },
+        { label: "意義", text: "ロシアはヨーロッパの大国の一員となり、新首都は「西欧への窓」として以後200年余りロシアの都であり続けた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Hamburg%2C_Kunsthalle%2C_Paul_Delaroche%2C_Bildnis_Peter_der_Gro%C3%9Fe.jpg/960px-Hamburg%2C_Kunsthalle%2C_Paul_Delaroche%2C_Bildnis_Peter_der_Gro%C3%9Fe.jpg", caption: "ドラローシュ「ピョートル1世の肖像」（1838年、ハンブルク美術館）",
+        alt: "勲章の青い綬を掛けた軍服姿で、大砲に手をかけて立つ皇帝の肖像",
+        credit: "Bildnis Peter der Große／Paul Delaroche（1838年）, Hamburger Kunsthalle, 写真: Dguendel, Wikimedia Commons・CC BY 4.0" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Peter_%26_Paul_fortress_in_SPB_03.jpg/960px-Peter_%26_Paul_fortress_in_SPB_03.jpg", caption: "サンクトペテルブルクのペトロパヴロフスク要塞（1703年着工）",
+        alt: "川の対岸に、金色の尖塔をもつ大聖堂と城壁が横に長く延びる景色",
+        credit: "Peter and Paul Fortress／写真: Florstein（2019年）, Wikimedia Commons・CC BY-SA 4.0" },
+    ],
+    anecdote: "豆知識：皇帝は貴族に西欧風の身なりを求め、伝統的なあごひげを切らせた。ひげを残したい者には「ひげ税」を課し、納めた証明のメダルを持ち歩かせたという。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ピョートル1世",
+  },
+  {
+    id: "c77", year: 1713, difficulty: 3, era: "近世（絶対王政・主権国家体制）", region: "スペイン王国", theme: ["通史", "絶対王政"],
+    front: "スペイン＝ハプスブルク家の断絶後、フランス王の孫の即位をめぐって起こった戦争と、それを終わらせた条約は？",
+    back: "",
+    cloze: {
+      template: "スペイン＝ハプスブルク家が断絶し、フランス王の孫がフェリペ5世として即位すると、フランスの強大化を恐れたイギリス・オランダ・オーストリアとの間で{{1}}が起こった。1713年の{{2}}条約で、フランスと合同しないことを条件に即位が認められた。",
+      slots: [
+        { id: 1, answer: "スペイン継承戦争", category: "戦争" },
+        { id: 2, answer: "ユトレヒト", category: "条約" },
+      ],
+      points: [
+        { label: "原因", text: "子のいないスペイン王カルロス2世が、遺言でフランスのブルボン家の王子を後継者に指名した" },
+        { label: "経過", text: "ヨーロッパの勢力均衡が崩れることを恐れた諸国が同盟し、戦いは北アメリカの植民地にも広がった" },
+        { label: "意義", text: "スペインにブルボン朝が成立した一方、イギリスはジブラルタルや北アメリカの領土を獲得し、海上と植民地での覇権を強めた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Hyacinthe_Rigaud_-_Philippe_V%2C_roi_d%27Espagne_%281683-1746%29_-_Google_Art_Project.jpg/960px-Hyacinthe_Rigaud_-_Philippe_V%2C_roi_d%27Espagne_%281683-1746%29_-_Google_Art_Project.jpg", caption: "リゴー「フェリペ5世の肖像」（1701年頃）",
+        alt: "黒い衣装に勲章を下げ、マントを掛けた椅子の傍らに立つ若い王の全身像",
+        credit: "Philippe V, roi d'Espagne／Hyacinthe Rigaud（1701年頃）, Château de Versailles, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Rock-of-Gibraltar-2011.jpg/960px-Rock-of-Gibraltar-2011.jpg", caption: "ジブラルタルの岩山（ユトレヒト条約でイギリス領となった）",
+        alt: "青い海に面して切り立つ、白っぽい石灰岩の巨大な岩山",
+        credit: "Rock of Gibraltar／写真: Acediscovery（2011年）, Wikimedia Commons・CC BY 4.0" },
+    ],
+    anecdote: "豆知識：地中海の入口を押さえるジブラルタルは、この条約以来、現在までイギリス領であり続けている。スペインは今も返還を求めている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/スペイン継承戦争",
+  },
+  {
+    id: "c67", year: 1740, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "オーストリア", theme: ["通史", "絶対王政"],
+    front: "1740年にハプスブルク家の家督を継いだ女性の君主と、彼女が宿敵フランスと結んだ同盟の転換の呼び名は？",
+    back: "",
+    cloze: {
+      template: "1740年、ハプスブルク家の家督を継いだ{{1}}に対し、プロイセンなどが女性の相続に異議を唱えてオーストリア継承戦争が起こった。彼女は失地を取り戻すため、長年の宿敵フランスと同盟を結ぶ{{2}}を行い、七年戦争に臨んだ。",
+      slots: [
+        { id: 1, answer: "マリア・テレジア", category: "人物" },
+        { id: 2, answer: "外交革命", category: "外交" },
+      ],
+      points: [
+        { label: "原因", text: "父である皇帝カール6世は、娘に全領土を相続させる取り決めを各国に認めさせていたが、皇帝の死後に周辺諸国がこれを無視した" },
+        { label: "経過", text: "戦争で豊かな領土を奪われた彼女は、それまで敵対してきたフランス、さらにロシアと結んで包囲網を築いた" },
+        { label: "意義", text: "国内では行政・財政・教育の改革を進めて国家を立て直し、「国母」として慕われた。息子のヨーゼフ2世は啓蒙思想にもとづく改革をさらに推し進めた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Portrait_of_Maria_Theresia_by_workshop_of_Martin_Mytens_%28II%29_780.jpg/960px-Portrait_of_Maria_Theresia_by_workshop_of_Martin_Mytens_%28II%29_780.jpg", caption: "マイテンス工房「マリア・テレジアの肖像」（18世紀半ば）",
+        alt: "宝石の冠や王笏が置かれた卓の傍らで、レースの豪華なドレスをまとって座る女性君主の肖像",
+        credit: "Portrait of Maria Theresia／workshop of Martin van Meytens（1745〜1770年頃）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Schoenbrunn_Palace_as_seen_from_Neptune_Fountain%2C_September_2016.jpg/960px-Schoenbrunn_Palace_as_seen_from_Neptune_Fountain%2C_September_2016.jpg", caption: "シェーンブルン宮殿（ウィーン、18世紀半ばに改築）",
+        alt: "噴水の向こうの広大な庭園と、その奥に横長に延びる黄色い宮殿",
+        credit: "Schönbrunn Palace／写真: Martin Falbisoner（2016年）, Wikimedia Commons・CC BY-SA 4.0" },
+    ],
+    anecdote: "豆知識：16人の子をもうけ、末娘のマリー・アントワネットはフランス王ルイ16世に嫁いだ。この結婚も、フランスとの同盟を固めるための政略結婚だった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/マリア・テレジア",
+  },
+  {
+    id: "c68", year: 1745, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "プロイセン王国", theme: ["通史", "絶対王政"],
+    front: "オーストリア継承戦争に乗じて資源豊かな地方を奪ったプロイセン王と、その地方は？",
+    back: "",
+    cloze: {
+      template: "プロイセン王{{1}}（大王）は、オーストリア継承戦争に乗じて、鉱産資源や毛織物業で豊かな{{2}}を奪った。続く七年戦争では周囲の大国を相手に苦戦しながらも、この地を守り抜いた。",
+      slots: [
+        { id: 1, answer: "フリードリヒ2世", category: "人物" },
+        { id: 2, answer: "シュレジエン", category: "地方" },
+      ],
+      points: [
+        { label: "原因", text: "父の「兵隊王」が育てた強力な常備軍と、蓄えられた豊かな財政を受け継いで即位した" },
+        { label: "経過", text: "七年戦争ではフランス・ロシアを含む包囲網に苦しみ、首都ベルリンを一時占領されたが、ロシアの皇帝が交代して戦線を離脱したことで救われた" },
+        { label: "意義", text: "プロイセンはオーストリアと並ぶドイツの大国に成長し、のちのドイツ統一の中心となる基盤を築いた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Friedrich_der_Gro%C3%9Fe_%281781_or_1786%29_-_Google_Art_Project.jpg/960px-Friedrich_der_Gro%C3%9Fe_%281781_or_1786%29_-_Google_Art_Project.jpg", caption: "アントン・グラフ「フリードリヒ2世の肖像」（1781年頃）",
+        alt: "勲章の星を胸に着けた青い軍服姿の、年老いた王の肖像",
+        credit: "Friedrich der Große／Anton Graff（1781〜1786年頃）, Schloss Sanssouci, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/1860_Menzel_Ansprache_Friedrich_des_Gro%C3%9Fen_vor_der_Schlacht_bei_Leuthen_anagoria.JPG/960px-1860_Menzel_Ansprache_Friedrich_des_Gro%C3%9Fen_vor_der_Schlacht_bei_Leuthen_anagoria.JPG", caption: "メンツェル『ロイテンの戦いを前にした国王の訓示』（1860年、ベルリン旧国立美術館）",
+        alt: "雪の中、三角帽をかぶった将軍たちに囲まれて、国王が語りかける場面",
+        credit: "Ansprache Friedrichs des Großen an seine Generale vor der Schlacht bei Leuthen／Adolph Menzel（1860年）, Alte Nationalgalerie, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：王はジャガイモの栽培を広めようと、王領の畑を兵士にわざと厳重に見張らせ、「価値のある作物だ」と思わせて農民に広めたという逸話がある。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/フリードリヒ2世_(プロイセン王)",
+  },
+  {
+    id: "c69", year: 1750, difficulty: 3, era: "近世（絶対王政・主権国家体制）", region: "プロイセン王国", theme: ["通史", "絶対王政"],
+    front: "プロイセンで将校として軍を支えた地主貴族と、啓蒙思想を取り入れて上からの近代化を進めた君主の呼び名は？",
+    back: "",
+    cloze: {
+      template: "プロイセンでは、東部の農場を経営する地主貴族である{{1}}が、将校として軍を支え、農民を支配した。18世紀後半の国王は「君主は国家第一の僕」と称し、啓蒙思想を取り入れて上からの近代化を進める{{2}}の典型とされた。",
+      slots: [
+        { id: 1, answer: "ユンカー", category: "身分" },
+        { id: 2, answer: "啓蒙専制君主", category: "君主の型" },
+      ],
+      points: [
+        { label: "原因", text: "市民層が未成熟だった東ヨーロッパでは、君主が自ら主導して産業の育成や制度の改革を進める必要があった" },
+        { label: "経過", text: "国王はフランスの思想家ヴォルテールを宮廷に招いて交流し、宗教的寛容や拷問の廃止、産業の振興を進めた" },
+        { label: "意義", text: "改革は君主の権力を強めるためのもので、地主貴族の特権や農民の隷属はそのまま残され、近代化には限界があった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Adolph_Menzel_-_Fl%C3%B6tenkonzert_Friedrichs_des_Gro%C3%9Fen_in_Sanssouci_-_Google_Art_Project.jpg/960px-Adolph_Menzel_-_Fl%C3%B6tenkonzert_Friedrichs_des_Gro%C3%9Fen_in_Sanssouci_-_Google_Art_Project.jpg", caption: "メンツェル『サンスーシ宮殿のフルート演奏会』（1852年、ベルリン旧国立美術館）",
+        alt: "シャンデリアの灯る広間で、国王がフルートを吹き、宮廷の人々が耳を傾ける場面",
+        credit: "Flötenkonzert in Sanssouci／Adolph Menzel（1850〜1852年）, Alte Nationalgalerie, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Aerial_image_of_Sanssouci_%28view_from_the_south%29.jpg/960px-Aerial_image_of_Sanssouci_%28view_from_the_south%29.jpg", caption: "サンスーシ宮殿とぶどう畑の段丘（ポツダム、1747年完成）",
+        alt: "階段状に連なるぶどう畑の段丘の上に、平屋の宮殿が建つ様子を空から見た写真",
+        credit: "Aerial image of Sanssouci／写真: Carsten Steger, Wikimedia Commons・CC BY-SA 4.0" },
+    ],
+    anecdote: "豆知識：「サンスーシ」はフランス語で「憂いのない」という意味。国王はこの宮殿でフランス語を話し、フルートを演奏して作曲もする教養人だった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/啓蒙専制君主",
+  },
+  {
+    id: "c71", year: 1772, difficulty: 1, era: "近世（絶対王政・主権国家体制）", region: "ロシア帝国", theme: ["通史", "絶対王政"],
+    front: "18世紀後半に農奴制を強化しつつ領土を広げたロシアの女帝と、彼女がプロイセン・オーストリアとともに行った領土分割は？",
+    back: "",
+    cloze: {
+      template: "18世紀後半、ロシアの女帝{{1}}は啓蒙思想に関心を示しつつ農奴制を強化し、プガチョフの農民反乱を鎮圧した。対外的には黒海北岸に進出し、プロイセン・オーストリアとともに3回にわたる{{2}}を行った。",
+      slots: [
+        { id: 1, answer: "エカチェリーナ2世", category: "人物" },
+        { id: 2, answer: "ポーランド分割", category: "領土分割" },
+      ],
+      points: [
+        { label: "原因", text: "ドイツ出身の皇后だった彼女は、夫の皇帝をクーデタで退位させて即位し、貴族の支持を固める必要があった" },
+        { label: "経過", text: "オスマン帝国との戦争でクリミア半島を獲得して黒海への出口を得た。1772・93・95年の分割で隣国は地図から消えた" },
+        { label: "意義", text: "ロシアは東ヨーロッパ最大の強国となった一方、農奴制の強化は国内の矛盾を深めた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Catherine_II_walking_by_V.Borovikovskiy_%281794%2C_Tretyakov_gallery%29.jpg/960px-Catherine_II_walking_by_V.Borovikovskiy_%281794%2C_Tretyakov_gallery%29.jpg", caption: "ボロヴィコフスキー「ツァールスコエ・セローの公園を散歩するエカチェリーナ2世」（1794年）",
+        alt: "青いコートを着て犬を連れ、公園の木立の中を散歩する年配の女性",
+        credit: "Catherine II walking in Tsarskoye Selo park／Vladimir Borovikovsky（1794年）, Tretyakov Gallery, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Winter_Palace_Panorama_4.jpg/960px-Winter_Palace_Panorama_4.jpg", caption: "冬宮（現在のエルミタージュ美術館、18世紀半ば完成）",
+        alt: "川岸に横長に延びる、白い柱と緑の壁をもつバロック様式の宮殿",
+        credit: "Winter Palace／写真: Florstein（2016年）, Wikimedia Commons・CC BY-SA 4.0" },
+    ],
+    anecdote: "豆知識：1791年、漂流してロシアに渡った日本の船頭・大黒屋光太夫はこの女帝に謁見して帰国を願い出た。翌年、彼を送り届けるためにロシア使節ラクスマンが根室に来航した。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/エカチェリーナ2世",
   },
 ];
 
@@ -1094,9 +1354,9 @@ export const RENAISSANCE_CARDS = [
         credit: "Martin Luther／Lucas Cranach der Ältere（1528年）, Veste Coburg, Wikimedia Commons・Public domain",
       },
       {
-        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Luther95theses.jpg/960px-Luther95theses.jpg",
+        url: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Ferdinand_Pauwels_-_Luther_hammers_his_95_theses_to_the_door.jpg",
         caption: "パウエルス『九十五箇条の論題を掲げるルター』（1872年）",
-        alt: "教会の扉に槌で文書を打ち付ける修道士と、それを見守る人々",
+        alt: "教会の扉に槌で文書を打ち付ける黒い修道服の男性と、その傍らで見守る人々。足元には木の台が置かれている",
         credit: "Luther schlägt die 95 Thesen an／Ferdinand Pauwels（1872年）, Wikimedia Commons・Public domain",
       },
     ],
@@ -2052,7 +2312,7 @@ export const REGION_BLURB = {
   "神聖ローマ帝国": "多数の領邦（諸侯国・自由都市）からなる複合国家。皇帝の実権は時代とともに低下していく。",
   "オランダ": "スペインからの独立を目指し反乱を続けた北部ネーデルラント。1648年に国際的に独立が承認される。",
   "スペイン・オーストリア": "ハプスブルク家の二大系統（スペイン系・オーストリア系）が広大な領土を治める。",
-  "フランス王国": "ブルボン朝のもとで中央集権化を進め、三十年戦争を通じて大陸の主導権を握っていく。",
+  "フランス王国": "ブルボン朝のもとで中央集権化を進め、ドイツの宗教戦争への介入を通じて大陸の主導権を握っていく。",
   "オスマン帝国": "東地中海から中東・北アフリカに及ぶ広大な版図を持つイスラム王朝。",
 };
 
@@ -3061,6 +3321,278 @@ export const MEDIEVAL_BLURB = {
 export const MEDIEVAL_1_MAP = snapshotMapPeriod(MEDIEVAL_SNAPSHOTS_1, { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
 export const MEDIEVAL_2_MAP = snapshotMapPeriod(MEDIEVAL_SNAPSHOTS_2, { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
 
+// =====================================================================
+// 近世（絶対王政・主権国家体制）の地図データ
+// 1648・1715・1772年の3時点。地図の時代区分「大航海時代・近世」の1600年以降を受け持つ（1600年より前はルネサンス期の地図）。
+// フランス・神聖ローマ帝国・スペインなどの輪郭はルネサンス期のものを流用し、オーストリア・プロイセン・オランダなどは
+// 神聖ローマ帝国の上に重ねて描く（配列の後ろほど上に描画される）。
+// region の id は ABSOLUTISM_CARDS の region と一致させている。カードの答えになる地名（ユトレヒト、カルロヴィッツ、
+// バタヴィア、ナント）は都市として置かず、勢力ラベルにも「ハンガリー」「スイス」は出さない。輪郭は学習用の模式図。
+// =====================================================================
+const ABSOLUTISM_COLORS = {
+  "スペイン王国": ["#D9866B", "#F0B8A8"],
+  "オランダ": ["#F2A65A", "#F8D3AA"],
+  "神聖ローマ帝国": ["#A8C686", "#D2E3BF"],
+  "イギリス": ["#E07A8B", "#F2B8C2"],
+  "フランス王国": ["#8FA3E0", "#C3CFF0"],
+  "オーストリア": ["#E8D27A", "#F5E9B8"],
+  "プロイセン王国": ["#8FBCC9", "#C3E0E6"],
+  "ロシア帝国": ["#B79FD1", "#DCCCEC"],
+};
+const absRegion = (id, rings, label) => mapRegion(ABSOLUTISM_COLORS, id, rings, label);
+
+// --- 西ヨーロッパ ---
+// ピレネー条約（1659年）でルシヨンがフランス領となった後のスペイン本国
+const SPAIN_IBERIA_1659 = SPAIN_IBERIA.map(([lon, lat]) => (lat >= 42.6 && lon >= 1.8 && lon <= 3.6 ? [lon, 42.45] : [lon, lat]));
+const ROUSSILLON = [[1.8, 42.6], [3.0, 42.9], [3.3, 43.0], [3.6, 42.6], [3.4, 42.35], [3.15, 42.42], [1.8, 42.45]];
+const SPANISH_NETHERLANDS = [
+  [2.55, 51.1], [3.4, 51.4], [4.3, 51.4], [5.0, 51.45], [5.9, 51.2], [6.0, 50.3], [5.8, 49.5], [4.8, 49.8], [4.0, 50.3],
+  [3.0, 50.7], [2.5, 50.85],
+];
+const FRANCHE_COMTE = [[5.4, 47.9], [6.8, 47.6], [7.0, 47.4], [6.4, 46.9], [6.0, 46.5], [5.5, 46.3], [5.3, 47.0]];
+const ALSACE = [[6.9, 49.1], [8.2, 49.0], [7.6, 47.6], [7.0, 47.4], [6.8, 47.6]];
+const LORRAINE = [[5.4, 49.55], [6.6, 49.5], [7.4, 49.15], [6.9, 48.3], [6.8, 47.9], [5.8, 47.9], [5.4, 48.5]];
+const DUTCH_REPUBLIC = [
+  [3.3, 51.5], [3.6, 52.0], [4.4, 53.2], [5.5, 53.6], [7.2, 53.4], [7.2, 52.6], [6.9, 52.1], [6.0, 51.85], [5.9, 51.2],
+  [5.0, 51.45], [4.3, 51.4], [3.4, 51.4],
+];
+const GREAT_BRITAIN = [
+  [-6.0, 49.9], [-1.0, 50.4], [1.4, 50.9], [2.0, 52.6], [0.3, 54.2], [-1.2, 55.6], [-1.5, 56.3], [-1.8, 57.5], [-1.6, 58.8],
+  [-2.5, 59.5], [-5.0, 59.0], [-7.8, 58.4], [-8.0, 57.0], [-7.0, 56.5], [-6.2, 55.4], [-5.3, 54.6], [-5.2, 53.3], [-5.7, 51.8],
+];
+const IRELAND = [[-10.6, 51.4], [-6.0, 51.6], [-5.35, 54.5], [-6.0, 55.4], [-7.5, 55.5], [-10.4, 54.3]];
+// 北アメリカ東岸の13植民地（1715年）と、七年戦争後のカナダ・ミシシッピ川以東を加えた英領（1772年）
+const BRITISH_AMERICA_1715 = [
+  [-81.5, 31.5], [-79.5, 32.0], [-75.2, 35.2], [-75.5, 37.5], [-73.5, 40.4], [-69.8, 41.4], [-66.8, 44.8], [-68.5, 47.0],
+  [-73.5, 45.0], [-77.0, 42.0], [-79.5, 40.0], [-81.5, 37.0], [-83.5, 35.0], [-83.0, 32.5], [-82.0, 31.0],
+];
+const BRITISH_AMERICA_1772 = [
+  [-89.5, 30.5], [-82.5, 24.8], [-80.0, 25.2], [-80.0, 31.0], [-79.5, 32.0], [-75.2, 35.2], [-75.5, 37.5], [-73.5, 40.4],
+  [-69.8, 41.4], [-66.0, 43.5], [-60.0, 45.5], [-59.5, 47.5], [-64.0, 49.5], [-71.0, 48.5], [-75.0, 46.5], [-80.0, 46.5],
+  [-84.5, 46.5], [-89.0, 47.5], [-91.0, 43.0], [-91.0, 37.0], [-90.0, 33.0], [-91.2, 31.0],
+];
+
+// --- 中・東ヨーロッパ ---
+const BRANDENBURG_POMERANIA = [
+  [11.3, 52.9], [12.2, 53.25], [13.8, 53.5], [14.6, 53.7], [15.5, 54.25], [17.0, 54.65], [17.4, 54.4], [16.8, 53.4],
+  [15.8, 52.5], [15.0, 52.0], [13.5, 51.7], [12.3, 52.0], [11.3, 52.5],
+];
+const EAST_PRUSSIA = [
+  [19.4, 54.4], [19.9, 54.95], [21.0, 55.4], [22.0, 55.0], [22.8, 54.4], [22.6, 53.6], [21.0, 53.4], [19.8, 53.5], [19.3, 54.0],
+];
+const CLEVES_MARK = [[5.9, 51.85], [7.0, 51.8], [8.2, 51.6], [8.2, 51.3], [7.0, 51.3], [6.0, 51.6]];
+const WEST_PRUSSIA = [[17.0, 54.6], [18.8, 54.85], [19.4, 54.4], [19.3, 53.4], [17.9, 53.0], [16.8, 53.4]];
+const SILESIA = [
+  [15.0, 51.0], [16.1, 51.75], [17.5, 51.5], [18.5, 50.8], [18.9, 50.0], [18.0, 49.9], [17.5, 50.2], [16.5, 50.2], [16.3, 50.4],
+  [15.0, 50.8],
+];
+const BOHEMIA_MORAVIA = [
+  [12.1, 50.3], [13.0, 50.6], [14.3, 51.0], [15.0, 51.0], [15.0, 50.8], [16.3, 50.4], [16.5, 50.2], [17.5, 50.2], [18.0, 49.9],
+  [18.5, 49.5], [17.6, 48.8], [16.9, 48.6], [15.0, 48.95], [13.8, 48.7], [12.5, 49.3], [12.4, 49.7],
+];
+const AUSTRIA_CORE = [
+  [13.8, 48.7], [15.0, 48.95], [16.9, 48.6], [17.1, 48.0], [16.5, 47.5], [16.1, 46.7], [15.5, 45.9], [14.4, 45.4], [13.7, 45.6],
+  [13.6, 46.4], [12.4, 46.6], [11.6, 46.1], [11.1, 45.9], [10.6, 46.3], [10.4, 46.9], [9.6, 47.5], [10.5, 47.6], [12.0, 47.6],
+  [13.0, 48.2],
+];
+// 1648年：オスマン帝国の支配を免れたハンガリー北西部とクロアチア（1699年以降はハンガリー全域＝HUNGARY）
+const HABSBURG_HUNGARY_1648 = [
+  [17.1, 48.0], [17.6, 48.8], [18.5, 49.5], [20.5, 49.4], [22.0, 49.0], [21.5, 48.3], [19.0, 47.8], [17.5, 47.2], [16.5, 46.3],
+  [16.1, 46.7], [16.5, 47.5],
+];
+const HABSBURG_CROATIA_1648 = [[14.4, 45.4], [15.5, 45.9], [16.5, 46.3], [16.8, 45.5], [15.8, 45.0], [15.0, 44.8], [14.6, 45.2]];
+const GALICIA = [
+  [18.9, 50.0], [19.8, 50.4], [21.5, 50.6], [23.5, 50.6], [24.5, 49.9], [26.0, 49.6], [26.3, 48.6], [24.5, 47.9], [22.5, 49.0],
+  [20.5, 49.4], [19.5, 49.5],
+];
+// ロシア：17世紀半ば（バルト海への出口なし）、18世紀初め（バルト海沿岸と左岸ウクライナを獲得）、1772年（ベラルーシ東部を獲得）
+const RUSSIA_1648 = [
+  [29.5, 69.5], [33.0, 69.5], [41.0, 68.0], [60.0, 70.0], [100.0, 76.0], [140.0, 73.0], [160.0, 70.0], [140.0, 60.0],
+  [110.0, 52.0], [90.0, 52.0], [80.0, 54.0], [65.0, 55.0], [60.0, 52.0], [55.0, 51.5], [50.0, 48.0], [49.5, 45.5], [47.5, 45.5],
+  [46.0, 47.0], [44.0, 48.5], [40.0, 49.5], [36.0, 50.5], [34.5, 51.5], [33.0, 52.5], [33.0, 55.0], [30.5, 56.5], [28.0, 57.5],
+  [28.0, 58.5], [30.5, 59.0], [32.5, 60.5], [30.0, 62.0], [29.5, 64.0], [29.0, 66.0],
+];
+const RUSSIA_WEST_1715 = [
+  [44.0, 48.5], [40.0, 47.5], [35.0, 48.0], [32.0, 49.0], [30.5, 50.5], [31.0, 52.0], [31.5, 54.0], [31.0, 55.5], [28.0, 56.5],
+  [26.5, 56.0], [24.0, 56.9], [23.5, 57.2], [22.0, 57.8], [21.5, 58.5], [22.5, 59.2], [23.5, 59.5], [27.5, 60.4], [28.0, 61.0],
+  [30.0, 62.0], [29.5, 64.0], [29.0, 66.0],
+];
+const RUSSIA_WEST_1772 = [
+  [44.0, 48.5], [40.0, 47.5], [35.0, 48.0], [32.0, 49.0], [30.5, 50.5], [30.5, 53.0], [30.0, 54.5], [28.5, 55.4], [26.5, 56.0],
+  [24.0, 56.9], [23.5, 57.2], [22.0, 57.8], [21.5, 58.5], [22.5, 59.2], [23.5, 59.5], [27.5, 60.4], [28.0, 61.0], [30.0, 62.0],
+  [29.5, 64.0], [29.0, 66.0],
+];
+const RUSSIA_NORTH_EAST = RUSSIA_1648.slice(0, 18); // 北極海沿岸〜シベリア〜ヴォルガ下流（3時点で共通）
+const RUSSIA_1715 = [...RUSSIA_NORTH_EAST, ...RUSSIA_WEST_1715];
+const RUSSIA_1772 = [...RUSSIA_NORTH_EAST, ...RUSSIA_WEST_1772];
+
+// --- 背景（タップ不可） ---
+const SWEDEN_FINLAND = [
+  [11.0, 58.9], [12.5, 61.0], [12.3, 63.5], [14.5, 65.5], [16.5, 67.5], [20.0, 69.0], [23.5, 68.8], [28.0, 69.0], [29.0, 66.0],
+  [29.5, 64.0], [30.0, 62.0], [28.0, 61.0], [27.5, 60.4], [22.0, 59.6], [19.5, 59.0], [19.5, 58.5], [18.5, 57.0], [16.5, 56.0],
+  [14.0, 55.3], [13.0, 55.35], [12.6, 56.0], [11.5, 57.5],
+];
+const SWEDISH_BALTIC_1648 = [
+  [23.5, 59.5], [28.0, 60.0], [31.0, 59.5], [28.0, 58.5], [27.5, 57.5], [26.5, 56.5], [24.0, 56.9], [23.5, 57.2], [22.0, 57.8],
+  [21.5, 58.5], [22.5, 59.2],
+];
+const SWEDISH_POMERANIA = [[12.4, 54.2], [14.6, 54.0], [14.7, 53.4], [13.8, 53.5], [12.5, 53.9]];
+const POLAND_1648 = [
+  [17.0, 54.5], [18.8, 54.85], [19.4, 54.4], [19.3, 54.0], [19.8, 53.5], [21.0, 53.4], [22.6, 53.6], [22.8, 54.4], [22.0, 55.0],
+  [21.2, 55.3], [21.0, 56.5], [22.0, 57.5], [23.5, 57.2], [24.0, 56.9], [26.5, 56.5], [28.0, 56.5], [30.5, 56.5], [33.0, 55.0],
+  [34.5, 51.5], [36.0, 50.5], [35.0, 48.5], [32.0, 47.5], [30.0, 47.5], [28.0, 48.3], [26.3, 48.6], [24.5, 47.9], [22.5, 49.0],
+  [20.5, 49.4], [18.8, 49.5], [18.9, 50.0], [18.5, 50.8], [17.5, 51.5], [16.1, 51.75], [15.8, 52.5], [16.8, 53.4],
+];
+const POLAND_1715 = [
+  [17.0, 54.5], [18.8, 54.85], [19.4, 54.4], [19.3, 54.0], [19.8, 53.5], [21.0, 53.4], [22.6, 53.6], [22.8, 54.4], [22.0, 55.0],
+  [21.2, 55.3], [21.0, 56.5], [22.0, 57.5], [23.5, 57.2], [24.0, 56.9], [26.5, 56.0], [28.0, 56.5], [31.0, 55.5], [31.5, 54.0],
+  [31.0, 52.0], [30.5, 50.5], [32.0, 49.0], [30.0, 48.0], [28.0, 48.3], [26.3, 48.6], [24.5, 47.9], [22.5, 49.0], [20.5, 49.4],
+  [18.8, 49.5], [18.9, 50.0], [18.5, 50.8], [17.5, 51.5], [16.1, 51.75], [15.8, 52.5], [16.8, 53.4],
+];
+const POLAND_1772 = [
+  [16.8, 53.4], [17.9, 53.0], [19.3, 53.4], [19.8, 53.5], [21.0, 53.4], [22.6, 53.6], [22.8, 54.4], [22.0, 55.0], [21.2, 55.3],
+  [21.0, 56.5], [22.0, 57.5], [23.5, 57.2], [24.0, 56.9], [26.5, 56.0], [28.5, 55.4], [30.0, 54.5], [30.5, 53.0], [30.5, 51.0],
+  [30.0, 48.5], [28.0, 48.3], [26.3, 48.6], [26.0, 49.6], [24.5, 49.9], [23.5, 50.6], [21.5, 50.6], [19.8, 50.4], [18.9, 50.0],
+  [18.5, 50.8], [17.5, 51.5], [16.1, 51.75], [15.8, 52.5],
+];
+const BG = { ottoman: "#7A8CA8", sweden: "#8C9A7A", poland: "#A89A8C", portugal: "#7FA6A0" };
+
+const ABSOLUTISM_LABELS = {
+  spain: { at: [-3.0, 40.3], lines: ["スペイン王国"], size: 5 },
+  netherlands: { at: [5.4, 52.4], lines: ["オランダ"], size: 3 },
+  hre: { at: [9.6, 50.2], lines: ["神聖ローマ帝国"], size: 4.5 },
+  britain: { at: [-1.8, 52.9], lines: ["イギリス"], size: 4.5 },
+  france: { at: [2.3, 46.8], lines: ["フランス王国"], size: 6 },
+  austria: { at: [15.2, 47.4], lines: ["オーストリア"], size: 4 },
+  brandenburg: { at: [13.3, 52.6], lines: ["ブランデンブルク", "＝プロイセン"], size: 3 },
+  prussia: { at: [13.3, 52.6], lines: ["プロイセン王国"], size: 3.6 },
+  russia: { at: [42.0, 57.0], lines: ["ロシア帝国"], size: 8 },
+};
+
+const ABSOLUTISM_SNAPSHOTS = {
+  // ウェストファリア条約（1648年）。ブランデンブルク選帝侯はプロイセン公国を兼ね、オーストリアはベーメン・シュレジエンを保持
+  [1648]: {
+    regions: [
+      absRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE], ABSOLUTISM_LABELS.hre),
+      absRegion("フランス王国", [FRANCE, ALSACE], ABSOLUTISM_LABELS.france),
+      absRegion("スペイン王国", [
+        SPAIN_IBERIA, SPAIN_SICILY, SPAIN_SARDINIA, SPAIN_BALEARICS, NAPLES, MILAN, SPANISH_NETHERLANDS, FRANCHE_COMTE,
+        ...SPAIN_CARIBBEAN, SPAIN_NEW_SPAIN, INCA,
+      ], ABSOLUTISM_LABELS.spain),
+      absRegion("オーストリア", [AUSTRIA_CORE, BOHEMIA_MORAVIA, SILESIA, HABSBURG_HUNGARY_1648, HABSBURG_CROATIA_1648], ABSOLUTISM_LABELS.austria),
+      absRegion("プロイセン王国", [BRANDENBURG_POMERANIA, EAST_PRUSSIA, CLEVES_MARK], ABSOLUTISM_LABELS.brandenburg),
+      absRegion("オランダ", [DUTCH_REPUBLIC], ABSOLUTISM_LABELS.netherlands),
+      absRegion("イギリス", [GREAT_BRITAIN, IRELAND], ABSOLUTISM_LABELS.britain),
+      absRegion("ロシア帝国", [RUSSIA_1648], { ...ABSOLUTISM_LABELS.russia, lines: ["ロシア"] }),
+    ],
+    background: [
+      mapBackground("スウェーデン", [SWEDEN_FINLAND, SWEDISH_BALTIC_1648, SWEDISH_POMERANIA], [16.0, 62.0], BG.sweden),
+      mapBackground("ポーランド＝リトアニア", [POLAND_1648], [26.5, 53.0], BG.poland),
+      mapBackground("オスマン帝国", [OTTOMAN_BALKANS_ANATOLIA, OTTOMAN_LEVANT_EGYPT, OTTOMAN_HUNGARY, OTTOMAN_IRAQ, OTTOMAN_ALGIERS, OTTOMAN_TRIPOLI], [31.0, 39.5], BG.ottoman),
+      mapBackground("ポルトガル王国", [PORTUGAL_IBERIA], [-8.2, 39.8], BG.portugal),
+    ],
+    cities: [
+      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
+      mapCity("ブリュッセル", 4.35, 50.85, "スペイン王国", "l"),
+      mapCity("ミラノ", 9.19, 45.46, "スペイン王国", "l"),
+      mapCity("アムステルダム", 4.90, 52.37, "オランダ", "tl"),
+      mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("ミュンスター", 7.63, 51.96, "神聖ローマ帝国", "r"),
+      mapCity("ウィーン", 16.37, 48.21, "オーストリア", "r"),
+      mapCity("プラハ", 14.42, 50.09, "オーストリア", "r"),
+      mapCity("ベルリン", 13.40, 52.52, "プロイセン王国", "r"),
+      mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
+    ],
+  },
+  // ユトレヒト条約（1713年）の直後。スペインはブルボン朝に、南ネーデルラント・ミラノ・ナポリはオーストリア領に。ロシアはバルト海に進出
+  [1715]: {
+    regions: [
+      absRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE], ABSOLUTISM_LABELS.hre),
+      absRegion("フランス王国", [FRANCE, ALSACE, FRANCHE_COMTE, ROUSSILLON], ABSOLUTISM_LABELS.france),
+      absRegion("スペイン王国", [SPAIN_IBERIA_1659, SPAIN_BALEARICS, ...SPAIN_CARIBBEAN, SPAIN_NEW_SPAIN, INCA], ABSOLUTISM_LABELS.spain),
+      absRegion("オーストリア", [AUSTRIA_CORE, BOHEMIA_MORAVIA, SILESIA, HUNGARY, SPANISH_NETHERLANDS, MILAN, NAPLES, SPAIN_SARDINIA], ABSOLUTISM_LABELS.austria),
+      absRegion("プロイセン王国", [BRANDENBURG_POMERANIA, EAST_PRUSSIA, CLEVES_MARK], ABSOLUTISM_LABELS.prussia),
+      absRegion("オランダ", [DUTCH_REPUBLIC], ABSOLUTISM_LABELS.netherlands),
+      absRegion("イギリス", [GREAT_BRITAIN, IRELAND, BRITISH_AMERICA_1715], ABSOLUTISM_LABELS.britain),
+      absRegion("ロシア帝国", [RUSSIA_1715], { ...ABSOLUTISM_LABELS.russia, lines: ["ロシア"] }),
+    ],
+    background: [
+      mapBackground("スウェーデン", [SWEDEN_FINLAND, SWEDISH_POMERANIA], [16.0, 62.0], BG.sweden),
+      mapBackground("ポーランド＝リトアニア", [POLAND_1715], [26.5, 53.0], BG.poland),
+      mapBackground("オスマン帝国", [OTTOMAN_BALKANS_ANATOLIA, OTTOMAN_LEVANT_EGYPT, OTTOMAN_IRAQ, OTTOMAN_ALGIERS, OTTOMAN_TRIPOLI], [31.0, 39.5], BG.ottoman),
+      mapBackground("ポルトガル王国", [PORTUGAL_IBERIA], [-8.2, 39.8], BG.portugal),
+    ],
+    cities: [
+      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
+      mapCity("アムステルダム", 4.90, 52.37, "オランダ", "tl"),
+      mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
+      mapCity("パリ", 2.35, 48.86, "フランス王国", "tl"),
+      mapCity("ヴェルサイユ", 2.12, 48.80, "フランス王国", "bl"),
+      mapCity("フランクフルト", 8.68, 50.11, "神聖ローマ帝国", "r"),
+      mapCity("ウィーン", 16.37, 48.21, "オーストリア", "r"),
+      mapCity("プラハ", 14.42, 50.09, "オーストリア", "r"),
+      mapCity("ブリュッセル", 4.35, 50.85, "オーストリア", "l"),
+      mapCity("ベルリン", 13.40, 52.52, "プロイセン王国", "r"),
+      mapCity("ケーニヒスベルク", 20.51, 54.71, "プロイセン王国", "r"),
+      mapCity("サンクトペテルブルク", 30.32, 59.94, "ロシア帝国", "r"),
+      mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
+    ],
+  },
+  // 第1回ポーランド分割（1772年）。プロイセンはシュレジエンと西プロイセンを、オーストリアはガリツィアを領有
+  [1772]: {
+    regions: [
+      absRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE], ABSOLUTISM_LABELS.hre),
+      absRegion("フランス王国", [FRANCE, ALSACE, FRANCHE_COMTE, ROUSSILLON, LORRAINE, GENOA_CORSICA], ABSOLUTISM_LABELS.france),
+      absRegion("スペイン王国", [SPAIN_IBERIA_1659, SPAIN_BALEARICS, ...SPAIN_CARIBBEAN, SPAIN_NEW_SPAIN, INCA], ABSOLUTISM_LABELS.spain),
+      absRegion("オーストリア", [AUSTRIA_CORE, BOHEMIA_MORAVIA, HUNGARY, GALICIA, SPANISH_NETHERLANDS, MILAN], ABSOLUTISM_LABELS.austria),
+      absRegion("プロイセン王国", [BRANDENBURG_POMERANIA, EAST_PRUSSIA, CLEVES_MARK, SILESIA, WEST_PRUSSIA], ABSOLUTISM_LABELS.prussia),
+      absRegion("オランダ", [DUTCH_REPUBLIC], ABSOLUTISM_LABELS.netherlands),
+      absRegion("イギリス", [GREAT_BRITAIN, IRELAND, BRITISH_AMERICA_1772], ABSOLUTISM_LABELS.britain),
+      absRegion("ロシア帝国", [RUSSIA_1772], ABSOLUTISM_LABELS.russia),
+    ],
+    background: [
+      mapBackground("スウェーデン", [SWEDEN_FINLAND, SWEDISH_POMERANIA], [16.0, 62.0], BG.sweden),
+      mapBackground("ポーランド＝リトアニア", [POLAND_1772], [26.0, 53.0], BG.poland),
+      mapBackground("オスマン帝国", [OTTOMAN_BALKANS_ANATOLIA, OTTOMAN_LEVANT_EGYPT, OTTOMAN_IRAQ, OTTOMAN_ALGIERS, OTTOMAN_TRIPOLI], [31.0, 39.5], BG.ottoman),
+      mapBackground("ポルトガル王国", [PORTUGAL_IBERIA], [-8.2, 39.8], BG.portugal),
+    ],
+    cities: [
+      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
+      mapCity("アムステルダム", 4.90, 52.37, "オランダ", "tl"),
+      mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
+      mapCity("ボストン", -71.06, 42.36, "イギリス", "r"),
+      mapCity("パリ", 2.35, 48.86, "フランス王国", "tl"),
+      mapCity("ヴェルサイユ", 2.12, 48.80, "フランス王国", "bl"),
+      mapCity("フランクフルト", 8.68, 50.11, "神聖ローマ帝国", "r"),
+      mapCity("ウィーン", 16.37, 48.21, "オーストリア", "r"),
+      mapCity("プラハ", 14.42, 50.09, "オーストリア", "r"),
+      mapCity("ベルリン", 13.40, 52.52, "プロイセン王国", "r"),
+      mapCity("ポツダム", 13.06, 52.39, "プロイセン王国", "bl"),
+      mapCity("ブレスラウ", 17.04, 51.11, "プロイセン王国", "r"),
+      mapCity("サンクトペテルブルク", 30.32, 59.94, "ロシア帝国", "r"),
+      mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
+      mapCity("ワルシャワ", 21.01, 52.23, null, "r"),
+    ],
+  },
+};
+
+export const ABSOLUTISM_BLURB = {
+  "スペイン王国": "16世紀には新大陸の銀で栄えた大帝国。17世紀以降は相次ぐ戦争と財政難で衰え、18世紀初めにはフランス系のブルボン家が王位を継いだ。",
+  "オランダ": "スペインから独立した新教徒の共和国。造船・海運・金融を武器に17世紀には世界の商業の中心となり、宗教的に寛容な社会のもとで市民文化が栄えた。",
+  "神聖ローマ帝国": "ドイツを中心とする多数の領邦の連合体。17世紀半ばの講和で諸侯がほぼ完全な主権を認められ、皇帝の権威は名目的なものとなった。",
+  "イギリス": "イングランドとスコットランドを中心とする王国（1707年に合同して大ブリテン王国）。17世紀の二つの革命を経て議会が国王の権力を制限する立憲王政を確立し、18世紀には海外植民地を広げた。",
+  "フランス王国": "ブルボン朝のもとで中央集権化を進めた絶対王政の典型。豪華な宮廷文化はヨーロッパ各国の手本となったが、度重なる戦争で財政は悪化した。",
+  "オーストリア": "ハプスブルク家が治めた多民族の君主国。ウィーンを都にベーメンや東方の諸地域を支配し、神聖ローマ皇帝の位をほぼ独占した。",
+  "プロイセン王国": "ブランデンブルク選帝侯国とプロイセン公国が合同して成立し、1701年に王国となった。強力な常備軍と官僚制によって急速に台頭し、ドイツの新たな強国となった。",
+  "ロシア帝国": "モスクワを中心に成長し、17世紀にはシベリアを経て太平洋岸に達した。18世紀に西欧化を進めてヨーロッパの大国となり、バルト海・黒海方面へ領土を広げた。",
+};
+
+// 1648・1715・1772年（大航海時代・近世区分の1600年以降）
+export const ABSOLUTISM_MAP = snapshotMapPeriod(ABSOLUTISM_SNAPSHOTS, {
+  rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: ABSOLUTISM_BLURB,
+});
+
 // src/data/historyData.js の末尾イメージ
 
 export const ERAS_DATA = {
@@ -3115,22 +3647,18 @@ export const ERAS_DATA = {
       landPath: WORLD_LAND_PATH,
     }
   },
-  "thirty-years-war": {
-    id: "thirty-years-war",
-    title: "三十年戦争",
-    period: "近世（15〜18世紀）",
+  "absolutism": {
+    id: "absolutism",
+    title: "絶対王政と主権国家体制",
+    period: "近世（絶対王政・主権国家体制）",
     mapPeriodId: "early-modern", // 地図タブの時代区分（ERA_PERIODS）との対応キー
     yearRange: [1600, 1789], // 同じ時代区分を「大航海時代・ルネサンス・宗教改革」と分け合うため、受け持つ年の範囲
     defaultMapYear: 1648, // 地図タブを開いたときの初期年代
-    cards: THIRTY_YEARS_WAR_CARDS,
+    cards: ABSOLUTISM_CARDS,
+    // 勢力図は ABSOLUTISM_MAP（1648・1715・1772年）。App.jsx の ERA_PERIODS で大航海時代・近世区分の1600年以降に割り当てている
     mapData: {
-      years: MAP_YEARS,
+      years: [1648, 1715, 1772],
       landPath: WORLD_LAND_PATH,
-      regions: MAP_REGIONS,
-      capitals: CAPITAL_CITIES,
-      rivers: RIVERS,
-      seas: SEA_LABELS,
-      blurb: REGION_BLURB,
     }
   },
   "french-revolution": {
