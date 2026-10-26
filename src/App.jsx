@@ -21,6 +21,8 @@ import {
   ANCIENT_EMPIRES_MAP,
   RENAISSANCE_MEDIEVAL_MAP,
   RENAISSANCE_EARLY_MODERN_MAP,
+  MEDIEVAL_1_MAP,
+  MEDIEVAL_2_MAP,
 } from './data/historyData';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
@@ -2826,6 +2828,7 @@ function regionStatus(id, year) {
 }
 
 const COVERED_ERA = [1500, 1700]; // 大航海時代・近世のうち実際にコンテンツが存在する範囲（1500〜1599年はルネサンス期、1600年以降は三十年戦争期の勢力図）
+const MEDIEVAL_MAP_UNTIL = 1450; // 中世②の区分で、これより前は中世ヨーロッパの勢力図、以降はルネサンス期（1492年）の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
 const RENAISSANCE_MAP_UNTIL = 1600; // 大航海時代・近世の区分で、これより前はルネサンス期の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
 
 // ============================================================
@@ -3039,11 +3042,21 @@ const ERA_PERIODS = [
     id: "ancient-empires", label: "古代帝国の時代", yearRange: [-500, 500],
     hasContent: true, contentRange: [-500, 500], ...ANCIENT_EMPIRES_MAP,
   },
-  { id: "medieval-1", label: "中世①：イスラームの拡大と欧州再編", yearRange: [500, 1000], hasContent: false },
-  // 中世②のうち1450〜1500年だけ、ルネサンス・大航海時代初期（1492年）の勢力図を持つ
+  {
+    id: "medieval-1", label: "中世①：イスラームの拡大と欧州再編", yearRange: [500, 1000],
+    hasContent: true, contentRange: [500, 1000], ...MEDIEVAL_1_MAP,
+  },
+  // 中世②：1450年より前は中世ヨーロッパ（1095・1204・1360年）、以降はルネサンス・大航海時代初期（1492年）の勢力図
   {
     id: "medieval-2", label: "中世②：ユーラシアの再編とモンゴル", yearRange: [1000, 1500],
-    hasContent: true, contentRange: [1450, 1500], ...RENAISSANCE_MEDIEVAL_MAP,
+    hasContent: true, contentRange: [1000, 1500],
+    keyYears: [...MEDIEVAL_2_MAP.keyYears, ...RENAISSANCE_MEDIEVAL_MAP.keyYears],
+    regionsByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).regionsByYear(y),
+    backgroundByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).backgroundByYear(y),
+    capitalsByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).capitalsByYear(y),
+    seaLabelsByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).seaLabels,
+    blurbByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).blurb,
+    rivers: RIVERS,
   },
   {
     id: "early-modern", label: "大航海時代・近世", yearRange: [1500, 1789],

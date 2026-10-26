@@ -1297,6 +1297,651 @@ export const RENAISSANCE_CARDS = [
   },
 ];
 
+// 中世ヨーロッパ（封建社会・十字軍・ビザンツ）のカード。
+// フランク王国とイスラーム勢力の接触、カール大帝、神聖ローマ帝国の成立、ビザンツ帝国と東西教会の分裂、
+// 封建社会と荘園制、英仏の王権（ノルマン・コンクエスト、マグナ・カルタ）、叙任権闘争と教皇権の盛衰
+// （カノッサの屈辱、アヴィニョン捕囚、教会大分裂）、十字軍、中世都市と商業（ハンザ同盟、ギルド）、黒死病、百年戦争までを扱う。
+// region は、Step 2 で作成予定のこの時代の地図（中世①／中世②の時代区分）の勢力IDとして使う名前で統一している：
+//   フランク王国、神聖ローマ帝国、ビザンツ帝国、フランス王国、イングランド王国、イスラーム世界、セルジューク朝、
+//   ヴェネツィア共和国、ジェノヴァ共和国、フランドル（フランス王国北部の毛織物業地帯。地図ではフランス王国の内側の小区分として描く想定）。
+// 神聖ローマ帝国・フランス王国・ヴェネツィア共和国は、大航海時代・ルネサンス期の地図と同じIDにそろえている。
+// 地図データを作るときは、この region と同じIDを勢力に付けること。
+export const MEDIEVAL_CARDS = [
+  {
+    id: "c49", year: 537, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ビザンツ帝国", theme: ["通史", "ビザンツ帝国"],
+    front: "6世紀にビザンツ帝国の最盛期を築いた皇帝と、彼が編纂させた法典は？",
+    back: "",
+    cloze: {
+      template: "6世紀、ビザンツ帝国の{{1}}帝は、旧西ローマ帝国領の北アフリカやイタリアを一時的に回復した。法学者トリボニアヌスらに『{{2}}』を編纂させ、首都にはハギア・ソフィア聖堂を再建した。",
+      slots: [
+        { id: 1, answer: "ユスティニアヌス", category: "人物" },
+        { id: 2, answer: "ローマ法大全", category: "法典" },
+      ],
+      points: [
+        { label: "原因", text: "西ローマ帝国の滅亡後も、東のビザンツ帝国はローマ帝国の正統な後継者として地中海世界の再統一をめざした" },
+        { label: "経過", text: "相次ぐ遠征と大規模な建設事業で財政は悪化し、皇帝の死後まもなくイタリアの大部分はランゴバルド人に奪われた" },
+        { label: "意義", text: "法典はローマ法を集大成したもので、のちに西ヨーロッパで再発見され、近代ヨーロッパ諸国の法の基礎となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Mosaic_of_Justinian_I_-_San_Vitale_-_Ravenna_2016.jpg/960px-Mosaic_of_Justinian_I_-_San_Vitale_-_Ravenna_2016.jpg",
+        caption: "サン・ヴィターレ聖堂のモザイク「ユスティニアヌス帝と廷臣たち」（547年頃、ラヴェンナ）",
+        alt: "金色の背景の前に、光輪をつけた皇帝と聖職者・兵士たちが並ぶモザイク画",
+        credit: "Mosaic of Justinian I, Basilica di San Vitale／写真: José Luiz（2016年）, Wikimedia Commons・CC BY-SA 4.0",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Hagia_Sophia_Mars_2013.jpg/960px-Hagia_Sophia_Mars_2013.jpg",
+        caption: "ハギア・ソフィア聖堂（537年再建、現在のイスタンブル）",
+        alt: "巨大なドームを中心に、四隅に細い尖塔（ミナレット）が立つ建物",
+        credit: "Hagia Sophia／写真: Arild Vågen（2013年）, Wikimedia Commons・CC BY-SA 3.0",
+      },
+    ],
+    anecdote: "豆知識：中国から伝わる絹の製法は秘密とされていたが、皇帝は修道士に蚕の卵を杖の中に隠して持ち帰らせ、帝国内で絹織物の生産を始めたと伝えられる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ユスティニアヌス1世",
+  },
+  {
+    id: "c57", year: 732, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "イスラーム世界", theme: ["通史", "中世ヨーロッパ"],
+    front: "732年、イスラーム勢力の侵入をトゥール・ポワティエ間の戦いで撃退したフランク王国の宮宰と、侵入した王朝は？",
+    back: "",
+    cloze: {
+      template: "732年、フランク王国の宮宰{{1}}は、イベリア半島からピレネー山脈を越えて侵入した{{2}}の軍を、トゥール・ポワティエ間の戦いで撃退した。",
+      slots: [
+        { id: 1, answer: "カール・マルテル", category: "人物" },
+        { id: 2, answer: "ウマイヤ朝", category: "王朝" },
+      ],
+      points: [
+        { label: "原因", text: "7世紀に成立したイスラーム勢力は急速に拡大し、711年には西ゴート王国を滅ぼしてイベリア半島をほぼ支配した" },
+        { label: "経過", text: "勝利によって宮宰の家系（カロリング家）の権威が高まり、その子ピピンは751年に王位についてカロリング朝を開いた" },
+        { label: "意義", text: "イスラーム勢力の西ヨーロッパへの進出は止まり、キリスト教世界の守り手となったフランク王国とローマ教皇が結びつくきっかけとなった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Steuben_-_Bataille_de_Poitiers.png/960px-Steuben_-_Bataille_de_Poitiers.png",
+        caption: "シュトイベン『ポワティエの戦い』（1837年、ヴェルサイユ宮殿）",
+        alt: "馬上で斧を振りかざす武将と、入り乱れて戦う騎兵たちを描いた油彩画",
+        credit: "Bataille de Poitiers en octobre 732／Charles de Steuben（1837年）, Château de Versailles, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Mezquita_cordoba_arcos_flotantes.jpg/960px-Mezquita_cordoba_arcos_flotantes.jpg",
+        caption: "コルドバの大モスク（メスキータ）の内部（8世紀以降、後ウマイヤ朝）",
+        alt: "赤と白の縞模様のアーチが、林のように並ぶ円柱の上に幾重にも連なる礼拝堂",
+        credit: "Mezquita de Córdoba／写真: Alvaro.vinuela.carnicero（2011年）, Wikimedia Commons・CC BY-SA 4.0",
+      },
+    ],
+    anecdote: "豆知識：宮宰の異名「マルテル」は「鉄槌」を意味し、この戦いでの活躍にちなむとされる。敗れた王朝の一族はのちにイベリア半島で後ウマイヤ朝を開き、都コルドバは西ヨーロッパ最大の都市として栄えた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/トゥール・ポワティエ間の戦い",
+  },
+  {
+    id: "c47", year: 800, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランク王国", theme: ["通史", "中世ヨーロッパ"],
+    front: "800年にローマ皇帝の冠を受けたフランク王国の王と、冠を授けたローマ教皇は？",
+    back: "",
+    cloze: {
+      template: "800年のクリスマス、フランク王国の{{1}}はローマのサン・ピエトロ大聖堂で教皇{{2}}からローマ皇帝の冠を受けた。これにより、ローマ文化・ゲルマン人・キリスト教が融合した西ヨーロッパ世界が成立した。",
+      slots: [
+        { id: 1, answer: "カール大帝", category: "人物" },
+        { id: 2, answer: "レオ3世", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "西ローマ帝国の滅亡後、ビザンツ皇帝と対立していたローマ教皇は、西ヨーロッパで自らを守る強力な保護者を求めた" },
+        { label: "経過", text: "王は西ヨーロッパの大半を征服し、各地に伯を置いて巡察使に監督させた。宮廷には学者を招き、古典文化の復興（カロリング・ルネサンス）が進んだ" },
+        { label: "意義", text: "西ヨーロッパがビザンツ帝国から自立した独自の世界となり、教皇と皇帝が並び立つ中世ヨーロッパの枠組みが生まれた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/1512_D%C3%BCrer_Kaiser_Karl_der_Gro%C3%9Fe_anagoria.JPG/960px-1512_D%C3%BCrer_Kaiser_Karl_der_Gro%C3%9Fe_anagoria.JPG",
+        caption: "デューラー『カール大帝』（1512年、ニュルンベルクのゲルマン国立博物館）",
+        alt: "王冠をかぶり、剣と宝珠を手にした白い髭の皇帝の肖像",
+        credit: "Kaiser Karl der Große／Albrecht Dürer（1512年）, Germanisches Nationalmuseum, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Raphael_-_Coronation_of_Charlemagne.jpg/960px-Raphael_-_Coronation_of_Charlemagne.jpg",
+        caption: "ラファエロ工房『カール大帝の戴冠』（16世紀初め、ヴァチカン宮殿）",
+        alt: "大聖堂の祭壇の前でひざまずく王に、教皇が冠を授けようとする場面の壁画",
+        credit: "Incoronazione di Carlo Magno／Raffaello Sanzio e bottega（16世紀初め）, Stanze di Raffaello, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "逸話：伝記作者アインハルトによれば、王は読むことはできたが字を書くのが苦手で、寝床の枕の下に書板を置いて晩年まで練習を続けたという。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/カール大帝",
+  },
+  {
+    id: "c48", year: 962, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    front: "962年にローマ皇帝の冠を受け、神聖ローマ帝国の始まりとされる東フランク王と、彼が撃退した民族は？",
+    back: "",
+    cloze: {
+      template: "東フランク王国の{{1}}は、955年のレヒフェルトの戦いで侵入してきた{{2}}人を撃退し、962年にローマ教皇からローマ皇帝の冠を受けた。これが、のちに神聖ローマ帝国と呼ばれる国家の始まりとされる。",
+      slots: [
+        { id: 1, answer: "オットー1世", category: "人物" },
+        { id: 2, answer: "マジャール", category: "民族" },
+      ],
+      points: [
+        { label: "原因", text: "843年のヴェルダン条約などでフランク王国は3つに分かれ、東フランクではカロリング家の血統が途絶えて諸侯が王を選ぶようになった" },
+        { label: "経過", text: "王は有力な聖職者を官職に任じて諸侯をおさえる帝国教会政策をとり、イタリアにも遠征して教皇を保護した" },
+        { label: "意義", text: "以後の歴代皇帝はイタリアの支配に力を注いだため（イタリア政策）、ドイツ本国の統一が遅れ、諸侯の分立が進む一因となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/2/29/Alter_Markt_%28Magdeburg-Altstadt%29.Magdeburger_Reiter_edit.jpg",
+        caption: "マクデブルクの騎士像（オットー1世の姿とされる13世紀の像の複製、マクデブルク旧市場）",
+        alt: "王冠をかぶった金色の騎馬像の上半身",
+        credit: "Magdeburger Reiter／写真: Ajepbah, 編集: Crisco 1492, Wikimedia Commons・CC BY-SA 3.0 de",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Weltliche_Schatzkammer_Wien_white_background.jpg/960px-Weltliche_Schatzkammer_Wien_white_background.jpg",
+        caption: "神聖ローマ帝国の帝冠（10世紀後半、ウィーン王宮宝物館）",
+        alt: "色とりどりの宝石と真珠で飾られ、正面に十字架が立つ八角形の金の冠",
+        credit: "Reichskrone, Kaiserliche Schatzkammer Wien／写真: Gryffindor, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：撃退された人々はその後パンノニア平原に定住してキリスト教を受け入れ、1000年ごろハンガリー王国を建てた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/オットー1世_(神聖ローマ皇帝)",
+  },
+  {
+    id: "c50", year: 1054, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ビザンツ帝国", theme: ["通史", "ビザンツ帝国"],
+    front: "726年にビザンツ皇帝が発布し、ローマ教会との対立のきっかけとなった法令と、1054年の分裂で成立した東方の教会は？",
+    back: "",
+    cloze: {
+      template: "726年、ビザンツ皇帝レオン3世が{{1}}を発布すると、ゲルマン人への布教に聖像を用いていたローマ教会は強く反発した。対立は深まり、1054年にキリスト教会はローマ＝カトリック教会と{{2}}会に分裂した。",
+      slots: [
+        { id: 1, answer: "聖像禁止令", category: "法令" },
+        { id: 2, answer: "ギリシア正教", category: "教会" },
+      ],
+      points: [
+        { label: "原因", text: "偶像崇拝を厳しく否定するイスラーム勢力と向き合うなかで、ビザンツ帝国内でも聖像の崇拝を批判する動きが強まった" },
+        { label: "経過", text: "ビザンツ皇帝の保護を頼れなくなったローマ教会はフランク王国に接近し、やがて教皇がフランク王に皇帝の冠を授けるに至った" },
+        { label: "意義", text: "東の教会は皇帝が教会を支配する体制のもとで東ヨーロッパやロシアに広まり、ヨーロッパは宗教・文化の面でも東西に分かれた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Deesis_mosaic_Hagia_Sophia.jpg/960px-Deesis_mosaic_Hagia_Sophia.jpg",
+        caption: "ハギア・ソフィアのモザイク「デイシス（嘆願）」（13世紀）",
+        alt: "金色の背景の中央に描かれたキリストと、その左右で祈る聖母マリアと洗礼者ヨハネ",
+        credit: "Deesis mosaic, Hagia Sophia／写真: Myrabella（2012年）, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Crucifixion_with_iconoclasts%2C_Chludov_Psalter%2C_folio_67r.jpg/960px-Crucifixion_with_iconoclasts%2C_Chludov_Psalter%2C_folio_67r.jpg",
+        caption: "『フルードフ詩篇』の挿絵：キリストの絵を塗りつぶす聖像破壊派（9世紀）",
+        alt: "十字架にかけられたキリストの絵の横で、長い棒の先の道具で絵を塗りつぶそうとする人物",
+        credit: "Chludov Psalter, fol. 67r／作者不詳（9世紀）, 国立歴史博物館（モスクワ）, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：1054年、ローマ教皇の使節と東方の総主教は互いに相手を破門し合った。この相互破門が解かれたのは、900年以上たった1965年のことだった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/聖像破壊運動",
+  },
+  {
+    id: "c58", year: 1066, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "イングランド王国", theme: ["通史", "中世ヨーロッパ"],
+    front: "1066年にイングランドを征服してノルマン朝を開いたフランス北部の領主の称号と、決戦の地は？",
+    back: "",
+    cloze: {
+      template: "1066年、フランス北部の{{1}}ウィリアムはイングランドに侵攻し、{{2}}の戦いでアングロ・サクソン人の王ハロルドを破って王位につき、ノルマン朝を開いた。",
+      slots: [
+        { id: 1, answer: "ノルマンディー公", category: "称号" },
+        { id: 2, answer: "ヘースティングズ", category: "戦い" },
+      ],
+      points: [
+        { label: "原因", text: "王位継承をめぐる争いのなか、イングランド王と血縁があったウィリアムが、先王から王位を約束されていたと主張した" },
+        { label: "経過", text: "征服王は全国の土地を調査させて「ドゥームズデー・ブック」を作成し、大陸の封建制度を持ち込んで強力な王権を打ち立てた" },
+        { label: "意義", text: "イングランド王がフランス国内にも領地を持つことになり、のちの英仏間の長い対立の原因となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Bayeux_Tapestry_scene57_Harold_death_%28cropped%29.jpg/960px-Bayeux_Tapestry_scene57_Harold_death_%28cropped%29.jpg",
+        caption: "『バイユーのタペストリー』より、ヘースティングズの戦い（11世紀後半）",
+        alt: "刺繍で描かれた、鎖かたびらの兵士と騎兵が剣や槍で戦う場面",
+        credit: "Bayeux Tapestry, scene 57／作者不詳（1070年代）, Musée de la Tapisserie de Bayeux, 写真: Myrabella, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/France-000687_-_Tapestry_-_38-39_%2814994772181%29_%28cropped%29.jpg/960px-France-000687_-_Tapestry_-_38-39_%2814994772181%29_%28cropped%29.jpg",
+        caption: "『バイユーのタペストリー』より、英仏海峡を渡る艦隊（11世紀後半）",
+        alt: "帆を張った細長い船に、兵士と馬が乗り込んで海を渡る場面の刺繍",
+        credit: "Bayeux Tapestry, scenes 38-39／写真: Dennis G. Jarvis（2014年）, Wikimedia Commons・CC BY-SA 2.0",
+      },
+    ],
+    anecdote: "豆知識：この征服以後、イングランドの宮廷ではフランス語が使われたため、英語には多くのフランス語由来の単語が入った（家畜の「cow」と料理の「beef」の使い分けなど）。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ノルマン・コンクエスト",
+  },
+  {
+    id: "c52", year: 1077, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    front: "叙任権をめぐって神聖ローマ皇帝ハインリヒ4世を破門した教皇と、皇帝が許しを請うた城は？",
+    back: "",
+    cloze: {
+      template: "聖職者を任命する権利（叙任権）をめぐり、教皇{{1}}が神聖ローマ皇帝ハインリヒ4世を破門すると、皇帝は1077年、北イタリアの{{2}}城の門前で、雪の中3日間はだしで立ち尽くして許しを請うた。",
+      slots: [
+        { id: 1, answer: "グレゴリウス7世", category: "人物" },
+        { id: 2, answer: "カノッサ", category: "城" },
+      ],
+      points: [
+        { label: "原因", text: "聖職売買や聖職者の妻帯が広がるなか、クリュニー修道院を中心とする改革運動が教会の刷新を求め、世俗の君主による聖職者の任命を問題視した" },
+        { label: "経過", text: "破門されたままでは国内の諸侯に王位を奪われかねなかった皇帝は屈服した。争いは1122年のヴォルムス協約で、叙任権は教皇にあると決着した" },
+        { label: "意義", text: "教皇権は伸長を続け、13世紀初めの教皇インノケンティウス3世のときに絶頂を迎えた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Schwoiser_Heinrich_vor_Canossa.jpg/960px-Schwoiser_Heinrich_vor_Canossa.jpg",
+        caption: "シュヴォイザー『カノッサのハインリヒ4世』（1862年）",
+        alt: "城門の前で、粗末な衣をまとい、うつむいて立つ男性",
+        credit: "Heinrich vor Canossa／Eduard Schwoiser（1862年）, Maximilianeum, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mathilde_und_Hugo_von_Cluny_als_F%C3%BCrsprecher_Heinrichs_IV..jpg/960px-Mathilde_und_Hugo_von_Cluny_als_F%C3%BCrsprecher_Heinrichs_IV..jpg",
+        caption: "『マティルデ伝』の挿絵：トスカーナ女伯マティルデとクリュニー修道院長に仲介を請うハインリヒ4世（12世紀初め）",
+        alt: "玉座に座る女性と修道院長の前に、ひざまずいて嘆願する王",
+        credit: "Mathilde und Hugo von Cluny als Fürsprecher Heinrichs IV.／Donizo『Vita Mathildis』（1115年頃）, Biblioteca Apostolica Vaticana, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "名言：教皇権の絶頂期を築いたインノケンティウス3世は、「教皇は太陽、皇帝は月」と述べたとされる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/カノッサの屈辱",
+  },
+  {
+    id: "c53", year: 1095, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "セルジューク朝", theme: ["通史", "十字軍"],
+    front: "1095年に十字軍の派遣を呼びかけた教皇と、その舞台となった宗教会議は？",
+    back: "",
+    cloze: {
+      template: "セルジューク朝の圧迫に苦しむビザンツ皇帝から救援を求められると、教皇{{1}}は1095年の{{2}}宗教会議で聖地イェルサレムの奪回を呼びかけ、翌年、第1回十字軍が出発した。",
+      slots: [
+        { id: 1, answer: "ウルバヌス2世", category: "人物" },
+        { id: 2, answer: "クレルモン", category: "地名" },
+      ],
+      points: [
+        { label: "原因", text: "11世紀にトルコ系のセルジューク朝が小アジアに進出し、聖地イェルサレムも支配下に置いて、ビザンツ帝国を脅かした" },
+        { label: "経過", text: "第1回十字軍は1099年にイェルサレムを占領してイェルサレム王国を建てたが、のちにアイユーブ朝のサラディンに奪回された。遠征は約200年間で計7回に及んだ" },
+        { label: "意義", text: "遠征の失敗で教皇の権威は揺らいだ一方、遠征を支えたイタリア諸都市が地中海の交易で繁栄し、商業と都市の発達をうながした" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/CouncilofClermont.jpg/960px-CouncilofClermont.jpg",
+        caption: "ジャン・コロンブ『海外遠征記』の挿絵：クレルモン宗教会議で十字軍を呼びかけるウルバヌス2世（15世紀）",
+        alt: "大聖堂の中に集まった聖職者や騎士たちに、高座から教皇が語りかける写本の挿絵",
+        credit: "Concile de Clermont, Passages d'outremer／Jean Colombe（1474年頃）, Bibliothèque nationale de France, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Taking_of_Jerusalem_by_the_Crusaders%2C_15th_July_1099.jpg/960px-Taking_of_Jerusalem_by_the_Crusaders%2C_15th_July_1099.jpg",
+        caption: "シニョル『十字軍のイェルサレム占領（1099年7月15日）』（1847年、ヴェルサイユ宮殿）",
+        alt: "城壁に囲まれた都市を背に、十字の旗を掲げた騎士たちがひざまずいて祈る場面",
+        credit: "Prise de Jérusalem par les croisés, le 15 juillet 1099／Émile Signol（1847年）, Château de Versailles, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：「神がそれを望みたもう（Deus vult）」という群衆の叫びが、十字軍の合言葉になったと伝えられる。参加者は衣服に布の十字をつけたことから「十字軍」と呼ばれた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/十字軍",
+  },
+  {
+    id: "c51", year: 1100, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
+    front: "主君と家臣が封土と軍役で結ばれた関係と、荘園で領主に従属した農民の身分は？",
+    back: "",
+    cloze: {
+      template: "中世西ヨーロッパでは、主君が家臣に封土を与えて保護し、家臣が軍役などで忠誠を誓う{{1}}が結ばれた。領主の所領である荘園では、移動や職業選択の自由を持たない{{2}}が、領主直営地での賦役や生産物の貢納を課された。",
+      slots: [
+        { id: 1, answer: "封建的主従関係", category: "関係" },
+        { id: 2, answer: "農奴", category: "身分" },
+      ],
+      points: [
+        { label: "原因", text: "ノルマン人やイスラーム勢力、東方の騎馬民族の侵入が相次ぐなか、王権は弱く、人々は身近な有力者に保護を求めた" },
+        { label: "経過", text: "領主は国王の役人の立ち入りや課税を拒む不輸不入権を持ち、荘園の農民に対して裁判権も行使した" },
+        { label: "意義", text: "政治的には分権的な封建社会、経済的には自給自足的な荘園制が、中世西ヨーロッパ社会の土台となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Les_Tr%C3%A8s_Riches_Heures_du_duc_de_Berry_mars.jpg/960px-Les_Tr%C3%A8s_Riches_Heures_du_duc_de_Berry_mars.jpg",
+        caption: "ランブール兄弟『ベリー公のいとも豪華なる時祷書』より「3月」（15世紀初め）",
+        alt: "城を背に、畑を耕す農民や羊を連れた牧人が描かれた写本の月暦画",
+        credit: "Les Très Riches Heures du duc de Berry, Mars／Frères de Limbourg（1412〜1416年頃）, Musée Condé, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Hommage_d_%C3%89douard_Ier_%C3%A0_Philippe_le_Bel.jpg/960px-Hommage_d_%C3%89douard_Ier_%C3%A0_Philippe_le_Bel.jpg",
+        caption: "フーケ「フランス王フィリップ4世に臣従の礼をとるイングランド王エドワード1世」（15世紀）",
+        alt: "玉座のフランス王の前に、赤い衣のイングランド王がひざまずいて手を差し出す場面",
+        credit: "Hommage d'Édouard Ier à Philippe le Bel／Jean Fouquet（1455年頃）, Grandes Chroniques de France, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：中世の社会は「祈る人（聖職者）・戦う人（騎士）・働く人（農民）」の3つの身分から成り立つと考えられていた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/荘園",
+  },
+  {
+    id: "c54", year: 1204, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ヴェネツィア共和国", theme: ["通史", "十字軍"],
+    front: "1204年にビザンツ帝国の首都を占領した十字軍は第何回の遠征か？また、そこに建てた国家は？",
+    back: "",
+    cloze: {
+      template: "1204年、{{1}}十字軍は輸送を請け負ったヴェネツィアの意向で進路を変え、聖地ではなくビザンツ帝国の首都コンスタンティノープルを占領して、{{2}}帝国を建てた。",
+      slots: [
+        { id: 1, answer: "第4回", category: "回次" },
+        { id: 2, answer: "ラテン", category: "国家" },
+      ],
+      points: [
+        { label: "原因", text: "十字軍は輸送費をヴェネツィアに払えず、その肩代わりとして、ヴェネツィアの商業上のライバルである都市の攻撃に加わった" },
+        { label: "経過", text: "十字軍は都を略奪し、聖遺物や美術品を持ち去った。ビザンツ帝国は1261年に都を奪回して復活したが、往時の力は戻らなかった" },
+        { label: "意義", text: "十字軍が宗教的な理想よりも経済的な利益に動かされていたことを示し、東西キリスト教世界の溝を決定的なものにした" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Eug%C3%A8ne_Delacroix_-_Prise_de_Constantinople_par_les_crois%C3%A9s_%2812_avril_1204%29.jpg/960px-Eug%C3%A8ne_Delacroix_-_Prise_de_Constantinople_par_les_crois%C3%A9s_%2812_avril_1204%29.jpg",
+        caption: "ドラクロワ『十字軍のコンスタンティノープル入城』（1840年、ルーヴル美術館）",
+        alt: "海を見下ろす都市に騎馬の十字軍が入り、足元で住民たちが許しを請う場面",
+        credit: "Prise de Constantinople par les croisés／Eugène Delacroix（1840年）, Musée du Louvre, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Horses_of_Basilica_San_Marco_bright.jpg/960px-Horses_of_Basilica_San_Marco_bright.jpg",
+        caption: "サン・マルコ大聖堂の4頭の馬の像（1204年に第4回十字軍が持ち帰った戦利品、ヴェネツィア）",
+        alt: "前脚を上げて並ぶ、金色に輝く4頭の青銅の馬の像",
+        credit: "Horses of Basilica San Marco／写真: Tteske, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Venezia-Chiesa_di_S._Marco-Facciata_principale%2C_RP-F-F02116.jpg/960px-Venezia-Chiesa_di_S._Marco-Facciata_principale%2C_RP-F-F02116.jpg",
+        caption: "サン・マルコ大聖堂の正面（19世紀の写真、ヴェネツィア）",
+        alt: "5つのアーチ形の入口と、その上に並ぶドームや尖塔をもつ大聖堂の正面",
+        credit: "Venezia, Chiesa di S. Marco, facciata principale／作者不詳（19世紀）, Rijksmuseum, Wikimedia Commons・CC0",
+      },
+    ],
+    anecdote: "豆知識：サン・マルコ大聖堂の正面を飾る4頭の馬の像は、ナポレオンも1797年にパリへ持ち去ったが、1815年にヴェネツィアに返還された。現在、正面にあるのは複製で、本物は聖堂内の博物館にある。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/第4回十字軍",
+  },
+  {
+    id: "c59", year: 1215, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "イングランド王国", theme: ["通史", "中世ヨーロッパ"],
+    front: "1215年、貴族たちに国王の権限を制限する文書を認めさせられたイングランド王と、その文書は？",
+    back: "",
+    cloze: {
+      template: "1215年、フランス国内の領地の大半を失い、重い税を課したイングランド王{{1}}に対し、貴族たちは国王が勝手に課税することを禁じるなどの{{2}}（大憲章）を認めさせた。",
+      slots: [
+        { id: 1, answer: "ジョン", category: "人物" },
+        { id: 2, answer: "マグナ・カルタ", category: "文書" },
+      ],
+      points: [
+        { label: "原因", text: "王はフランス王フィリップ2世との戦いに敗れて大陸の領地を失い、教皇とも争って破門されるなど失政が続いた" },
+        { label: "経過", text: "その後も王と貴族の対立は続き、1265年には貴族シモン・ド・モンフォールが、貴族・聖職者に加えて都市の代表も招いた議会を開いた" },
+        { label: "意義", text: "王も法に従うという「法の支配」の原則の出発点とされ、イギリス立憲政治の基礎となった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Charles-sims-painting_King_John.jpg/960px-Charles-sims-painting_King_John.jpg",
+        caption: "チャールズ・シムズ「マグナ・カルタを承認するジョン王」（1925年、ロンドン王立取引所の壁画）",
+        alt: "天幕の下の王を、甲冑姿の貴族たちが取り囲んで文書への承認を迫る場面",
+        credit: "King John assents to Magna Carta／Charles Sims（1925年）, Royal Exchange, London, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Normand_-_King_John_Signing_Magna_Charta.jpg/960px-Normand_-_King_John_Signing_Magna_Charta.jpg",
+        caption: "アーネスト・ノルマン「マグナ・カルタに署名するジョン王」（1900年頃）",
+        alt: "大勢の貴族や聖職者が見守るなか、机に向かって文書に向き合う王を描いた白黒の挿絵",
+        credit: "King John Signing Magna Charta／Ernest Normand（1900年頃）, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：大陸の領地を失ったことから、この王は「欠地王（ジョン・ラックランド）」と呼ばれる。王は文書に署名したのではなく、王の印章を押して承認したとされる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/マグナ・カルタ",
+  },
+  {
+    id: "c64", year: 1250, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ヴェネツィア共和国", theme: ["通史", "中世ヨーロッパ"],
+    front: "ヴェネツィアやジェノヴァの商人が地中海東岸の港で買い付けたアジアの主な産物と、その交易の呼び名は？",
+    back: "",
+    cloze: {
+      template: "十字軍の時代以降、ヴェネツィアやジェノヴァの商人は、地中海東岸のアレクサンドリアやベイルートなどの港でアジア産の{{1}}や絹織物を買い付け、ヨーロッパへ運ぶ{{2}}で莫大な富を築いた。",
+      slots: [
+        { id: 1, answer: "香辛料", category: "商品" },
+        { id: 2, answer: "東方貿易", category: "交易" },
+      ],
+      points: [
+        { label: "原因", text: "十字軍の兵士や物資の輸送を担ったイタリア諸都市が、東地中海の各地に商業拠点と特権を獲得した" },
+        { label: "経過", text: "イスラーム商人がインド洋経由で運んだコショウなどを、エジプトやシリアの港で銀や毛織物と引き換えに買い付けた。地中海東岸（レヴァント）を舞台としたことから、レヴァント貿易とも呼ばれる" },
+        { label: "意義", text: "北イタリア諸都市に富が集まり、ルネサンスを生む経済的な土台となった。のちにオスマン帝国の進出と新航路の開拓によって衰えた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/D%C3%A9l%C3%A9gation_v%C3%A9nitienne_%C3%A0_Damas.jpg/960px-D%C3%A9l%C3%A9gation_v%C3%A9nitienne_%C3%A0_Damas.jpg",
+        caption: "「ダマスクスでのヴェネツィア使節の歓迎」（1511年頃、ベッリーニ工房。ルーヴル美術館）",
+        alt: "モスクの塔が見える町の広場で、ターバン姿の役人たちが赤い衣のヨーロッパ人の一行を迎える場面",
+        credit: "Réception d'une ambassade vénitienne à Damas／ベッリーニ工房（1511年頃）, Musée du Louvre, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Accademia_-_Miracle_of_the_Holy_Cross_at_Rialto_by_Vittore_Carpaccio.jpg/960px-Accademia_-_Miracle_of_the_Holy_Cross_at_Rialto_by_Vittore_Carpaccio.jpg",
+        caption: "カルパッチョ『リアルト橋の聖十字架の奇跡』（1496年頃）：交易で栄えたヴェネツィアの大運河",
+        alt: "木造の跳ね橋がかかる運河に小舟が行き交い、両岸の建物に大勢の人々が集まるヴェネツィアの街並み",
+        credit: "Miracolo della reliquia della Croce al ponte di Rialto／Vittore Carpaccio（1496年頃）, Gallerie dell'Accademia, 写真: Didier Descouens, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：ヴェネツィア商人の家に生まれたマルコ・ポーロは、元の皇帝フビライに仕えた。帰国後に口述した『世界の記述（東方見聞録）』は、アジアの豊かさをヨーロッパに伝えた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/香辛料貿易",
+  },
+  {
+    id: "c63", year: 1300, difficulty: 3, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランドル", theme: ["通史", "中世ヨーロッパ"],
+    front: "中世都市で市政を握った商人の組合と、それに対抗して手工業者が結成した同職ギルドの呼び名は？",
+    back: "",
+    cloze: {
+      template: "中世の自治都市では、有力な商人が{{1}}をつくって市政を独占した。これに対し手工業者は職種ごとの同職ギルド（{{2}}）を結成し、市政への参加を求めて商人と争った。",
+      slots: [
+        { id: 1, answer: "商人ギルド", category: "組合" },
+        { id: 2, answer: "ツンフト", category: "組合" },
+      ],
+      points: [
+        { label: "原因", text: "毛織物業が栄えたフランドル地方や北イタリアでは、商工業の発達とともに都市の人口と富が増えた" },
+        { label: "経過", text: "同職ギルドは親方・職人・徒弟の厳しい身分制度をもち、製品の品質・価格や生産量を細かく定めて自由な競争を制限した" },
+        { label: "意義", text: "市民の自治は近代市民社会の源流の一つとなった一方、ギルドの統制は近世以降、産業の自由な発展の妨げともなった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/20141110_Cloth_Hall%2C_Ypres_01.jpg/960px-20141110_Cloth_Hall%2C_Ypres_01.jpg",
+        caption: "イーペルの織物会館（13〜14世紀に建設、20世紀に再建。ベルギー・フランドル地方）",
+        alt: "長く連なる石造りの建物の中央に、高い鐘楼がそびえる広場の景色",
+        credit: "Cloth Hall, Ypres／写真: Mark Ahsmann（2014年）, Wikimedia Commons・CC BY-SA 4.0",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Brussels_guildhalls_grand_place.png/960px-Brussels_guildhalls_grand_place.png",
+        caption: "ブリュッセルのグラン・プラスに並ぶギルドハウス（17世紀末に再建）",
+        alt: "夜の広場に、装飾豊かな切妻屋根の建物が照明に照らされて並ぶ景色",
+        credit: "Guildhalls on the Grand-Place, Brussels／写真: Awjrichards（2011年）, Wikimedia Commons・CC BY-SA 3.0",
+      },
+    ],
+    anecdote: "豆知識：職人は修業の仕上げとして各地の親方のもとを渡り歩いて腕を磨き（遍歴職人）、審査に合格した作品「マスターピース（親方作品）」を作って、ようやく親方になれた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ギルド",
+  },
+  {
+    id: "c60", year: 1309, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
+    front: "1303年にフランス王フィリップ4世に捕らえられた教皇と、1309年に教皇庁が移された南フランスの都市は？",
+    back: "",
+    cloze: {
+      template: "フランス王フィリップ4世は、聖職者への課税をめぐって対立した教皇{{1}}を1303年にアナーニで捕らえた。1309年には教皇庁が南フランスの{{2}}に移され、約70年間にわたってフランス王の強い影響下に置かれた。",
+      slots: [
+        { id: 1, answer: "ボニファティウス8世", category: "人物" },
+        { id: 2, answer: "アヴィニョン", category: "都市" },
+      ],
+      points: [
+        { label: "原因", text: "十字軍の失敗で教皇の権威が揺らぐ一方、国王は官僚制を整えて力を強め、国内の聖職者への課税を進めた" },
+        { label: "経過", text: "王は1302年に聖職者・貴族・平民の代表からなる三部会を開いて国内の支持を固め、教皇に対抗した" },
+        { label: "意義", text: "教皇がフランス王の言いなりになったこの時期は、古代のユダヤ人の故事になぞらえて「教皇のバビロン捕囚」と呼ばれ、教皇権の衰退を象徴した" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Palais-des-Papes-Avignon-June-2012.jpg/960px-Palais-des-Papes-Avignon-June-2012.jpg",
+        caption: "アヴィニョンの教皇庁宮殿（14世紀、南フランス）",
+        alt: "青空を背に、尖塔と高い石の城壁がそびえるゴシック様式の巨大な宮殿",
+        credit: "Palais des Papes, Avignon／写真: Acediscovery（2012年）, Wikimedia Commons・CC BY 4.0",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Bonifacius_VIII_-_Fresco_in_Lateran.jpg/960px-Bonifacius_VIII_-_Fresco_in_Lateran.jpg",
+        caption: "ジョット（派）「聖年を宣言するボニファティウス8世」（1300年頃、ローマのラテラノ大聖堂）",
+        alt: "高い冠をかぶった教皇が、聖職者を従えて立つ姿を描いたフレスコ画の断片",
+        credit: "Bonifacio VIII proclama il Giubileo／Giotto（1300年頃）, San Giovanni in Laterano, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "逸話：教皇は捕らえられた屈辱から間もなく亡くなり、「狐のように即位し、獅子のように君臨し、犬のように死んだ」と評されたという。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/アヴィニョン捕囚",
+  },
+  {
+    id: "c65", year: 1346, difficulty: 3, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ジェノヴァ共和国", theme: ["通史", "中世ヨーロッパ"],
+    front: "ジェノヴァが黒海交易の拠点としたクリミア半島の植民市と、そこから逃れた船がペストを運んだ地中海の島は？",
+    back: "",
+    cloze: {
+      template: "ジェノヴァは黒海北岸のクリミア半島にある植民市{{1}}を拠点に、黒海交易で栄えた。1346年、キプチャク・ハン国の軍がこの町を包囲した際に疫病が広がり、逃れたジェノヴァ船によってペストは{{2}}島のメッシーナなど地中海の港へ運ばれたといわれる。",
+      slots: [
+        { id: 1, answer: "カッファ", category: "都市" },
+        { id: 2, answer: "シチリア", category: "島" },
+      ],
+      points: [
+        { label: "原因", text: "モンゴル帝国のもとでユーラシアを結ぶ交易路が整い、人や物とともに疫病も遠くまで運ばれるようになった" },
+        { label: "経過", text: "包囲軍が疫病で死んだ兵士の遺体を城内に投げ込んだという伝承もある。商船とともにネズミやノミが港から港へ移り、数年でヨーロッパ全域に広がった" },
+        { label: "意義", text: "交易の発達が疫病の拡散を早めたことを示す例であり、ヴェネツィアなどの港では入港した船を一定期間隔離する検疫の制度が生まれた" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/THE_GENOESE_FORTRESS_IN_CAFFA.jpg/960px-THE_GENOESE_FORTRESS_IN_CAFFA.jpg",
+        caption: "カッファ（現在のフェオドシヤ）に残るジェノヴァの城塞（14世紀、クリミア半島）",
+        alt: "丘の上に立つ石造りの塔と城壁、手前に丸屋根の小さな教会が見える",
+        credit: "The Genoese fortress in Caffa／写真: Qypchak（2009年）, Wikimedia Commons・CC BY-SA 3.0",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Cristofaro_Grasso%2C_Vista_di_Genova%2C_1597.png/960px-Cristofaro_Grasso%2C_Vista_di_Genova%2C_1597.png",
+        caption: "クリストフォロ・デ・グラッシ『ジェノヴァの眺望』（1597年、1481年の景観の写し）",
+        alt: "山を背にした港町と、湾内に浮かぶ多数の帆船を描いた俯瞰図",
+        credit: "Veduta di Genova／Cristoforo De Grassi（1597年）, Museo navale di Pegli, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：検疫を意味する英語「quarantine」は、ヴェネツィア方言で「40日間」を意味する「クアランタ・ジョルニ」に由来する。疫病を防ぐため、入港する船を40日間沖に留め置いたことにちなむ。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/カッファ",
+  },
+  {
+    id: "c55", year: 1348, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ジェノヴァ共和国", theme: ["通史", "中世ヨーロッパ"],
+    front: "14世紀半ばにヨーロッパの人口の約3分の1を奪った疫病と、その結果として進んだ農民の地位の変化は？",
+    back: "",
+    cloze: {
+      template: "14世紀半ば、{{1}}（ペスト）がヨーロッパ全域で大流行し、人口の約3分の1が失われた。働き手が不足して農民の地位が向上し、{{2}}が進んで荘園制の崩壊が早まった。",
+      slots: [
+        { id: 1, answer: "黒死病", category: "疫病" },
+        { id: 2, answer: "農奴解放", category: "社会の変化" },
+      ],
+      points: [
+        { label: "原因", text: "黒海沿岸の交易拠点から、ジェノヴァなどイタリアの商船を通じて地中海各地の港へ広がった" },
+        { label: "経過", text: "領主が農民への締め付けを強めようとすると、フランスのジャックリーの乱（1358年）やイギリスのワット・タイラーの乱（1381年）などの農民反乱が起こった" },
+        { label: "意義", text: "封建領主の力が衰える一方、王権が伸長して中央集権化が進み、中世社会の解体が加速した" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/The_Triumph_of_Death_by_Pieter_Bruegel_the_Elder.jpg/960px-The_Triumph_of_Death_by_Pieter_Bruegel_the_Elder.jpg",
+        caption: "ブリューゲル『死の勝利』（1562年頃、プラド美術館）",
+        alt: "荒れ果てた大地で、骸骨の軍勢が人々を次々に襲う光景",
+        credit: "De triomf van de dood／Pieter Bruegel de Oude（1562年頃）, Museo del Prado, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Doutielt1.jpg/960px-Doutielt1.jpg",
+        caption: "ピエラール・ドゥ・ティエルトの写本挿絵：黒死病の犠牲者を埋葬するトゥルネーの人々（1350年代）",
+        alt: "次々に運び込まれる棺を、人々が墓穴に埋めていく写本の挿絵",
+        credit: "Burying plague victims of Tournai／Pierart dou Tielt（1352年頃）, Bibliothèque royale de Belgique, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：死を身近に感じた人々の間では、骸骨と人々が踊る「死の舞踏」が絵画や詩の題材として広まった。また、疫病の原因を誤って押しつけられたユダヤ人が各地で迫害された。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/黒死病",
+  },
+  {
+    id: "c62", year: 1370, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    front: "北ドイツの諸都市が北海・バルト海の交易のために結んだ都市同盟と、その盟主となった都市は？",
+    back: "",
+    cloze: {
+      template: "北ドイツの諸都市は、北海・バルト海の交易を守るために{{1}}同盟を結んだ。同盟は{{2}}を盟主とし、14世紀にはデンマーク王との戦争に勝利して北ヨーロッパの商業を支配した。",
+      slots: [
+        { id: 1, answer: "ハンザ", category: "同盟" },
+        { id: 2, answer: "リューベック", category: "都市" },
+      ],
+      points: [
+        { label: "原因", text: "11世紀以降、農業生産の拡大とともに商業が復活し、都市は国王や諸侯から特許状を得て自治権を獲得していった" },
+        { label: "経過", text: "ロンドンやブリュージュ、ノヴゴロドなどに商館を置き、海産物・木材・毛皮・穀物などを取引した。同盟は独自の軍隊も持った" },
+        { label: "意義", text: "地中海の交易を担うイタリア諸都市と並ぶ、もう一つの中世商業圏（北ヨーロッパ商業圏）を形づくった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Holstentor_in_L%C3%BCbeck_2015.jpg/960px-Holstentor_in_L%C3%BCbeck_2015.jpg",
+        caption: "リューベックのホルステン門（1478年完成、ドイツ北部）",
+        alt: "円錐形の屋根をもつ2つの塔にはさまれた、赤れんが造りの城門",
+        credit: "Holstentor in Lübeck／写真: Christian Wolf（2015年）, Wikimedia Commons・CC BY-SA 3.0 de",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Bremer_Kogge_%28Schiff_1380%29%2C_Bremerhaven.jpg/960px-Bremer_Kogge_%28Schiff_1380%29%2C_Bremerhaven.jpg",
+        caption: "ハンザ商人が使った帆船コッグの実物（1380年頃の沈没船、ブレーマーハーフェンのドイツ海事博物館）",
+        alt: "博物館の展示室に置かれた、木造船の船体の骨組み",
+        credit: "Bremer Kogge（1380）, Deutsches Schifffahrtsmuseum／写真: Olga Ernst（2021年）, Wikimedia Commons・CC BY-SA 4.0",
+      },
+    ],
+    anecdote: "豆知識：「都市の空気は（人を）自由にする」ということわざがあり、荘園から逃れて都市に1年と1日住み続けた農民は、領主の支配から自由の身になれたといわれる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ハンザ同盟",
+  },
+  {
+    id: "c61", year: 1414, difficulty: 3, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    front: "1378年から教皇が並び立った教会の混乱と、それを収拾した1414年からの公会議は？",
+    back: "",
+    cloze: {
+      template: "教皇庁がローマに戻ったのち、1378年からローマと南フランスに教皇が並び立つ{{1}}（大シスマ）が起こった。混乱は1414年からの{{2}}公会議で収拾され、教会を批判していたベーメンのフスは異端として火刑に処された。",
+      slots: [
+        { id: 1, answer: "教会大分裂", category: "出来事" },
+        { id: 2, answer: "コンスタンツ", category: "地名" },
+      ],
+      points: [
+        { label: "原因", text: "フランス出身の枢機卿たちがローマの教皇に反発して別の教皇を立て、各国の王もそれぞれの利害から一方を支持した" },
+        { label: "経過", text: "一時は3人の教皇が並び立つ事態となったが、公会議で3人とも退位・廃位させ、新たな教皇を選んで統一を回復した" },
+        { label: "意義", text: "教皇の権威は大きく傷つき、聖書を重んじて教会を批判したイギリスのウィクリフやベーメンのフスの主張は、のちの宗教改革の先駆けとなった" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Konstanzer_Richental_Chronik_Sitzung_des_Konzils_im_M%C3%BCnster_16r.jpg/960px-Konstanzer_Richental_Chronik_Sitzung_des_Konzils_im_M%C3%BCnster_16r.jpg",
+        caption: "『リヒェンタール年代記』の挿絵：コンスタンツ公会議の会議の様子（15世紀）",
+        alt: "大聖堂の中に段状に並んだ席に、高い冠や帽子をかぶった聖職者たちが座る写本の挿絵",
+        credit: "Sitzung des Konzils im Münster, Konstanzer Richental-Chronik／Ulrich Richental（1464年頃）, Rosgartenmuseum Konstanz, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Spiezer_Chronik_Jan_Hus_1485.jpg/960px-Spiezer_Chronik_Jan_Hus_1485.jpg",
+        caption: "『シュピーツ年代記』の挿絵：火刑に処されるフス（15世紀）",
+        alt: "炎に包まれる柱に縛りつけられた人物と、薪をくべる人々を描いた写本の挿絵",
+        credit: "Jan Hus auf dem Scheiterhaufen, Spiezer Chronik／Diebold Schilling（1485年頃）, Burgerbibliothek Bern, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：フスの処刑に怒ったベーメン（現在のチェコ）の人々はフス戦争を起こし、十数年にわたって皇帝の軍を退けた。フスは今もチェコの民族的英雄とされている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/教会大分裂",
+  },
+  {
+    id: "c56", year: 1429, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
+    front: "1339年に始まったイギリスとフランスの戦争と、オルレアンの包囲を破ってフランスを救った少女は？",
+    back: "",
+    cloze: {
+      template: "フランスの王位継承とフランドル地方の支配をめぐって、1339年にイギリスとフランスの間で{{1}}が始まった。劣勢のフランスは、神のお告げを受けたと信じる農民の少女{{2}}がオルレアンの包囲を破ったことで形勢を逆転した。",
+      slots: [
+        { id: 1, answer: "百年戦争", category: "戦争" },
+        { id: 2, answer: "ジャンヌ・ダルク", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "フランスのカペー朝が断絶すると、母方がカペー家出身のイギリス王エドワード3世がフランス王位を要求した" },
+        { label: "経過", text: "前半はクレシーの戦いなどで長弓兵を活用したイギリス軍が優勢だったが、少女の活躍でシャルル7世がランスで戴冠し、1453年にフランスの勝利で終わった" },
+        { label: "意義", text: "長い戦争で諸侯・騎士は没落し、英仏ともに王権が強まって中央集権的な国家づくりが進んだ" },
+      ],
+    },
+    images: [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Ingres_coronation_charles_vii.jpg/960px-Ingres_coronation_charles_vii.jpg",
+        caption: "アングル『シャルル7世の戴冠式のジャンヌ・ダルク』（1854年、ルーヴル美術館）",
+        alt: "甲冑をまとい、旗を手にして祭壇の前に立つ少女",
+        credit: "Jeanne d'Arc au sacre du roi Charles VII／Jean-Auguste-Dominique Ingres（1854年）, Musée du Louvre, Wikimedia Commons・Public domain",
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Battle_of_crecy_froissart.jpg/960px-Battle_of_crecy_froissart.jpg",
+        caption: "『フロワサール年代記』の挿絵：クレシーの戦い（1346年の戦いを描いた15世紀の写本）",
+        alt: "旗を掲げた騎士と、長弓や弩を構えた兵士たちが入り乱れて戦う写本の挿絵",
+        credit: "Bataille de Crécy, Chroniques de Froissart／Loyset Liédet（15世紀）, Bibliothèque nationale de France, Wikimedia Commons・Public domain",
+      },
+    ],
+    anecdote: "豆知識：少女はのちにイギリス側に捕らえられ、異端として1431年にルーアンで火刑に処された。死後に名誉回復の裁判が行われ、20世紀にはカトリック教会の聖人となった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/百年戦争",
+  },
+];
+
 export const MAP_YEARS = [1600, 1618, 1648, 1660];
 
 // 実地理データ（world-atlas land-110m、d3-geo geoMercatorで投影・事前計算済みのSVGパス文字列）。
@@ -2056,6 +2701,366 @@ export const RENAISSANCE_EARLY_MODERN_MAP = snapshotMapPeriod(RENAISSANCE_SNAPSH
   rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB,
 });
 
+// =====================================================================
+// 中世ヨーロッパ（封建社会・十字軍・ビザンツ）の地図データ
+// 550・800・962年は地図の時代区分「中世①」、1095・1204・1360年は「中世②」に属する。中世②の1450年以降は
+// ルネサンス期の勢力図（1492年）が受け持つため、App.jsx の ERA_PERIODS で年ごとに切り替えている。
+// フランス王国・神聖ローマ帝国などの輪郭はルネサンス期のものを流用し、フランドルはフランス王国の上に重ねる小区分として描く。
+// region の id は MEDIEVAL_CARDS の region と一致させている。カードの答えになる地名（クレルモン、カノッサ、アヴィニョン、
+// コンスタンツ、リューベック、カッファ）は、地図上で答えが見えないよう都市として置かない。輪郭は学習用の模式図。
+// =====================================================================
+const MEDIEVAL_COLORS = {
+  "フランク王国": ["#9AA8D9", "#C7D0EC"],
+  "神聖ローマ帝国": ["#A8C686", "#D2E3BF"],
+  "ビザンツ帝国": ["#C98E82", "#EAC0B9"],
+  "フランス王国": ["#8FA3E0", "#C3CFF0"],
+  "イングランド王国": ["#D9866B", "#F0B8A8"],
+  "イスラーム世界": ["#7ECBA8", "#B8E5D2"],
+  "セルジューク朝": ["#E0C56B", "#F0E2A8"],
+  "ヴェネツィア共和国": ["#E07A8B", "#F2B8C2"],
+  "ジェノヴァ共和国": ["#C9A0DC", "#E4CFEE"],
+  "フランドル": ["#F2A65A", "#F8D3AA"],
+};
+const medRegion = (id, rings, label) => mapRegion(MEDIEVAL_COLORS, id, rings, label);
+
+// --- 西ヨーロッパ ---
+const ENGLAND = [
+  [-1.6, 55.8], [-2.2, 55.6], [-3.0, 55.3], [-3.4, 54.95], [-5.3, 54.6], [-5.2, 53.3], [-5.7, 51.8], [-6.0, 49.9],
+  [-1.0, 50.4], [1.4, 50.9], [2.0, 52.6], [0.3, 54.2],
+];
+const ENGLISH_AQUITAINE = [
+  [-2.3, 47.0], [0.5, 47.0], [1.5, 46.0], [2.0, 44.5], [1.0, 43.3], [-0.5, 42.8], [-1.4, 43.2], [-1.8, 43.6], [-2.5, 44.5],
+];
+const ENGLISH_CALAIS = [[1.5, 51.05], [2.1, 51.05], [2.1, 50.85], [1.5, 50.85]];
+const FLANDERS = [[2.0, 51.1], [2.4, 51.15], [3.4, 51.5], [4.2, 51.3], [4.1, 50.9], [3.2, 50.5], [2.4, 50.6], [2.0, 50.85]];
+const FRANKS_550 = [
+  [-1.8, 43.6], [-1.4, 43.2], [-0.5, 42.8], [1.8, 42.6], [2.5, 43.3], [4.0, 43.5], [4.5, 42.9], [7.5, 43.3], [7.5, 43.8],
+  [7.0, 44.2], [7.0, 45.9], [8.5, 46.4], [10.5, 47.5], [12.5, 47.8], [13.0, 49.0], [11.5, 50.5], [10.0, 51.5], [8.5, 52.0],
+  [6.5, 52.0], [4.3, 52.0], [3.3, 51.7], [2.6, 51.15], [1.6, 51.1], [-1.5, 50.0], [-5.5, 48.2], [-2.5, 44.5],
+];
+// カール大帝の死（814年）前後の版図：スペイン辺境伯領からエルベ川、イタリア中部まで
+const FRANKS_800 = [
+  [-1.8, 43.6], [-1.4, 43.2], [-0.5, 42.8], [0.8, 42.3], [1.5, 41.6], [2.0, 41.2], [3.6, 41.8], [3.6, 42.6], [4.5, 42.9],
+  [7.5, 43.3], [9.0, 44.0], [9.9, 43.5], [10.4, 42.4], [11.8, 41.0], [12.8, 41.3], [13.6, 41.7], [14.0, 42.9], [13.8, 44.0],
+  [12.6, 44.9], [13.6, 45.6], [14.4, 45.4], [16.0, 46.5], [16.9, 48.1], [15.0, 48.8], [13.0, 49.5], [12.5, 50.3], [11.5, 51.0],
+  [11.5, 52.5], [10.8, 53.5], [10.5, 54.3], [8.6, 54.3], [8.0, 54.0], [7.0, 53.9], [4.5, 53.3], [3.3, 51.7], [2.6, 51.15],
+  [1.6, 51.1], [-1.5, 50.0], [-5.5, 48.2], [-2.5, 44.5],
+];
+// イタリア王国（神聖ローマ帝国のイタリア部分。ヴェネツィアと南イタリアを除く）
+const IMPERIAL_ITALY = [
+  [7.5, 43.8], [6.8, 44.5], [7.0, 45.9], [8.5, 46.4], [10.5, 46.6], [12.4, 46.6], [13.6, 46.4], [13.0, 45.5], [12.3, 45.0],
+  [12.5, 44.4], [13.7, 43.6], [14.0, 42.9], [13.2, 42.5], [13.6, 41.7], [13.0, 41.25], [12.0, 41.7], [11.6, 42.2], [10.4, 42.4],
+  [9.9, 43.5], [8.5, 44.0],
+];
+const VENICE_LAGOON = [[12.0, 45.7], [12.6, 45.7], [12.6, 45.2], [12.0, 45.2]];
+const VENICE_EUBOEA = [[23.3, 39.0], [24.6, 38.4], [24.4, 38.0], [23.3, 38.7]];
+const GENOA_LIGURIA = [[7.6, 43.8], [7.7, 44.3], [8.8, 44.6], [9.9, 44.3], [9.9, 43.9]];
+const GENOA_CORSICA = [[8.5, 43.1], [9.6, 43.1], [9.6, 41.3], [8.5, 41.3]];
+const GENOA_CRIMEA = [[33.5, 45.1], [35.6, 45.1], [35.6, 44.8], [33.5, 44.4]];
+const GENOA_CHIOS = [[25.8, 38.6], [26.2, 38.6], [26.2, 38.2], [25.8, 38.2]];
+
+// --- ビザンツ帝国 ---
+// ユスティニアヌス帝の時代（6世紀半ば）：東地中海＋イタリア・北アフリカ・イベリア南東部
+const BYZ_EAST_550 = [
+  [19.0, 31.5], [19.0, 39.5], [18.7, 41.6], [18.9, 42.4], [19.2, 43.3], [19.4, 44.4], [19.6, 45.2], [20.5, 44.8], [22.5, 44.6],
+  [24.5, 43.7], [25.3, 43.7], [27.3, 44.15], [28.0, 45.4], [29.7, 45.3], [30.0, 43.0], [34.5, 42.3], [41.3, 42.2], [41.6, 41.6],
+  [42.5, 41.0], [43.0, 39.5], [42.0, 38.5], [41.5, 37.5], [40.5, 37.0], [39.5, 36.0], [38.5, 34.5], [38.0, 33.0], [37.0, 31.0],
+  [36.0, 30.0], [34.9, 29.4], [34.6, 28.0], [34.2, 27.3], [35.3, 25.0], [35.6, 23.4], [32.5, 23.0], [30.0, 24.5], [28.0, 27.0],
+  [25.0, 29.5], [24.8, 30.0], [19.0, 30.0], [19.2, 30.6],
+];
+const BYZ_ITALY_550 = [
+  [7.5, 43.8], [6.8, 44.5], [7.0, 45.9], [8.5, 46.4], [10.5, 46.6], [12.4, 46.6], [13.7, 45.6], [13.8, 44.0], [15.3, 42.8],
+  [17.2, 41.7], [18.9, 40.3], [18.8, 39.7], [17.5, 38.6], [16.4, 37.6], [15.5, 36.4], [14.0, 36.6], [12.2, 37.5], [12.3, 38.3],
+  [13.5, 39.5], [11.8, 41.0], [10.4, 42.4], [9.9, 43.5], [8.5, 44.0],
+];
+const BYZ_ISLANDS_550 = [[8.0, 43.1], [9.9, 43.1], [10.0, 38.7], [7.9, 38.7]];
+const BYZ_AFRICA_550 = [
+  [7.8, 37.2], [11.2, 37.4], [11.4, 35.6], [11.6, 34.0], [11.6, 33.0], [15.2, 32.4], [18.5, 30.9], [19.0, 30.5], [15.0, 30.8],
+  [11.0, 32.2], [9.0, 34.0], [7.0, 35.0], [3.0, 35.6], [1.0, 35.9], [1.0, 36.8], [5.0, 37.2],
+];
+const BYZ_SPANIA_550 = [[-5.3, 36.2], [-4.0, 37.0], [-1.5, 38.0], [-0.4, 38.4], [0.0, 38.6], [-0.4, 37.4], [-1.8, 36.6], [-5.5, 35.95]];
+// 8〜10世紀：小アジアとバルカン南部（クレタ島を含む）
+const BYZ_CORE_800 = [
+  [19.8, 39.6], [22.5, 40.9], [24.5, 41.2], [26.5, 42.3], [28.0, 42.6], [28.5, 42.6], [31.0, 42.0], [36.0, 42.0], [41.5, 41.6],
+  [41.5, 40.5], [40.5, 39.5], [38.5, 38.0], [36.5, 37.2], [35.6, 36.8], [34.0, 36.0], [31.5, 36.2], [29.0, 35.8], [26.6, 35.6],
+  [26.8, 34.6], [23.0, 34.6], [21.0, 36.4], [20.2, 38.8],
+];
+const BYZ_SOUTH_ITALY = [
+  [15.6, 39.8], [16.6, 40.0], [17.5, 40.4], [18.6, 40.4], [18.8, 39.7], [17.5, 38.6], [16.4, 37.6], [15.6, 37.9], [15.6, 38.8],
+  [15.4, 39.5],
+];
+// 11世紀末：バルカン半島（ドナウ川まで）と小アジア西部の沿岸、キプロス島
+const BYZ_1095 = [
+  [19.3, 41.8], [19.0, 43.0], [19.6, 44.8], [22.5, 44.6], [25.0, 43.7], [27.3, 44.15], [28.0, 45.4], [29.7, 45.3], [30.0, 43.0],
+  [31.0, 42.0], [33.0, 42.0], [32.0, 41.0], [29.0, 40.0], [28.5, 37.5], [27.0, 36.8], [28.0, 36.0], [26.8, 34.6], [23.0, 34.6],
+  [21.0, 36.4], [20.2, 38.8], [19.6, 39.8], [19.2, 41.5],
+];
+const BYZ_CYPRUS = [[32.2, 35.8], [34.7, 35.8], [34.7, 34.5], [32.2, 34.5]];
+// 1204年以降の亡命政権（ニケーア帝国）
+const BYZ_NICAEA = [
+  [26.5, 40.4], [29.0, 41.2], [31.0, 41.2], [32.5, 41.8], [32.0, 40.6], [29.8, 39.8], [28.8, 38.0], [27.2, 37.3], [26.3, 38.5],
+  [26.0, 39.6],
+];
+// 14世紀半ばの残存領：首都周辺とペロポネソス半島南東部
+const BYZ_CONSTANTINOPLE_1360 = [[27.6, 41.7], [29.3, 41.4], [29.1, 40.9], [27.6, 40.9]];
+const BYZ_MOREA_1360 = [[22.0, 37.6], [23.2, 37.6], [23.2, 36.4], [22.3, 36.4]];
+
+// --- イスラーム世界 ---
+// 北アフリカ（大西洋岸〜エジプト）。東端をどこで閉じるかは時代ごとに変える
+const ISLAM_MAGHREB_COAST = [
+  [-9.8, 35.5], [-5.5, 35.95], [0.0, 36.2], [5.0, 37.1], [10.0, 37.6], [11.5, 37.0], [11.6, 35.0], [15.0, 32.6], [20.0, 32.9],
+];
+const ISLAM_SAHARA_EDGE = [[25.0, 22.0], [20.0, 25.0], [15.0, 26.0], [10.0, 28.0], [5.0, 30.0], [0.0, 31.0], [-5.0, 30.0], [-10.0, 29.0], [-10.5, 31.0]];
+// 8〜10世紀：アッバース朝など、北アフリカから中央アジア・インダス川下流まで
+const ISLAM_800 = [
+  ...ISLAM_MAGHREB_COAST, [25.0, 31.9], [30.0, 31.7], [34.0, 31.6], [34.6, 32.5], [35.5, 34.5], [35.6, 36.0], [36.5, 37.2],
+  [38.5, 38.0], [40.5, 39.5], [44.0, 41.0], [47.5, 42.0], [49.5, 41.0], [50.5, 39.0], [53.8, 38.2], [58.0, 38.5], [62.0, 39.0],
+  [66.0, 41.0], [70.0, 41.5], [71.5, 38.0], [71.5, 35.5], [70.5, 30.0], [69.0, 26.5], [68.0, 24.0], [67.0, 23.6], [61.0, 24.5],
+  [57.5, 25.3], [59.5, 22.5], [55.0, 17.0], [50.0, 15.0], [45.0, 12.5], [43.3, 12.7], [41.5, 14.5], [38.5, 19.0], [36.5, 22.5],
+  [31.0, 22.0], ...ISLAM_SAHARA_EDGE,
+];
+const ISLAM_IBERIA_800 = [
+  [-9.5, 41.2], [-8.0, 41.2], [-5.0, 41.0], [-3.0, 41.3], [-1.0, 41.8], [0.9, 40.7], [1.0, 40.6], [0.6, 38.6], [-0.4, 37.4],
+  [-1.8, 36.6], [-5.5, 35.95], [-6.6, 36.3], [-7.4, 36.9], [-9.5, 36.8], [-9.9, 38.5],
+];
+const ISLAM_SICILY_962 = [[12.2, 38.4], [15.4, 38.4], [15.66, 38.3], [15.6, 37.9], [15.5, 36.5], [14.0, 36.6], [12.2, 37.4]];
+// 11世紀末：ファーティマ朝（エジプト）と北アフリカ、ムラービト朝のイベリア半島南部（シリア以東はセルジューク朝）
+const ISLAM_AFRICA_1095 = [
+  ...ISLAM_MAGHREB_COAST, [25.0, 31.9], [30.0, 31.7], [34.0, 31.6], [34.3, 31.4], [34.6, 29.5], [34.2, 27.3], [35.3, 25.0],
+  [35.6, 23.4], [36.5, 22.5], [31.0, 22.0], ...ISLAM_SAHARA_EDGE,
+];
+const ISLAM_IBERIA_1095 = [
+  [-9.5, 39.4], [-6.5, 39.5], [-4.0, 39.6], [-2.0, 40.0], [-1.5, 41.8], [0.5, 41.6], [0.9, 40.7], [1.0, 40.6], [0.6, 38.6],
+  [-0.4, 37.4], [-1.8, 36.6], [-5.5, 35.95], [-6.6, 36.3], [-7.4, 36.9], [-9.5, 36.8], [-9.9, 38.5],
+];
+// 1204年：アイユーブ朝（エジプト・シリア）からイラク・イランまで。シリア沿岸の十字軍国家は塗らずに残す
+const ISLAM_EAST_1204 = [
+  ...ISLAM_MAGHREB_COAST, [25.0, 31.9], [30.0, 31.7], [34.0, 31.6], [35.3, 32.5], [36.0, 33.5], [36.2, 35.0], [35.9, 36.2],
+  [37.5, 37.3], [40.0, 37.8], [41.0, 39.0], [44.0, 39.5], [47.5, 39.5], [49.5, 38.5], [50.5, 39.0], [53.8, 38.2], [58.0, 38.5],
+  [62.0, 39.0], [66.0, 41.0], [70.0, 41.5], [71.5, 38.0], [68.0, 36.0], [62.0, 34.0], [61.0, 30.0], [58.0, 26.5], [56.4, 26.65],
+  [54.0, 26.4], [51.0, 27.3], [49.5, 28.6], [48.6, 29.8], [47.5, 30.0], [44.5, 30.2], [41.0, 31.0], [38.5, 30.0], [36.5, 29.3],
+  [35.0, 29.4], [34.6, 28.0], [34.2, 27.3], [35.3, 25.0], [35.6, 23.4], [36.5, 22.5], [31.0, 22.0], ...ISLAM_SAHARA_EDGE,
+];
+const ISLAM_IBERIA_1204 = [
+  [-9.0, 37.9], [-7.0, 38.6], [-4.0, 38.6], [-1.5, 39.0], [0.2, 39.6], [0.6, 38.6], [-0.4, 37.4], [-1.8, 36.6], [-5.5, 35.95],
+  [-6.6, 36.3], [-7.4, 36.9], [-9.5, 36.8],
+];
+// 14世紀半ば：マムルーク朝（エジプト・シリア）、マグリブ諸王朝、ナスル朝グラナダ
+const ISLAM_MAMLUK_1360 = [
+  [25.0, 31.9], [30.0, 31.7], [34.0, 31.6], [34.6, 32.5], [35.5, 34.5], [35.6, 36.0], [36.5, 36.8], [38.0, 37.5], [39.0, 37.0],
+  [38.5, 36.0], [40.0, 35.5], [40.5, 34.5], [39.0, 32.0], [37.0, 30.0], [35.0, 29.4], [34.6, 28.0], [34.2, 27.3], [35.3, 25.0],
+  [35.6, 23.4], [36.5, 22.5], [31.0, 22.0], [25.0, 22.0], [25.0, 29.5],
+];
+const ISLAM_MAGHREB_1360 = [...ISLAM_MAGHREB_COAST, [20.0, 29.0], [15.0, 28.0], [10.0, 28.0], [5.0, 30.0], [0.0, 31.0], [-5.0, 30.0], [-10.0, 29.0], [-10.5, 31.0]];
+const ISLAM_GRANADA_1360 = [[-5.4, 36.2], [-5.2, 37.0], [-3.6, 37.6], [-2.2, 37.4], [-1.8, 36.6], [-5.5, 35.95]];
+
+// --- セルジューク朝 ---
+const SELJUK_1095 = [
+  [29.0, 40.0], [32.0, 41.0], [36.0, 40.8], [40.0, 40.5], [44.0, 41.0], [47.5, 42.0], [49.5, 41.0], [50.5, 39.0], [53.8, 38.2],
+  [58.0, 38.5], [62.0, 39.0], [66.0, 41.0], [70.0, 41.5], [71.5, 38.0], [68.0, 36.0], [62.0, 34.0], [61.0, 30.0], [58.0, 26.5],
+  [56.4, 26.65], [54.0, 26.4], [51.0, 27.3], [49.5, 28.6], [48.6, 29.8], [47.5, 30.0], [44.5, 30.2], [41.0, 31.0], [38.5, 30.0],
+  [36.5, 29.3], [35.0, 29.4], [34.3, 31.4], [34.6, 32.5], [35.5, 34.5], [35.6, 36.0], [33.0, 36.1], [31.5, 36.2], [29.0, 36.3],
+  [28.5, 37.5],
+];
+// 1204年：小アジア内陸のルーム・セルジューク朝
+const SELJUK_RUM_1204 = [
+  [28.8, 38.0], [29.8, 39.8], [32.5, 40.6], [36.0, 40.3], [39.0, 39.7], [41.0, 39.0], [40.0, 37.8], [37.5, 37.3], [35.5, 37.2],
+  [33.0, 36.8], [31.5, 36.9], [30.0, 37.0], [29.0, 37.3],
+];
+
+// --- 背景（タップ不可） ---
+const CRUSADER_LATIN_1204 = [[22.5, 40.8], [26.5, 42.0], [28.5, 42.0], [29.3, 41.2], [26.5, 40.4], [24.0, 40.0], [22.5, 38.5], [21.5, 39.5]];
+const OTTOMAN_1360 = [[26.2, 40.9], [27.6, 41.2], [29.3, 40.9], [31.0, 40.8], [31.0, 39.8], [28.5, 39.5], [26.6, 40.0]];
+
+const MEDIEVAL_LABELS = {
+  franks: { at: [4.0, 48.0], lines: ["フランク王国"], size: 7 },
+  hre: { at: [10.5, 50.6], lines: ["神聖ローマ帝国"], size: 7 },
+  westFrancia: { at: [2.3, 46.8], lines: ["西フランク王国"], size: 6.5 },
+  france: { at: [2.3, 46.8], lines: ["フランス王国"], size: 6.5 },
+  england: { at: [-1.6, 52.6], lines: ["イングランド", "王国"], size: 4.5 },
+  flanders: { at: [3.1, 51.0], lines: ["フランドル"], size: 2.8 },
+  byz: { at: [32.0, 39.0], lines: ["ビザンツ帝国"], size: 7 },
+  islam: { at: [40.0, 30.0], lines: ["イスラーム世界"], size: 9 },
+  seljuk: { at: [50.0, 34.0], lines: ["セルジューク朝"], size: 8 },
+  venice: { at: [12.3, 45.9], lines: ["ヴェネツィア"], size: 3 },
+  genoa: { at: [8.8, 44.75], lines: ["ジェノヴァ"], size: 3 },
+};
+
+const MEDIEVAL_SNAPSHOTS_1 = {
+  // ユスティニアヌス帝の時代（6世紀半ば）
+  [550]: {
+    regions: [
+      medRegion("フランク王国", [FRANKS_550], { ...MEDIEVAL_LABELS.franks, lines: ["フランク王国", "（メロヴィング朝）"] }),
+      medRegion("ビザンツ帝国", [BYZ_EAST_550, BYZ_ITALY_550, BYZ_ISLANDS_550, BYZ_AFRICA_550, BYZ_SPANIA_550], MEDIEVAL_LABELS.byz),
+    ],
+    cities: [
+      mapCity("パリ", 2.35, 48.86, "フランク王国"),
+      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
+      mapCity("ラヴェンナ", 12.20, 44.42, "ビザンツ帝国", "r"),
+      mapCity("ローマ", 12.48, 41.89, "ビザンツ帝国"),
+      mapCity("カルタゴ", 10.32, 36.85, "ビザンツ帝国"),
+      mapCity("アレクサンドリア", 29.92, 31.20, "ビザンツ帝国", "tl"),
+      mapCity("アンティオキア", 36.16, 36.20, "ビザンツ帝国", "r"),
+    ],
+  },
+  // カール大帝の戴冠（800年）
+  [800]: {
+    regions: [
+      medRegion("フランク王国", [FRANKS_800], MEDIEVAL_LABELS.franks),
+      medRegion("ビザンツ帝国", [BYZ_CORE_800, BYZ_SOUTH_ITALY, SPAIN_SICILY], MEDIEVAL_LABELS.byz),
+      medRegion("イスラーム世界", [ISLAM_800, ISLAM_IBERIA_800], MEDIEVAL_LABELS.islam),
+    ],
+    cities: [
+      mapCity("アーヘン", 6.08, 50.78, "フランク王国", "r"),
+      mapCity("パリ", 2.35, 48.86, "フランク王国"),
+      mapCity("ポワティエ", 0.34, 46.58, "フランク王国", "l"),
+      mapCity("ローマ", 12.48, 41.89, "フランク王国"),
+      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
+      mapCity("コルドバ", -4.78, 37.88, "イスラーム世界", "l"),
+      mapCity("バグダード", 44.36, 33.31, "イスラーム世界"),
+    ],
+  },
+  // オットー1世の戴冠（962年）
+  [962]: {
+    regions: [
+      medRegion("フランス王国", [FRANCE], MEDIEVAL_LABELS.westFrancia),
+      medRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE, IMPERIAL_ITALY], MEDIEVAL_LABELS.hre),
+      medRegion("イングランド王国", [ENGLAND], MEDIEVAL_LABELS.england),
+      medRegion("ビザンツ帝国", [BYZ_CORE_800, BYZ_SOUTH_ITALY], MEDIEVAL_LABELS.byz),
+      medRegion("イスラーム世界", [ISLAM_800, ISLAM_IBERIA_800, ISLAM_SICILY_962], MEDIEVAL_LABELS.islam),
+    ],
+    cities: [
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("アーヘン", 6.08, 50.78, "神聖ローマ帝国", "r"),
+      mapCity("マクデブルク", 11.63, 52.13, "神聖ローマ帝国", "r"),
+      mapCity("ローマ", 12.48, 41.89, "神聖ローマ帝国"),
+      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
+      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
+      mapCity("コルドバ", -4.78, 37.88, "イスラーム世界", "l"),
+      mapCity("バグダード", 44.36, 33.31, "イスラーム世界"),
+    ],
+  },
+};
+
+const MEDIEVAL_SNAPSHOTS_2 = {
+  // 第1回十字軍の前夜（1095年）。フランドルはフランス王国の上に重ねて描く（配列の後ろほど上に描画される）
+  [1095]: {
+    regions: [
+      medRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE, IMPERIAL_ITALY], MEDIEVAL_LABELS.hre),
+      medRegion("フランス王国", [FRANCE], MEDIEVAL_LABELS.france),
+      medRegion("イングランド王国", [ENGLAND], MEDIEVAL_LABELS.england),
+      medRegion("ビザンツ帝国", [BYZ_1095, BYZ_CYPRUS], MEDIEVAL_LABELS.byz),
+      medRegion("セルジューク朝", [SELJUK_1095], MEDIEVAL_LABELS.seljuk),
+      medRegion("イスラーム世界", [ISLAM_AFRICA_1095, ISLAM_IBERIA_1095], { ...MEDIEVAL_LABELS.islam, at: [10.0, 31.0] }),
+      medRegion("ヴェネツィア共和国", [VENICE_LAGOON, VENICE_DALMATIA], MEDIEVAL_LABELS.venice),
+      medRegion("ジェノヴァ共和国", [GENOA_LIGURIA], MEDIEVAL_LABELS.genoa),
+      medRegion("フランドル", [FLANDERS], MEDIEVAL_LABELS.flanders),
+    ],
+    cities: [
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
+      mapCity("ブルージュ", 3.22, 51.21, "フランドル", "tl"),
+      mapCity("ガン", 3.72, 51.05, "フランドル", "r"),
+      mapCity("アーヘン", 6.08, 50.78, "神聖ローマ帝国", "r"),
+      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
+      mapCity("ジェノヴァ", 8.93, 44.41, "ジェノヴァ共和国", "l"),
+      mapCity("ローマ", 12.48, 41.89, null),
+      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
+      mapCity("イェルサレム", 35.23, 31.78, "セルジューク朝", "r"),
+      mapCity("バグダード", 44.36, 33.31, "セルジューク朝"),
+      mapCity("カイロ", 31.24, 30.04, "イスラーム世界", "l"),
+      mapCity("コルドバ", -4.78, 37.88, "イスラーム世界", "l"),
+    ],
+  },
+  // 第4回十字軍のコンスタンティノープル占領（1204年）。ヴェネツィアはクレタ島・エウボイア島など東地中海の拠点を得る
+  [1204]: {
+    regions: [
+      medRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE, IMPERIAL_ITALY], MEDIEVAL_LABELS.hre),
+      medRegion("フランス王国", [FRANCE], MEDIEVAL_LABELS.france),
+      medRegion("イングランド王国", [ENGLAND], MEDIEVAL_LABELS.england),
+      medRegion("ビザンツ帝国", [BYZ_NICAEA], { ...MEDIEVAL_LABELS.byz, at: [29.5, 40.0], lines: ["ニケーア帝国", "（ビザンツ亡命政権）"], size: 4 }),
+      medRegion("セルジューク朝", [SELJUK_RUM_1204], { ...MEDIEVAL_LABELS.seljuk, at: [34.0, 38.7], lines: ["ルーム・", "セルジューク朝"], size: 4.5 }),
+      medRegion("イスラーム世界", [ISLAM_EAST_1204, ISLAM_IBERIA_1204], MEDIEVAL_LABELS.islam),
+      medRegion("ヴェネツィア共和国", [VENICE_LAGOON, VENICE_DALMATIA, VENICE_CRETE, VENICE_EUBOEA], MEDIEVAL_LABELS.venice),
+      medRegion("ジェノヴァ共和国", [GENOA_LIGURIA, GENOA_CORSICA], MEDIEVAL_LABELS.genoa),
+      medRegion("フランドル", [FLANDERS], MEDIEVAL_LABELS.flanders),
+    ],
+    background: [
+      mapBackground("十字軍の諸国家", [CRUSADER_LATIN_1204], [25.5, 41.3], "#8C9A7A"),
+    ],
+    cities: [
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
+      mapCity("ブルージュ", 3.22, 51.21, "フランドル", "tl"),
+      mapCity("ガン", 3.72, 51.05, "フランドル", "r"),
+      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
+      mapCity("ジェノヴァ", 8.93, 44.41, "ジェノヴァ共和国", "l"),
+      mapCity("ローマ", 12.48, 41.89, null),
+      mapCity("コンスタンティノープル", 28.98, 41.01, null, "t"),
+      mapCity("ニケーア", 29.72, 40.43, "ビザンツ帝国", "r"),
+      mapCity("コンヤ", 32.49, 37.87, "セルジューク朝"),
+      mapCity("カイロ", 31.24, 30.04, "イスラーム世界", "l"),
+      mapCity("ダマスクス", 36.29, 33.51, "イスラーム世界", "r"),
+    ],
+  },
+  // 百年戦争中のブレティニー条約と黒死病の大流行後（1360年）。イングランドはアキテーヌとカレーを保持
+  [1360]: {
+    regions: [
+      medRegion("神聖ローマ帝国", [HOLY_ROMAN_EMPIRE], MEDIEVAL_LABELS.hre),
+      medRegion("フランス王国", [FRANCE], MEDIEVAL_LABELS.france),
+      medRegion("イングランド王国", [ENGLAND, ENGLISH_AQUITAINE, ENGLISH_CALAIS], MEDIEVAL_LABELS.england),
+      medRegion("ビザンツ帝国", [BYZ_CONSTANTINOPLE_1360, BYZ_MOREA_1360], { ...MEDIEVAL_LABELS.byz, at: [28.4, 41.9], size: 3.5 }),
+      medRegion("イスラーム世界", [ISLAM_MAMLUK_1360, ISLAM_MAGHREB_1360, ISLAM_GRANADA_1360], { ...MEDIEVAL_LABELS.islam, at: [20.0, 28.5] }),
+      medRegion("ヴェネツィア共和国", [VENICE_LAGOON, VENICE_CRETE, VENICE_EUBOEA], MEDIEVAL_LABELS.venice),
+      medRegion("ジェノヴァ共和国", [GENOA_LIGURIA, GENOA_CORSICA, GENOA_CRIMEA, GENOA_CHIOS], MEDIEVAL_LABELS.genoa),
+      medRegion("フランドル", [FLANDERS], MEDIEVAL_LABELS.flanders),
+    ],
+    background: [
+      mapBackground("オスマン朝", [OTTOMAN_1360], [29.0, 40.2], "#7A8CA8"),
+    ],
+    cities: [
+      mapCity("パリ", 2.35, 48.86, "フランス王国"),
+      mapCity("オルレアン", 1.91, 47.90, "フランス王国", "l"),
+      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
+      mapCity("ボルドー", -0.58, 44.84, "イングランド王国", "l"),
+      mapCity("ブルージュ", 3.22, 51.21, "フランドル", "tl"),
+      mapCity("ガン", 3.72, 51.05, "フランドル", "r"),
+      mapCity("プラハ", 14.42, 50.09, "神聖ローマ帝国", "r"),
+      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
+      mapCity("ジェノヴァ", 8.93, 44.41, "ジェノヴァ共和国", "l"),
+      mapCity("ローマ", 12.48, 41.89, null),
+      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
+      mapCity("カイロ", 31.24, 30.04, "イスラーム世界", "l"),
+      mapCity("グラナダ", -3.60, 37.18, "イスラーム世界", "b"),
+    ],
+  },
+};
+
+// 「シチリア島」は c65 の答えなので、中世の地図では出さない
+const MEDIEVAL_SEA_LABELS = SEA_LABELS.filter((s) => s.name !== "ドーバー海峡" && s.name !== "シチリア島").concat(
+  [["カスピ海", 51.0, 41.8, 6.5], ["紅海", 37.5, 21.0, 6], ["ペルシア湾", 51.3, 27.2, 5.5]].map(([name, lon, lat, size]) => {
+    const [x, y] = lonLatToXY(lon, lat);
+    return { name, x, y, size };
+  }),
+);
+
+export const MEDIEVAL_BLURB = {
+  "フランク王国": "ゲルマン人の一派フランク人が建てた王国。5世紀末にカトリックに改宗してローマ教会と結び、8世紀には西ヨーロッパの大半を支配した。",
+  "神聖ローマ帝国": "ドイツとイタリア北部を中心とする国家。皇帝は諸侯の選挙で選ばれ、ローマ教皇から帝冠を受けることでローマ帝国の後継者を名乗った。",
+  "ビザンツ帝国": "東ローマ帝国とも呼ばれ、東方のキリスト教会とギリシア語文化を軸に1000年以上続いた。首都は地中海と黒海を結ぶ交易の要衝として栄えた。",
+  "フランス王国": "西フランク王国から発展した王国。10世紀末にカペー朝が始まり、はじめは王権が弱かったが、しだいに王領を広げて中央集権化を進めた。",
+  "イングランド王国": "ブリテン島南部の王国。11世紀以降に大陸の封建制度が持ち込まれ、王と貴族・議会の関係をめぐって独自の政治制度が形づくられた。",
+  "イスラーム世界": "7世紀にアラビア半島で成立したイスラーム教のもとで広がった地域。アッバース朝などの王朝のもとで西アジアから北アフリカ・イベリア半島に及ぶ広大な世界が形成され、学問と商業が栄えた。",
+  "セルジューク朝": "11世紀に中央アジアから進出したトルコ系の王朝。バグダードに入ってスルタンの称号を得、小アジアにも進出してビザンツ帝国を圧迫した。",
+  "ヴェネツィア共和国": "アドリア海の干潟に築かれた都市国家。ビザンツ帝国との結びつきを足がかりに東地中海の交易を握り、各地に商業拠点を持つ海洋国家となった。",
+  "ジェノヴァ共和国": "イタリア北西部の港町を中心とする海洋都市国家。ヴェネツィアと地中海の覇権を争い、黒海沿岸やエーゲ海にも植民市を築いた。",
+  "フランドル": "現在のベルギー西部を中心とする伯領。イギリスから羊毛を輸入して毛織物業が栄え、ブルージュやガンなどの都市が自治を獲得した。英仏の対立の焦点にもなった。",
+};
+
+// 550・800・962年（中世①区分）と、1095・1204・1360年（中世②区分。1450年以降はルネサンス期の地図に切り替え）
+export const MEDIEVAL_1_MAP = snapshotMapPeriod(MEDIEVAL_SNAPSHOTS_1, { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
+export const MEDIEVAL_2_MAP = snapshotMapPeriod(MEDIEVAL_SNAPSHOTS_2, { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
+
 // src/data/historyData.js の末尾イメージ
 
 export const ERAS_DATA = {
@@ -2075,14 +3080,32 @@ export const ERAS_DATA = {
       landPath: WORLD_LAND_PATH,
     }
   },
+  "medieval-europe": {
+    id: "medieval-europe",
+    title: "中世ヨーロッパ",
+    period: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）",
+    // 地図では「中世①」（500〜1000年）と「中世②」（1000〜1500年）の2区分にまたがる。
+    // 中世②の1450年以降は大航海時代・ルネサンス期が受け持つため、yearRange で500〜1449年を担当する
+    mapPeriodId: ["medieval-1", "medieval-2"],
+    yearRange: [500, 1449],
+    defaultMapYear: 1095,
+    cards: MEDIEVAL_CARDS,
+    // この時代の勢力図・都市データは未作成（Step 2 で作成予定。地図タブでは「準備中」表示）。
+    // 作成する際は MEDIEVAL_CARDS の region と同じ勢力IDを付けること
+    mapData: {
+      years: [800, 1095, 1348],
+      landPath: WORLD_LAND_PATH,
+    }
+  },
   "renaissance-discovery": {
     id: "renaissance-discovery",
     title: "大航海時代・ルネサンス・宗教改革",
     period: "近世（大航海時代・ルネサンス・宗教改革）",
     // 地図では「中世②」（1000〜1500年）と「大航海時代・近世」（1500〜1789年）の2区分にまたがる。
-    // 後者は三十年戦争と共有するため、yearRange で1300〜1599年だけを受け持つ
+    // 前者は中世ヨーロッパ（〜1449年）、後者は三十年戦争（1600年〜）と共有するため、yearRange で1450〜1599年だけを受け持つ
+    // （1450年は中世②区分でルネサンス期の勢力図が始まる年）
     mapPeriodId: ["medieval-2", "early-modern"],
-    yearRange: [1300, 1599],
+    yearRange: [1450, 1599],
     defaultMapYear: 1517,
     cards: RENAISSANCE_CARDS,
     // この時代の勢力図・都市データは未作成（Step 2 で作成予定。地図タブでは「準備中」表示）。
