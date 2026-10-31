@@ -1,5 +1,8 @@
 import { lonLatToXY } from "./mapProjection.js";
 import { GEO_LAND_PATH, GEO_PATHS, GEO_BBOX } from "./generated/geoPaths.js";
+import {
+  ASIA_ANCIENT_CARDS, ASIA_MEDIEVAL_CARDS, ASIA_RENAISSANCE_CARDS, ASIA_ABSOLUTISM_CARDS, ASIA_REVOLUTION_CARDS, ASIA_IMPERIALISM_CARDS,
+} from "./asiaCards.js";
 
 // ---------------------------------------------------------------------------
 // カード画像（image）の選定方針
@@ -1393,7 +1396,7 @@ export const IMPERIALISM_CARDS = [
 // アケメネス朝ペルシア／マケドニア／ローマ／カルタゴ）。地図データを作るときは、この region と同じIDを勢力に付けること。
 export const ANCIENT_CARDS = [
   {
-    id: "c27", year: -1750, difficulty: 0, era: "古代（オリエント・ギリシャ・ローマ）", region: "メソポタミア", theme: ["通史", "古代オリエント"],
+    id: "c27", year: -1750, difficulty: 0, era: "古代（オリエント・地中海・アジア）", region: "メソポタミア", theme: ["通史", "古代オリエント"],
     front: "前18世紀にハンムラビ王が定めた法典と、その刑罰の原則は？",
     back: "",
     cloze: {
@@ -1426,7 +1429,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ハンムラビ法典",
   },
   {
-    id: "c28", year: -2550, difficulty: 0, era: "古代（オリエント・ギリシャ・ローマ）", region: "エジプト", theme: ["通史", "古代オリエント"],
+    id: "c28", year: -2550, difficulty: 0, era: "古代（オリエント・地中海・アジア）", region: "エジプト", theme: ["通史", "古代オリエント"],
     front: "ヘロドトスが「エジプトは〇〇のたまもの」と記した川と、古代エジプトの王の称号は？",
     back: "",
     cloze: {
@@ -1459,7 +1462,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/古代エジプト",
   },
   {
-    id: "c29", year: -443, difficulty: 1, era: "古代（オリエント・ギリシャ・ローマ）", region: "ギリシア", theme: ["通史", "古代ギリシア"],
+    id: "c29", year: -443, difficulty: 1, era: "古代（オリエント・地中海・アジア）", region: "ギリシア", theme: ["通史", "古代ギリシア"],
     front: "アテネ民主政を最盛期に導いた指導者と、国家の最高議決機関は？",
     back: "",
     cloze: {
@@ -1492,7 +1495,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/陶片追放",
   },
   {
-    id: "c30", year: -480, difficulty: 2, era: "古代（オリエント・ギリシャ・ローマ）", region: "アケメネス朝ペルシア", theme: ["通史", "古代ギリシア"],
+    id: "c30", year: -480, difficulty: 2, era: "古代（オリエント・地中海・アジア）", region: "アケメネス朝ペルシア", theme: ["通史", "古代ギリシア"],
     front: "ペルシア戦争でギリシア側が勝利した、前490年の戦いと前480年の海戦は？",
     back: "",
     cloze: {
@@ -1525,7 +1528,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ペルシア戦争",
   },
   {
-    id: "c31", year: -330, difficulty: 2, era: "古代（オリエント・ギリシャ・ローマ）", region: "マケドニア", theme: ["通史", "古代ギリシア"],
+    id: "c31", year: -330, difficulty: 2, era: "古代（オリエント・地中海・アジア）", region: "マケドニア", theme: ["通史", "古代ギリシア"],
     front: "東方遠征でアケメネス朝を滅ぼしたマケドニアの王と、その結果生まれた文化は？",
     back: "",
     cloze: {
@@ -1558,7 +1561,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ヘレニズム",
   },
   {
-    id: "c32", year: -287, difficulty: 3, era: "古代（オリエント・ギリシャ・ローマ）", region: "ローマ", theme: ["通史", "古代ローマ"],
+    id: "c32", year: -287, difficulty: 3, era: "古代（オリエント・地中海・アジア）", region: "ローマ", theme: ["通史", "古代ローマ"],
     front: "共和政ローマで貴族が政治の拠点とした機関と、身分闘争を決着させた前287年の法は？",
     back: "",
     cloze: {
@@ -1591,7 +1594,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/共和政ローマ",
   },
   {
-    id: "c33", year: -218, difficulty: 2, era: "古代（オリエント・ギリシャ・ローマ）", region: "カルタゴ", theme: ["通史", "古代ローマ"],
+    id: "c33", year: -218, difficulty: 2, era: "古代（オリエント・地中海・アジア）", region: "カルタゴ", theme: ["通史", "古代ローマ"],
     front: "ポエニ戦争でローマと戦った北アフリカの国家と、アルプスを越えてイタリアに侵入した名将は？",
     back: "",
     cloze: {
@@ -1618,7 +1621,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ポエニ戦争",
   },
   {
-    id: "c34", year: -44, difficulty: 1, era: "古代（オリエント・ギリシャ・ローマ）", region: "ローマ", theme: ["通史", "古代ローマ"],
+    id: "c34", year: -44, difficulty: 1, era: "古代（オリエント・地中海・アジア）", region: "ローマ", theme: ["通史", "古代ローマ"],
     front: "カエサルがルビコン川を渡るときに言ったとされる名言と、彼を暗殺した共和派の中心人物は？",
     back: "",
     cloze: {
@@ -1651,7 +1654,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ガイウス・ユリウス・カエサル",
   },
   {
-    id: "c35", year: -27, difficulty: 3, era: "古代（オリエント・ギリシャ・ローマ）", region: "ローマ", theme: ["通史", "古代ローマ"],
+    id: "c35", year: -27, difficulty: 3, era: "古代（オリエント・地中海・アジア）", region: "ローマ", theme: ["通史", "古代ローマ"],
     front: "オクタウィアヌスが元老院から受けた称号と、彼が始めた政治体制は？",
     back: "",
     cloze: {
@@ -1684,7 +1687,7 @@ export const ANCIENT_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/アウグストゥス",
   },
   {
-    id: "c36", year: 117, difficulty: 2, era: "古代（オリエント・ギリシャ・ローマ）", region: "ローマ", theme: ["通史", "古代ローマ"],
+    id: "c36", year: 117, difficulty: 2, era: "古代（オリエント・地中海・アジア）", region: "ローマ", theme: ["通史", "古代ローマ"],
     front: "帝政開始から約200年間続いたローマの平和を何と呼ぶか？また、帝国の領土が最大となった皇帝は？",
     back: "",
     cloze: {
@@ -2062,7 +2065,7 @@ export const RENAISSANCE_CARDS = [
 // 地図データを作るときは、この region と同じIDを勢力に付けること。
 export const MEDIEVAL_CARDS = [
   {
-    id: "c49", year: 537, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ビザンツ帝国", theme: ["通史", "ビザンツ帝国"],
+    id: "c49", year: 537, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "ビザンツ帝国", theme: ["通史", "ビザンツ帝国"],
     front: "6世紀にビザンツ帝国の最盛期を築いた皇帝と、彼が編纂させた法典は？",
     back: "",
     cloze: {
@@ -2095,7 +2098,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ユスティニアヌス1世",
   },
   {
-    id: "c57", year: 732, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "イスラーム世界", theme: ["通史", "中世ヨーロッパ"],
+    id: "c57", year: 732, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "イスラーム世界", theme: ["通史", "中世ヨーロッパ"],
     front: "732年、イスラーム勢力の侵入をトゥール・ポワティエ間の戦いで撃退したフランク王国の宮宰と、侵入した王朝は？",
     back: "",
     cloze: {
@@ -2128,7 +2131,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/トゥール・ポワティエ間の戦い",
   },
   {
-    id: "c47", year: 800, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランク王国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c47", year: 800, difficulty: 0, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "フランク王国", theme: ["通史", "中世ヨーロッパ"],
     front: "800年にローマ皇帝の冠を受けたフランク王国の王と、冠を授けたローマ教皇は？",
     back: "",
     cloze: {
@@ -2161,7 +2164,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/カール大帝",
   },
   {
-    id: "c48", year: 962, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c48", year: 962, difficulty: 2, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
     front: "962年にローマ皇帝の冠を受け、神聖ローマ帝国の始まりとされる東フランク王と、彼が撃退した民族は？",
     back: "",
     cloze: {
@@ -2194,7 +2197,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/オットー1世_(神聖ローマ皇帝)",
   },
   {
-    id: "c50", year: 1054, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ビザンツ帝国", theme: ["通史", "ビザンツ帝国"],
+    id: "c50", year: 1054, difficulty: 2, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "ビザンツ帝国", theme: ["通史", "ビザンツ帝国"],
     front: "726年にビザンツ皇帝が発布し、ローマ教会との対立のきっかけとなった法令と、1054年の分裂で成立した東方の教会は？",
     back: "",
     cloze: {
@@ -2227,7 +2230,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/聖像破壊運動",
   },
   {
-    id: "c58", year: 1066, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "イングランド王国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c58", year: 1066, difficulty: 2, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "イングランド王国", theme: ["通史", "中世ヨーロッパ"],
     front: "1066年にイングランドを征服してノルマン朝を開いたフランス北部の領主の称号と、決戦の地は？",
     back: "",
     cloze: {
@@ -2260,7 +2263,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ノルマン・コンクエスト",
   },
   {
-    id: "c52", year: 1077, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c52", year: 1077, difficulty: 0, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
     front: "叙任権をめぐって神聖ローマ皇帝ハインリヒ4世を破門した教皇と、皇帝が許しを請うた城は？",
     back: "",
     cloze: {
@@ -2293,7 +2296,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/カノッサの屈辱",
   },
   {
-    id: "c53", year: 1095, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "セルジューク朝", theme: ["通史", "十字軍"],
+    id: "c53", year: 1095, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "セルジューク朝", theme: ["通史", "十字軍"],
     front: "1095年に十字軍の派遣を呼びかけた教皇と、その舞台となった宗教会議は？",
     back: "",
     cloze: {
@@ -2326,7 +2329,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/十字軍",
   },
   {
-    id: "c51", year: 1100, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c51", year: 1100, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
     front: "主君と家臣が封土と軍役で結ばれた関係と、荘園で領主に従属した農民の身分は？",
     back: "",
     cloze: {
@@ -2359,7 +2362,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/荘園",
   },
   {
-    id: "c54", year: 1204, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ヴェネツィア共和国", theme: ["通史", "十字軍"],
+    id: "c54", year: 1204, difficulty: 2, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "ヴェネツィア共和国", theme: ["通史", "十字軍"],
     front: "1204年にビザンツ帝国の首都を占領した十字軍は第何回の遠征か？また、そこに建てた国家は？",
     back: "",
     cloze: {
@@ -2398,7 +2401,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/第4回十字軍",
   },
   {
-    id: "c59", year: 1215, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "イングランド王国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c59", year: 1215, difficulty: 0, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "イングランド王国", theme: ["通史", "中世ヨーロッパ"],
     front: "1215年、貴族たちに国王の権限を制限する文書を認めさせられたイングランド王と、その文書は？",
     back: "",
     cloze: {
@@ -2431,7 +2434,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/マグナ・カルタ",
   },
   {
-    id: "c64", year: 1250, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ヴェネツィア共和国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c64", year: 1250, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "ヴェネツィア共和国", theme: ["通史", "中世ヨーロッパ"],
     front: "ヴェネツィアやジェノヴァの商人が地中海東岸の港で買い付けたアジアの主な産物と、その交易の呼び名は？",
     back: "",
     cloze: {
@@ -2464,7 +2467,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/香辛料貿易",
   },
   {
-    id: "c63", year: 1300, difficulty: 3, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランドル", theme: ["通史", "中世ヨーロッパ"],
+    id: "c63", year: 1300, difficulty: 3, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "フランドル", theme: ["通史", "中世ヨーロッパ"],
     front: "中世都市で市政を握った商人の組合と、それに対抗して手工業者が結成した同職ギルドの呼び名は？",
     back: "",
     cloze: {
@@ -2497,7 +2500,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ギルド",
   },
   {
-    id: "c60", year: 1309, difficulty: 2, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c60", year: 1309, difficulty: 2, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
     front: "1303年にフランス王フィリップ4世に捕らえられた教皇と、1309年に教皇庁が移された南フランスの都市は？",
     back: "",
     cloze: {
@@ -2530,7 +2533,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/アヴィニョン捕囚",
   },
   {
-    id: "c65", year: 1346, difficulty: 3, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ジェノヴァ共和国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c65", year: 1346, difficulty: 3, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "ジェノヴァ共和国", theme: ["通史", "中世ヨーロッパ"],
     front: "ジェノヴァが黒海交易の拠点としたクリミア半島の植民市と、そこから逃れた船がペストを運んだ地中海の島は？",
     back: "",
     cloze: {
@@ -2563,7 +2566,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/カッファ",
   },
   {
-    id: "c55", year: 1348, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "ジェノヴァ共和国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c55", year: 1348, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "ジェノヴァ共和国", theme: ["通史", "中世ヨーロッパ"],
     front: "14世紀半ばにヨーロッパの人口の約3分の1を奪った疫病と、その結果として進んだ農民の地位の変化は？",
     back: "",
     cloze: {
@@ -2596,7 +2599,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/黒死病",
   },
   {
-    id: "c62", year: 1370, difficulty: 1, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c62", year: 1370, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
     front: "北ドイツの諸都市が北海・バルト海の交易のために結んだ都市同盟と、その盟主となった都市は？",
     back: "",
     cloze: {
@@ -2629,7 +2632,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/ハンザ同盟",
   },
   {
-    id: "c61", year: 1414, difficulty: 3, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c61", year: 1414, difficulty: 3, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "神聖ローマ帝国", theme: ["通史", "中世ヨーロッパ"],
     front: "1378年から教皇が並び立った教会の混乱と、それを収拾した1414年からの公会議は？",
     back: "",
     cloze: {
@@ -2662,7 +2665,7 @@ export const MEDIEVAL_CARDS = [
     anecdoteLink: "https://ja.wikipedia.org/wiki/教会大分裂",
   },
   {
-    id: "c56", year: 1429, difficulty: 0, era: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
+    id: "c56", year: 1429, difficulty: 0, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "フランス王国", theme: ["通史", "中世ヨーロッパ"],
     front: "1339年に始まったイギリスとフランスの戦争と、オルレアンの包囲を破ってフランスを救った少女は？",
     back: "",
     cloze: {
@@ -3826,18 +3829,19 @@ export const IMPERIALISM_MAP = snapshotMapPeriod(IMPERIALISM_SNAPSHOTS, { geoPre
   rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: IMPERIALISM_BLURB,
 });
 
-// src/data/historyData.js の末尾イメージ
+// 各時代のカード：ヨーロッパ・中東などのカードと、東アジア・南アジアのカード（asiaCards.js）を年代順に並べる
+const byYear = (...lists) => lists.flat().map((c, i) => [c, i]).sort((a, b) => a[0].year - b[0].year || a[1] - b[1]).map(([c]) => c);
 
 export const ERAS_DATA = {
   "ancient-mediterranean": {
     id: "ancient-mediterranean",
-    title: "古代オリエントと地中海世界",
-    period: "古代（オリエント・ギリシャ・ローマ）",
+    title: "古代の諸文明と帝国",
+    period: "古代（オリエント・地中海・アジア）",
     // 地図では「古代文明の成立と地域世界」（前3000〜前500年）と「古代帝国の時代」（前500〜500年）の
     // 2つの時代区分にまたがるため、配列で両方に紐づける
     mapPeriodId: ["ancient-civilizations", "ancient-empires"],
     defaultMapYear: -490,
-    cards: ANCIENT_CARDS,
+    cards: byYear(ANCIENT_CARDS, ASIA_ANCIENT_CARDS),
     // 古代の時代区分の勢力ポリゴン・都市データは未作成（地図タブでは「準備中」表示）。
     // 作成する際は ANCIENT_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3847,14 +3851,14 @@ export const ERAS_DATA = {
   },
   "medieval-europe": {
     id: "medieval-europe",
-    title: "中世ヨーロッパ",
-    period: "中世ヨーロッパ（封建社会・十字軍・ビザンツ）",
+    title: "中世の世界",
+    period: "中世（ヨーロッパ・イスラーム・アジア）",
     // 地図では「中世①」（500〜1000年）と「中世②」（1000〜1500年）の2区分にまたがる。
     // 中世②の1450年以降は大航海時代・ルネサンス期が受け持つため、yearRange で500〜1449年を担当する
     mapPeriodId: ["medieval-1", "medieval-2"],
     yearRange: [500, 1449],
     defaultMapYear: 1095,
-    cards: MEDIEVAL_CARDS,
+    cards: byYear(MEDIEVAL_CARDS, ASIA_MEDIEVAL_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は MEDIEVAL_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3872,7 +3876,7 @@ export const ERAS_DATA = {
     mapPeriodId: ["medieval-2", "early-modern"],
     yearRange: [1450, 1599],
     defaultMapYear: 1517,
-    cards: RENAISSANCE_CARDS,
+    cards: byYear(RENAISSANCE_CARDS, ASIA_RENAISSANCE_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は RENAISSANCE_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3887,7 +3891,7 @@ export const ERAS_DATA = {
     mapPeriodId: "early-modern", // 地図タブの時代区分（ERA_PERIODS）との対応キー
     yearRange: [1600, 1789], // 同じ時代区分を「大航海時代・ルネサンス・宗教改革」と分け合うため、受け持つ年の範囲
     defaultMapYear: 1648, // 地図タブを開いたときの初期年代
-    cards: ABSOLUTISM_CARDS,
+    cards: byYear(ABSOLUTISM_CARDS, ASIA_ABSOLUTISM_CARDS),
     // 勢力図は ABSOLUTISM_MAP（1648・1715・1772年）。App.jsx の ERA_PERIODS で大航海時代・近世区分の1600年以降に割り当てている
     mapData: {
       years: [1648, 1715, 1772],
@@ -3900,7 +3904,7 @@ export const ERAS_DATA = {
     period: "近代（市民革命と国民国家）",
     mapPeriodId: "revolutions",
     defaultMapYear: 1815,
-    cards: FRENCH_REVOLUTION_CARDS,
+    cards: byYear(FRENCH_REVOLUTION_CARDS, ASIA_REVOLUTION_CARDS),
     // 勢力ポリゴン・首都・河川・解説は、geo-frameworkが App.jsx の GEO_FRAMEWORK_DATA:revolutions ブロックへ
     // 自動生成し、地図の時代区分 "revolutions"（mapPeriodId）として保持している。ここには年代とベースマップのみ持つ
     mapData: {
@@ -3917,7 +3921,7 @@ export const ERAS_DATA = {
     mapPeriodId: "imperialism-wars",
     yearRange: [1870, 1918],
     defaultMapYear: 1914,
-    cards: IMPERIALISM_CARDS,
+    cards: byYear(IMPERIALISM_CARDS, ASIA_IMPERIALISM_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は IMPERIALISM_CARDS の region と同じ勢力IDを付けること
     mapData: {

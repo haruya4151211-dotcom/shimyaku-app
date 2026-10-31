@@ -1300,6 +1300,7 @@ function FilterPanel(props) {
   const [dragDelta, setDragDelta] = useState(0);
   const [dragging, setDragging] = useState(false);
   const dragStartY = useRef(0);
+  const dragDeltaRef = useRef(0);
   const bodyRef = useRef(null);
 
   const confirmSave = () => {
@@ -1310,6 +1311,7 @@ function FilterPanel(props) {
 
   const startDrag = (e) => {
     dragStartY.current = e.touches ? e.touches[0].clientY : e.clientY;
+    dragDeltaRef.current = 0;
     setDragging(true);
   };
 
@@ -1317,14 +1319,16 @@ function FilterPanel(props) {
     if (!dragging) return;
     const onMove = (e) => {
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      setDragDelta(Math.max(0, clientY - dragStartY.current));
+      dragDeltaRef.current = Math.max(0, clientY - dragStartY.current);
+      setDragDelta(dragDeltaRef.current);
     };
+    // 判定はステートの更新関数の外で行う（更新関数は描画中に実行されるため、中で親のステートを更新しない）
     const onUp = () => {
+      const delta = dragDeltaRef.current;
+      dragDeltaRef.current = 0;
       setDragging(false);
-      setDragDelta((delta) => {
-        if (delta > 90) onClose(); // 下にクイッ：閉じる（不十分ならバネで復帰）
-        return 0;
-      });
+      setDragDelta(0);
+      if (delta > 90) onClose(); // 下にクイッ：閉じる（不十分ならバネで復帰）
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("touchmove", onMove, { passive: false });
@@ -2085,9 +2089,11 @@ function StudyStage({
   const [listDragDelta, setListDragDelta] = useState(0);
   const [listDragging, setListDragging] = useState(false);
   const listDragStartY = useRef(0);
+  const listDragDeltaRef = useRef(0);
 
   const startListDrag = (e) => {
     listDragStartY.current = e.touches ? e.touches[0].clientY : e.clientY;
+    listDragDeltaRef.current = 0;
     setListDragging(true);
   };
 
@@ -2095,14 +2101,15 @@ function StudyStage({
     if (!listDragging) return;
     const onMove = (e) => {
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      setListDragDelta(Math.max(0, clientY - listDragStartY.current));
+      listDragDeltaRef.current = Math.max(0, clientY - listDragStartY.current);
+      setListDragDelta(listDragDeltaRef.current);
     };
     const onUp = () => {
+      const delta = listDragDeltaRef.current;
+      listDragDeltaRef.current = 0;
       setListDragging(false);
-      setListDragDelta((delta) => {
-        if (delta > 90) setListOpen(false);
-        return 0;
-      });
+      setListDragDelta(0);
+      if (delta > 90) setListOpen(false);
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("touchmove", onMove, { passive: false });
@@ -3396,11 +3403,13 @@ function RegionDetailSheet({
   const [dragDelta, setDragDelta] = useState(0);
   const [dragging, setDragging] = useState(false);
   const dragStartY = useRef(0);
+  const dragDeltaRef = useRef(0); // 指を離したときの判定用（ステートの更新関数の中で親のステートを更新しないため）
 
   const close = () => setSheetState("closed");
 
   const startDrag = (e) => {
     dragStartY.current = e.touches ? e.touches[0].clientY : e.clientY;
+    dragDeltaRef.current = 0;
     setDragging(true);
   };
 
@@ -3409,18 +3418,19 @@ function RegionDetailSheet({
     const onMove = (e) => {
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       // 極端なオーバードラッグでシート高さが破綻しないよう、ドラッグ量をpx単位で軽くクランプする
-      setDragDelta(Math.max(-260, Math.min(320, clientY - dragStartY.current)));
+      dragDeltaRef.current = Math.max(-260, Math.min(320, clientY - dragStartY.current));
+      setDragDelta(dragDeltaRef.current);
     };
     const onUp = () => {
+      const delta = dragDeltaRef.current;
+      dragDeltaRef.current = 0;
       setDragging(false);
-      setDragDelta((delta) => {
-        if (delta <= MAP_SHEET_UP_THRESHOLD && sheetState === "half") {
-          setSheetState("full"); // スワイプアップ：全画面近くまで展開
-        } else if (delta >= MAP_SHEET_DOWN_THRESHOLD) {
-          setSheetState(sheetState === "full" ? "half" : "closed"); // スワイプダウン：フル→ハーフ、ハーフ→クローズ
-        }
-        return 0;
-      });
+      setDragDelta(0);
+      if (delta <= MAP_SHEET_UP_THRESHOLD && sheetState === "half") {
+        setSheetState("full"); // スワイプアップ：全画面近くまで展開
+      } else if (delta >= MAP_SHEET_DOWN_THRESHOLD) {
+        setSheetState(sheetState === "full" ? "half" : "closed"); // スワイプダウン：フル→ハーフ、ハーフ→クローズ
+      }
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("touchmove", onMove, { passive: false });
