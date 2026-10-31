@@ -10,6 +10,7 @@ import {
   MEDIEVAL_1_MAP,
   MEDIEVAL_2_MAP,
   ABSOLUTISM_MAP,
+  IMPERIALISM_MAP,
 } from './data/historyData';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
@@ -3065,7 +3066,11 @@ const ERA_PERIODS = [
     background: REVOLUTIONS_BACKGROUND, capitals: REVOLUTIONS_CAPITALS, rivers: REVOLUTIONS_RIVERS, seaLabels: REVOLUTIONS_SEA_LABELS,
     blurb: REVOLUTIONS_BLURB,
   },
-  { id: "imperialism-wars", label: "帝国主義と二つの大戦", yearRange: [1870, 1945], hasContent: false },
+  // 1918年までは帝国主義と第一次世界大戦期（1885・1900・1914年）の勢力図。1919年以降は準備中
+  {
+    id: "imperialism-wars", label: "帝国主義と二つの大戦", yearRange: [1870, 1945],
+    hasContent: true, contentRange: [1870, 1918], ...IMPERIALISM_MAP,
+  },
   { id: "cold-war-modern", label: "冷戦と現代世界", yearRange: [1945, 2025], hasContent: false },
 ];
 

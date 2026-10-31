@@ -892,6 +892,497 @@ export const FRENCH_REVOLUTION_CARDS = [
   },
 ];
 
+// 近代（帝国主義と世界大戦）のカード。
+// 1870年代からの列強による世界分割（アフリカ分割・中国分割）、帝国主義列強の対立と同盟・協商、
+// 日清・日露戦争、バルカン問題とサラエボ事件、第一次世界大戦とロシア革命までを扱う（〜1918年）。
+// region は Step 2 で作成予定のこの時代の地図（帝国主義と二つの大戦の区分）の勢力IDとして使う名前で統一し、
+// 各勢力に2問ずつ割り当てている：イギリス、フランス、ドイツ帝国、ロシア帝国、アメリカ合衆国、
+// オーストリア＝ハンガリー帝国、オスマン帝国、日本、清。地図データを作るときは、この region と同じIDを勢力に付けること。
+// カードの答えになる地名（ファショダ、モロッコ、キール、ポーツマス、ブレスト＝リトフスク、フィリピン、ボスニア・ヘルツェゴヴィナ、
+// 下関、膠州）は、地図上で答えが見えないよう都市や地域名として置かないこと。
+export const IMPERIALISM_CARDS = [
+  {
+    id: "c79", year: 1875, difficulty: 1, era: "近代（帝国主義と世界大戦）", region: "イギリス", theme: ["通史", "帝国主義"],
+    front: "1875年にスエズ運河会社の株を買収したイギリス首相と、1877年に成立させたインドの国家は？",
+    back: "",
+    cloze: {
+      template: "1875年、イギリス首相{{1}}はエジプトの財政難につけこんでスエズ運河会社の株を買収し、インドへの最短航路を確保した。1877年にはヴィクトリア女王を皇帝とする{{2}}を成立させた。",
+      slots: [
+        { id: 1, answer: "ディズレーリ", category: "人物" },
+        { id: 2, answer: "インド帝国", category: "国家" },
+      ],
+      points: [
+        { label: "原因", text: "1869年に開通した運河は、ヨーロッパとアジアを結ぶ航路を大幅に短縮し、インドを「王冠の宝石」とするイギリスにとって生命線となった" },
+        { label: "経過", text: "首相は議会の承認を待たずにロスチャイルド家から資金を借りて買収を決めた。1882年にはエジプトを事実上の保護国とした" },
+        { label: "意義", text: "自由貿易を重んじた時代から、領土と勢力圏の拡大をめざす帝国主義の時代へとイギリスが転換する象徴的な出来事となった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Benjamin_Disraeli%2C_1st_Earl_of_Beaconsfield_%28by_Sir_John_Everett_Millais%2C_1881%29_-_National_Portrait_Gallery_%28NPG_3241%29.jpg/960px-Benjamin_Disraeli%2C_1st_Earl_of_Beaconsfield_%28by_Sir_John_Everett_Millais%2C_1881%29_-_National_Portrait_Gallery_%28NPG_3241%29.jpg", caption: "ミレー「ディズレーリの肖像」（1881年、ナショナル・ポートレート・ギャラリー）",
+        alt: "黒い服を着て腕を組み、正面を見つめる年配の政治家の肖像",
+        credit: "Benjamin Disraeli, 1st Earl of Beaconsfield／John Everett Millais（1881年）, National Portrait Gallery, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/L%27inauguration_du_canal_de_Suez%2C_17_November_1869_Gal18_riou_001f.jpg/960px-L%27inauguration_du_canal_de_Suez%2C_17_November_1869_Gal18_riou_001f.jpg", caption: "リウ「スエズ運河の開通式」（1869年）",
+        alt: "旗を掲げた船の列が、砂漠の間を通る運河を進んでいく様子を描いた絵",
+        credit: "L'inauguration du canal de Suez／Édouard Riou（1869年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "逸話：小説家でもあった首相は、株の買収の成功を女王に「マダム、運河はあなたのものです」と報告したと伝えられる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/スエズ運河",
+  },
+  {
+    id: "c93", year: 1895, difficulty: 0, era: "近代（帝国主義と世界大戦）", region: "日本", theme: ["通史", "帝国主義"],
+    front: "日清戦争の講和条約と、日本が遼東半島を返還させられたロシア・フランス・ドイツの干渉は？",
+    back: "",
+    cloze: {
+      template: "朝鮮をめぐる日清戦争に勝利した日本は、1895年の{{1}}条約で台湾・澎湖諸島・遼東半島と賠償金を獲得したが、ロシア・フランス・ドイツによる{{2}}を受けて遼東半島を清に返還した。",
+      slots: [
+        { id: 1, answer: "下関", category: "条約" },
+        { id: 2, answer: "三国干渉", category: "干渉" },
+      ],
+      points: [
+        { label: "原因", text: "1894年、朝鮮で起こった甲午農民戦争（東学党の乱）をきっかけに、朝鮮への影響力をめぐって日本と清が出兵し衝突した" },
+        { label: "経過", text: "近代化を進めた日本軍が陸海で勝利し、清は朝鮮の独立を認めた。日本は台湾を最初の植民地として統治した" },
+        { label: "意義", text: "「眠れる獅子」と呼ばれた清の弱体が明らかになり、列強による中国分割が本格化した。日本国内では「臥薪嘗胆」を合言葉にロシアへの対抗心が高まった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Mizuno_Toshikata_-_The_Fall_of_Fenghuangcheng-_Putting_the_Enemy_to_Rout_-_Google_Art_Project.jpg/960px-Mizuno_Toshikata_-_The_Fall_of_Fenghuangcheng-_Putting_the_Enemy_to_Rout_-_Google_Art_Project.jpg", caption: "水野年方「鳳凰城の陥落」（日清戦争の錦絵、1894年）",
+        alt: "雪の中、銃を構えて突撃する兵士たちと、逃げる敵兵を描いた色鮮やかな錦絵",
+        credit: "The Fall of Fenghuangcheng／水野年方（1894年）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Peace_Conference_at_Shimonoseki_by_Nagatochi_Hideta_%28Meiji_Memorial_Picture_Gallery%29_%28cropped%29.jpg/960px-Peace_Conference_at_Shimonoseki_by_Nagatochi_Hideta_%28Meiji_Memorial_Picture_Gallery%29_%28cropped%29.jpg", caption: "永地秀太『下関講和談判』（1929年、聖徳記念絵画館）",
+        alt: "洋風の部屋のテーブルを囲み、日本と清の全権たちが向かい合って交渉する場面",
+        credit: "下関講和談判／永地秀太（1929年）, 明治神宮聖徳記念絵画館, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：清の全権・李鴻章は交渉中に日本人の青年に狙撃されて負傷した。国際的な非難を恐れた日本は、これを機に休戦に応じた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/日清戦争",
+  },
+  {
+    id: "c81", year: 1898, difficulty: 2, era: "近代（帝国主義と世界大戦）", region: "フランス", theme: ["通史", "帝国主義"],
+    front: "サハラ砂漠を東へ進むフランスのアフリカ政策と、1898年にイギリス軍と衝突したスーダンの地は？",
+    back: "",
+    cloze: {
+      template: "アルジェリア・チュニジアを拠点にサハラ砂漠を東へ進み、ジブチ・マダガスカルと結ぼうとする{{1}}政策をとったフランスは、1898年、スーダンの{{2}}でイギリスの縦断政策と衝突したが、譲歩して撤退した。",
+      slots: [
+        { id: 1, answer: "アフリカ横断", category: "政策" },
+        { id: 2, answer: "ファショダ", category: "地名" },
+      ],
+      points: [
+        { label: "原因", text: "1884〜85年のベルリン会議で「先に実効支配した国が領有できる」という原則が定まり、列強はアフリカ内陸の分割を急いだ" },
+        { label: "経過", text: "マルシャン大佐の部隊がナイル川上流の砦に旗を立てたが、スーダンを制圧したキッチナー将軍のイギリス軍と対峙し、戦争の一歩手前に至った" },
+        { label: "意義", text: "フランスの譲歩で危機は回避され、ドイツの台頭を前に英仏が歩み寄るきっかけとなった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Groupe_de_la_mission_Marchand_au_Caire_1898.jpg/960px-Groupe_de_la_mission_Marchand_au_Caire_1898.jpg", caption: "カイロに到着したマルシャン大佐の遠征隊（1898年の写真）",
+        alt: "軍服や白い服を着た隊員と現地の兵士たちが並ぶ集合写真",
+        credit: "Groupe de la mission Marchand au Caire／E. Lauro（1898年）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Kitchener_in_the_robes_of_an_LL.D._of_Cambridge_University%2C_November_24%2C_1898.png/960px-Kitchener_in_the_robes_of_an_LL.D._of_Cambridge_University%2C_November_24%2C_1898.png", caption: "イギリス軍を率いたキッチナー将軍（1898年）",
+        alt: "大学の名誉学位のガウンをまとい、口ひげをたくわえて立つ軍人の写真",
+        credit: "Kitchener in the robes of an LL.D. of Cambridge University／作者不詳（1898年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：19世紀末までに、エチオピアとリベリアを除くアフリカのほぼ全域がヨーロッパ列強の植民地や保護国となった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ファショダ事件",
+  },
+  {
+    id: "c95", year: 1898, difficulty: 2, era: "近代（帝国主義と世界大戦）", region: "清", theme: ["通史", "帝国主義"],
+    front: "1898年にドイツが租借した中国の湾と、1900年に「扶清滅洋」を掲げて蜂起した宗教結社は？",
+    back: "",
+    cloze: {
+      template: "日清戦争の敗北で清の弱体が明らかになると、列強は租借地や鉄道敷設権を獲得して勢力範囲を広げた。ドイツは{{1}}湾、ロシアは旅順・大連、イギリスは威海衛と九竜半島を租借した。これに反発した宗教結社の{{2}}は、1900年に「扶清滅洋」を掲げて蜂起した。",
+      slots: [
+        { id: 1, answer: "膠州", category: "湾" },
+        { id: 2, answer: "義和団", category: "結社" },
+      ],
+      points: [
+        { label: "原因", text: "多額の賠償金を支払うため、清は列強から借款を受け、その見返りに鉄道や鉱山の利権を次々と認めた" },
+        { label: "経過", text: "蜂起した集団が北京の外国公使館を包囲すると、日本とロシアを主力とする8か国の連合軍が出兵して鎮圧した" },
+        { label: "意義", text: "1901年の北京議定書で清は巨額の賠償金と外国軍の北京駐留を認め、半植民地化が一段と進んだ" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/China_imperialism_cartoon.jpg/960px-China_imperialism_cartoon.jpg", caption: "アンリ・メイエ「中国というケーキを切り分ける列強」（1898年、『プティ・ジュルナル』）",
+        alt: "中国と書かれたケーキを、各国の君主たちが囲んで切り分けようとし、後ろで清の役人が嘆く風刺画",
+        credit: "En Chine – Le gâteau des Rois et… des Empereurs／Henri Meyer（1898年）, Le Petit Journal, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/6/64/Indian_troops_at_Temple_of_Heaven_Peking_1900.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original", caption: "北京の天壇に駐屯した連合軍のインド兵（1900年）",
+        alt: "円錐形の屋根が三層に重なる祭殿の前に、兵士たちが整列している写真",
+        credit: "Indian troops at Temple of Heaven, Peking／作者不詳（1900年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：太平天国の乱や義和団の鎮圧に功績のあった李鴻章ら漢人官僚の力が強まり、地方の軍事勢力が台頭した。これがのちの清朝崩壊の一因にもなった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/義和団の乱",
+  },
+  {
+    id: "c83", year: 1899, difficulty: 1, era: "近代（帝国主義と世界大戦）", region: "ドイツ帝国", theme: ["通史", "帝国主義"],
+    front: "「世界政策」を掲げたドイツ皇帝と、ベルリン・ビザンティウム・バグダードを結ぼうとした政策は？",
+    back: "",
+    cloze: {
+      template: "宰相ビスマルクを辞任させたドイツ皇帝{{1}}は「世界政策」を掲げ、ベルリン・ビザンティウム（イスタンブル）・バグダードを鉄道で結ぶ{{2}}政策を進めて、イギリスのアジア進出と対立した。",
+      slots: [
+        { id: 1, answer: "ヴィルヘルム2世", category: "人物" },
+        { id: 2, answer: "3B", category: "政策" },
+      ],
+      points: [
+        { label: "原因", text: "急速な工業化で世界有数の工業国となったドイツは、原料と市場を求めて植民地の獲得をめざした" },
+        { label: "経過", text: "オスマン帝国からバグダード鉄道の敷設権を得て中東へ進出し、イギリスに対抗する大艦隊の建設も始めた" },
+        { label: "意義", text: "ビスマルクが築いたフランス孤立化の同盟網はくずれ、イギリス・フランス・ロシアが接近してドイツを包囲する形勢となった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Kaiser_Wilhelm_II_of_Germany_-_1902.jpg/960px-Kaiser_Wilhelm_II_of_Germany_-_1902.jpg", caption: "ヴィルヘルム2世の肖像写真（1902年）",
+        alt: "勲章を着け、先の跳ね上がった口ひげをたくわえた軍服姿の皇帝の写真",
+        credit: "Kaiser Wilhelm II of Germany／Thomas Heinrich Voigt工房（1902年）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/German_Baghdad_Railway%2C_190_._Railroad_construction_camp_LOC_matpc.04666.jpg/960px-German_Baghdad_Railway%2C_190_._Railroad_construction_camp_LOC_matpc.04666.jpg", caption: "建設中のバグダード鉄道の工事現場（1900年代、中東）",
+        alt: "荒れ地の中にまっすぐ延びる線路と、その脇に並ぶ工事用の小屋",
+        credit: "German Baghdad Railway, railroad construction camp／Matson Collection（1900〜1910年代）, Library of Congress, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "逸話：皇帝は「ドイツの未来は海上にある」と述べて大艦隊の建設を進めた。これがイギリスとの激しい建艦競争を招いた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/3B政策",
+  },
+  {
+    id: "c80", year: 1899, difficulty: 1, era: "近代（帝国主義と世界大戦）", region: "イギリス", theme: ["通史", "帝国主義"],
+    front: "カイロ・ケープタウン・カルカッタを結んだイギリスの政策と、南アフリカの征服を進めたケープ植民地首相は？",
+    back: "",
+    cloze: {
+      template: "イギリスは、エジプトのカイロ、南アフリカのケープタウン、インドのカルカッタを結ぶ{{1}}政策を進めた。ケープ植民地首相{{2}}らは南アフリカの金やダイヤモンドを狙い、1899年からの南アフリカ戦争でブール人の国々を併合した。",
+      slots: [
+        { id: 1, answer: "3C", category: "政策" },
+        { id: 2, answer: "セシル・ローズ", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "アフリカを北のエジプトから南のケープまで縦断して支配し、インドと結ぶ大帝国の形成をめざした" },
+        { label: "経過", text: "オランダ系移民の子孫であるブール人のトランスヴァール共和国・オレンジ自由国との戦争は予想外に長期化し、多くの犠牲を出した" },
+        { label: "意義", text: "苦戦と国際的な批判を受けたイギリスは「光栄ある孤立」を見直し、他国との同盟・協商へと外交方針を転換した" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Punch_Rhodes_Colossus.png/960px-Punch_Rhodes_Colossus.png", caption: "『パンチ』誌の風刺画：アフリカの南北をまたぐ巨人（1892年）",
+        alt: "アフリカ大陸の上に両足を広げて立ち、両手で電信線を張る巨人を描いた白黒の風刺画",
+        credit: "The Rhodes Colossus／Edward Linley Sambourne（1892年）, Punch, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Cecil_Rhodes_last_portrait.jpg/960px-Cecil_Rhodes_last_portrait.jpg", caption: "セシル・ローズの肖像写真（1902年）",
+        alt: "机に向かって座り、書類を前にした恰幅のよい男性の写真",
+        credit: "Cecil Rhodes／William Thomas Stead（1902年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：彼の名にちなんで、現在のジンバブエとザンビアにあたる地域は「ローデシア」と名付けられた。遺産はオックスフォード大学の「ローズ奨学金」として今も続いている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/3C政策",
+  },
+  {
+    id: "c87", year: 1899, difficulty: 1, era: "近代（帝国主義と世界大戦）", region: "アメリカ合衆国", theme: ["通史", "帝国主義"],
+    front: "1898年の米西戦争でアメリカが獲得したアジアの島々と、1899年にアメリカが中国について列強に求めた宣言は？",
+    back: "",
+    cloze: {
+      template: "1898年の米西戦争に勝利したアメリカは、{{1}}・グアム・プエルトリコを獲得し、ハワイも併合した。中国分割に出遅れたアメリカは、1899年に国務長官ジョン・ヘイが{{2}}宣言を発し、中国市場の開放・機会均等・領土保全を列強に求めた。",
+      slots: [
+        { id: 1, answer: "フィリピン", category: "島々" },
+        { id: 2, answer: "門戸開放", category: "宣言" },
+      ],
+      points: [
+        { label: "原因", text: "19世紀末に西部開拓（フロンティア）が終わったアメリカは、海外市場と太平洋の拠点を求めるようになった" },
+        { label: "経過", text: "キューバ独立運動への介入から始まった戦争に短期間で勝利し、カリブ海と太平洋に植民地を持つ国となった" },
+        { label: "意義", text: "孤立主義を保ってきたアメリカが帝国主義列強の一員として国際政治に本格的に登場し、のちに太平洋で日本と対立する遠因ともなった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/C.M._Gilbert._-_John_Hay%2C_c._1904.jpg/960px-C.M._Gilbert._-_John_Hay%2C_c._1904.jpg", caption: "国務長官ジョン・ヘイ（1904年頃）",
+        alt: "椅子に腰かけ、白いひげをたくわえた初老の男性の写真",
+        credit: "John Hay／C. M. Gilbert（1904年頃）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Battle_of_Manila_Bay_by_James_Gale_Tyler_%281898%29.jpg/960px-Battle_of_Manila_Bay_by_James_Gale_Tyler_%281898%29.jpg", caption: "タイラー「マニラ湾の海戦」（1898年）",
+        alt: "炎と煙を上げる艦船の間を、軍艦が砲撃しながら進む海戦の場面",
+        credit: "Battle of Manila Bay／James Gale Tyler（1898年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：この戦争は、新聞が戦意をあおる過激な報道（イエロー・ジャーナリズム）を繰り広げたことでも知られる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/門戸開放政策",
+  },
+  {
+    id: "c82", year: 1904, difficulty: 2, era: "近代（帝国主義と世界大戦）", region: "フランス", theme: ["通史", "帝国主義"],
+    front: "1904年にイギリスとフランスが結んだ協定と、そこでフランスの優越が認められた北アフリカの地域は？",
+    back: "",
+    cloze: {
+      template: "スーダンでの衝突ののち英仏は歩み寄り、1904年の{{1}}で、イギリスのエジプト、フランスの{{2}}における優越をたがいに認めた。ドイツ皇帝はこれに反発し、1905年と1911年にこの地をめぐって危機を起こした。",
+      slots: [
+        { id: 1, answer: "英仏協商", category: "協定" },
+        { id: 2, answer: "モロッコ", category: "地域" },
+      ],
+      points: [
+        { label: "原因", text: "ドイツの海軍拡張と世界政策に脅威を感じたイギリスが、長年の植民地争いの相手だったフランスとの和解を選んだ" },
+        { label: "経過", text: "ドイツの揺さぶりはかえって英仏の結束を強め、1907年にはイギリスとロシアも中央アジアでの勢力範囲を定めて協商を結んだ" },
+        { label: "意義", text: "ドイツ・オーストリア・イタリアの三国同盟と、英仏露の陣営がヨーロッパで対立する構図が固まった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Wilhelm_II_in_Tangier.jpg/960px-Wilhelm_II_in_Tangier.jpg", caption: "モロッコのタンジールを訪問したドイツ皇帝（1905年）",
+        alt: "軍服に白いマントをまとい、黒い馬に乗って港町を進む皇帝の写真",
+        credit: "Wilhelm II in Tangier／作者不詳（1905年）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/The_Entente_Cordiale_%28France%29._Photographer-_H._D._Girdwood._%2813875903084%29.jpg/960px-The_Entente_Cordiale_%28France%29._Photographer-_H._D._Girdwood._%2813875903084%29.jpg", caption: "第一次世界大戦中、ともに戦う英仏両軍の兵士たち（1916年頃）",
+        alt: "庭に並んで立つイギリス兵とフランス兵の写真",
+        credit: "The Entente Cordiale (France)／写真: H. D. Girdwood（1916年頃）, The British Library, Wikimedia Commons・No known copyright restrictions" },
+    ],
+    anecdote: "豆知識：協商を記念して、英仏両国の国旗を並べた絵はがきが大量に作られた。100年後の2004年には、英仏で「英仏協商100周年」の記念行事が開かれた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/英仏協商",
+  },
+  {
+    id: "c85", year: 1905, difficulty: 1, era: "近代（帝国主義と世界大戦）", region: "ロシア帝国", theme: ["通史", "帝国主義"],
+    front: "日露戦争中にロシアで革命のきっかけとなった事件と、1905年にアメリカの仲介で結ばれた講和条約は？",
+    back: "",
+    cloze: {
+      template: "満州・朝鮮をめぐって1904年に始まった日露戦争で、日本は旅順の攻略や日本海海戦で勝利した。国内では首都の請願デモへの発砲事件（{{1}}事件）をきっかけに革命が起こり、ロシアは1905年、アメリカの仲介で{{2}}条約を結んだ。",
+      slots: [
+        { id: 1, answer: "血の日曜日", category: "事件" },
+        { id: 2, answer: "ポーツマス", category: "条約" },
+      ],
+      points: [
+        { label: "原因", text: "シベリア鉄道を建設して東アジアに進出したロシアが満州を事実上占領し、朝鮮の支配をめざす日本と対立した" },
+        { label: "経過", text: "日本は韓国の指導権、南満州の鉄道、樺太の南半分などを獲得したが、賠償金は得られず、国内では日比谷焼打ち事件が起こった" },
+        { label: "意義", text: "アジアの国がヨーロッパの大国に勝利したことはアジア各地の民族運動を刺激した。敗れたロシアは南下の方向をバルカン半島へ向けた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Mikasa-Bridge-Painting-by-Tojo-Shotaro.png/960px-Mikasa-Bridge-Painting-by-Tojo-Shotaro.png", caption: "東城鉦太郎『三笠艦橋之図』（日本海海戦、1906年）",
+        alt: "軍艦の艦橋に立ち、双眼鏡を手に海を見すえる司令官と将校たち",
+        credit: "三笠艦橋之図／東城鉦太郎（1906年）, 記念艦三笠, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/The_Russian_Revolution%2C_1905_Q81561.jpg/960px-The_Russian_Revolution%2C_1905_Q81561.jpg", caption: "ウラジーミロフ「血の日曜日」（1905年1月の事件を描いた絵）",
+        alt: "雪の積もった宮殿前の広場で、騎兵や兵士が群衆に襲いかかる場面",
+        credit: "Bloody Sunday／Ivan Vladimirov（1905年頃）, Imperial War Museum, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：日本海海戦で東郷平八郎の艦隊が掲げた「Z旗」の信号は「皇国の興廃この一戦にあり、各員一層奮励努力せよ」という意味だった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/日露戦争",
+  },
+  {
+    id: "c89", year: 1908, difficulty: 2, era: "近代（帝国主義と世界大戦）", region: "オーストリア＝ハンガリー帝国", theme: ["通史", "帝国主義"],
+    front: "1908年にオーストリアが併合した地域と、民族対立と列強の思惑が絡み合ったバルカン半島の呼び名は？",
+    back: "",
+    cloze: {
+      template: "1908年、オスマン帝国の政変の混乱に乗じて、オーストリアは{{1}}を併合した。同地のスラヴ系住民と結びつくセルビアは強く反発し、民族対立と列強の思惑が絡み合うバルカン半島は「{{2}}」と呼ばれた。",
+      slots: [
+        { id: 1, answer: "ボスニア・ヘルツェゴヴィナ", category: "地域" },
+        { id: 2, answer: "ヨーロッパの火薬庫", category: "呼び名" },
+      ],
+      points: [
+        { label: "原因", text: "スラヴ民族の連帯を掲げるロシア（パン＝スラヴ主義）と、ドイツ系の勢力拡大をめざすドイツ・オーストリア（パン＝ゲルマン主義）がバルカンで対立した" },
+        { label: "経過", text: "1912〜13年の2度のバルカン戦争で、オスマン帝国はヨーロッパ側の領土の大半を失い、バルカン諸国どうしも領土をめぐって争った" },
+        { label: "意義", text: "セルビアとオーストリアの対立は一触即発となり、わずかな事件が列強を巻き込む大戦争に発展しかねない状況が生まれた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Franz_Joseph_I._in_Jagdkleidung_1910_%C2%A9_Hans_Makart_jun._%281870%E2%80%931946%29.jpg/960px-Franz_Joseph_I._in_Jagdkleidung_1910_%C2%A9_Hans_Makart_jun._%281870%E2%80%931946%29.jpg", caption: "オーストリア皇帝フランツ・ヨーゼフ1世（1910年）",
+        alt: "狩猟服を着て帽子をかぶり、白いひげをたくわえた老いた皇帝の写真",
+        credit: "Franz Joseph I. in Jagdkleidung／Hans Makart jun.（1910年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：フランツ・ヨーゼフ1世は68年間も帝位にあり、弟・妻・息子・甥を次々に悲劇的な形で失った。甥の暗殺は世界大戦の引き金となった。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ボスニア危機",
+  },
+  {
+    id: "c91", year: 1908, difficulty: 3, era: "近代（帝国主義と世界大戦）", region: "オスマン帝国", theme: ["通史", "帝国主義"],
+    front: "1908年にオスマン帝国で復活した憲法の名と、専制に反対する将校らが起こしたこの革命の名は？",
+    back: "",
+    cloze: {
+      template: "1908年、スルタンの専制に反対する将校や知識人の組織「統一と進歩委員会」が蜂起し、30年あまり停止されていた{{1}}憲法を復活させた。この政変を{{2}}革命という。",
+      slots: [
+        { id: 1, answer: "ミドハト", category: "憲法" },
+        { id: 2, answer: "青年トルコ", category: "革命" },
+      ],
+      points: [
+        { label: "原因", text: "1876年に制定されたアジア初の憲法は、ロシアとの戦争を口実にスルタンのアブデュルハミト2世によって停止され、専制政治が続いた" },
+        { label: "経過", text: "革命後の政府は近代化を進めたが、混乱に乗じてオーストリアやブルガリアが領土を奪い、のちにはトルコ民族主義の色彩を強めていった" },
+        { label: "意義", text: "アジアの立憲革命の一つとして注目され、ロシアの革命やイランの立憲革命などとともに、アジアの変革の波を示す出来事となった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Greek_lithograph_celebrating_the_Ottoman_Constitution.png/960px-Greek_lithograph_celebrating_the_Ottoman_Constitution.png", caption: "憲法の復活を祝うリトグラフ（1908年）",
+        alt: "空に天使が舞い、旗を掲げたさまざまな民族の人々が港町で祝う様子を描いた色刷りの絵",
+        credit: "Greek lithograph celebrating the Ottoman Constitution／Sotiris Christidis（1908年）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/General_Enver_Pascha_1917_C._Pietzner.png/960px-General_Enver_Pascha_1917_C._Pietzner.png", caption: "青年トルコの指導者エンヴェル・パシャ（1917年）",
+        alt: "軍服を着て口ひげをたくわえた将校の肖像写真",
+        credit: "General Enver Pascha／Carl Pietzner（1917年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：「青年トルコ」はヨーロッパの新聞が付けた呼び名で、イタリア統一運動の「青年イタリア」などにならったものとされる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/青年トルコ人革命",
+  },
+  {
+    id: "c94", year: 1910, difficulty: 1, era: "近代（帝国主義と世界大戦）", region: "日本", theme: ["通史", "帝国主義"],
+    front: "ロシアの南下に対抗して日本が1902年に結んだ同盟と、1910年に日本が朝鮮を植民地とした出来事は？",
+    back: "",
+    cloze: {
+      template: "ロシアの南下に対抗するため、日本は1902年にイギリスと{{1}}を結んだ。日露戦争後は韓国を保護国として外交権を奪い、1910年には{{2}}を行って朝鮮を植民地とした。",
+      slots: [
+        { id: 1, answer: "日英同盟", category: "同盟" },
+        { id: 2, answer: "韓国併合", category: "出来事" },
+      ],
+      points: [
+        { label: "原因", text: "1900年の清での排外運動の鎮圧後もロシアは満州に大軍を駐留させ、イギリスと日本はともにその南下を警戒した" },
+        { label: "経過", text: "日本は韓国統監府を置いて内政も支配し、これに抵抗する義兵闘争を武力で鎮圧した。1909年には初代統監がハルビンで暗殺された" },
+        { label: "意義", text: "日本は朝鮮総督府を通じて1945年まで朝鮮を統治し、日本の植民地支配は現在まで続く歴史問題の背景となっている" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/IT%C5%8C_Hirobumi.jpg/960px-IT%C5%8C_Hirobumi.jpg", caption: "初代韓国統監・伊藤博文（1900年頃）",
+        alt: "白いひげをたくわえ、正装して正面を見つめる年配の政治家の写真",
+        credit: "伊藤博文／作者不詳（1900年頃）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：イギリスが「光栄ある孤立」を捨てて結んだ初めての同盟で、日本にとっては大国と対等な同盟を結んだことが国際的な地位の向上を意味した。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/韓国併合",
+  },
+  {
+    id: "c96", year: 1911, difficulty: 0, era: "近代（帝国主義と世界大戦）", region: "清", theme: ["通史", "帝国主義"],
+    front: "1911年に武昌の蜂起から始まり清を滅ぼした革命と、中華民国の臨時大総統となった革命家は？",
+    back: "",
+    cloze: {
+      template: "1911年、鉄道国有化に反対する運動を背景に武昌で軍隊が蜂起して{{1}}が始まり、各省が次々に独立を宣言した。翌1912年、{{2}}を臨時大総統とする中華民国が南京で成立し、宣統帝の退位で清は滅亡した。",
+      slots: [
+        { id: 1, answer: "辛亥革命", category: "革命" },
+        { id: 2, answer: "孫文", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "列強の侵略と清朝の無力に失望した人々の間で、清を倒して共和国を建てようとする革命運動が広まった" },
+        { label: "経過", text: "清朝は北洋軍の実力者・袁世凱を起用したが、袁世凱は革命派と取引して皇帝を退位させ、自ら臨時大総統の地位についた" },
+        { label: "意義", text: "2000年以上続いた皇帝政治が終わり、アジアで最初の共和国が成立した。しかし袁世凱の独裁と軍閥の割拠で、政治の混乱は続いた" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Sun_Yat-sen_2.jpg/960px-Sun_Yat-sen_2.jpg", caption: "孫文の肖像写真",
+        alt: "口ひげをたくわえ、立ち襟の服を着た男性の肖像写真",
+        credit: "Sun Yat-sen／作者不詳, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Hubei_Military_Government.jpg/960px-Hubei_Military_Government.jpg", caption: "武昌蜂起の後に成立した湖北軍政府（1911年）",
+        alt: "洋風の建物の前に、旗を掲げた兵士たちが整列している写真",
+        credit: "Hubei Military Government／作者不詳（1911年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：革命家は、民族の独立・民権の伸長・民生の安定を説く「三民主義」を掲げた。日本に亡命していた時期も長く、多くの日本人の支援者がいた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/辛亥革命",
+  },
+  {
+    id: "c90", year: 1914, difficulty: 0, era: "近代（帝国主義と世界大戦）", region: "オーストリア＝ハンガリー帝国", theme: ["通史", "世界大戦"],
+    front: "サラエボ事件で暗殺されたオーストリアの帝位継承者と、イギリス・フランス・ロシアの陣営の呼び名は？",
+    back: "",
+    cloze: {
+      template: "1914年6月、オーストリアの帝位継承者{{1}}夫妻が、ボスニアの州都サラエボでセルビア人の民族主義者に暗殺された。オーストリアがセルビアに宣戦すると、ロシアはセルビアを、ドイツはオーストリアを支持し、戦争は{{2}}の諸国を巻き込む大戦へと拡大した。",
+      slots: [
+        { id: 1, answer: "フランツ・フェルディナント", category: "人物" },
+        { id: 2, answer: "三国協商", category: "陣営" },
+      ],
+      points: [
+        { label: "原因", text: "ボスニアの併合以来、オーストリアとセルビアの対立は激しく、各国は同盟関係によって自動的に参戦する仕組みに組み込まれていた" },
+        { label: "経過", text: "わずか1か月あまりで主要な列強が次々に宣戦し、多くの人々は戦争がクリスマスまでに終わると考えていた" },
+        { label: "意義", text: "戦車・毒ガス・飛行機などの新兵器が使われ、国民全体を動員する総力戦となり、約1000万人の戦死者を出した" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/DC-1914-27-d-Sarajevo.jpg/960px-DC-1914-27-d-Sarajevo.jpg", caption: "ベルトラーメ『ドメニカ・デル・コリエーレ』の表紙：サラエボ事件（1914年）",
+        alt: "群衆の中、オープンカーに乗った夫妻に向かって男が拳銃を撃つ場面を描いた雑誌の表紙",
+        credit: "La Domenica del Corriere, 12 luglio 1914／Achille Beltrame（1914年）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Sarajevo_1914-2014_-_Gradska_Vije%C4%87nica%2C_Sarajevo_%2849127780441%29.jpg/960px-Sarajevo_1914-2014_-_Gradska_Vije%C4%87nica%2C_Sarajevo_%2849127780441%29.jpg", caption: "サラエボ市庁舎の展示：暗殺された帝位継承者夫妻の衣装と写真（2019年）",
+        alt: "展示室に並べられた、白いドレスと軍服を着たマネキンと、夫妻の大きな写真",
+        credit: "Sarajevo 1914-2014, Gradska Vijećnica／写真: Fred Romero（2019年）, Wikimedia Commons・CC BY 2.0" },
+    ],
+    anecdote: "豆知識：暗殺はいったん失敗したが、予定を変えて病院へ向かう途中で車が道を間違えて停止し、偶然その場に居合わせた犯人に撃たれた。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/サラエボ事件",
+  },
+  {
+    id: "c92", year: 1915, difficulty: 3, era: "近代（帝国主義と世界大戦）", region: "オスマン帝国", theme: ["通史", "世界大戦"],
+    front: "第一次世界大戦でオスマン帝国が加わった陣営と、イギリスがアラブ人に独立を約束した協定は？",
+    back: "",
+    cloze: {
+      template: "オスマン帝国は1914年、ドイツ・オーストリアの側（{{1}}）で参戦し、1915年にはガリポリの戦いでイギリス軍などの上陸を退けた。一方イギリスは、アラブ人に戦後の独立を約束する{{2}}協定を結んでアラブの反乱を促した。",
+      slots: [
+        { id: 1, answer: "同盟国", category: "陣営" },
+        { id: 2, answer: "フサイン・マクマホン", category: "協定" },
+      ],
+      points: [
+        { label: "原因", text: "ロシアに領土を奪われ続けてきたオスマン帝国は、軍の近代化を支援したドイツに接近していた" },
+        { label: "経過", text: "イギリスはアラブ人への約束と同時に、フランスとは中東を分割するサイクス・ピコ協定を、ユダヤ人にはパレスチナでの民族的郷土建設を支持するバルフォア宣言を出した" },
+        { label: "意義", text: "矛盾する約束（イギリスの「三枚舌外交」）は、戦後の中東の国境線とパレスチナ問題の原因となった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Landing_of_Australian_troops_at_ANZAC_Cove%2C_25_April_1915_slnsw.jpg/960px-Landing_of_Australian_troops_at_ANZAC_Cove%2C_25_April_1915_slnsw.jpg", caption: "ガリポリ半島に上陸するオーストラリア軍（1915年4月25日）",
+        alt: "海岸に小舟で次々と兵士が上陸していく様子を写した写真",
+        credit: "Landing of Australian troops at ANZAC Cove／Brookes（1915年）, State Library of New South Wales, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/FeisalPartyAtVersaillesCopy.jpg/960px-FeisalPartyAtVersaillesCopy.jpg", caption: "パリ講和会議に臨むアラブの指導者ファイサル（中央）と一行（1919年）",
+        alt: "建物の階段の前で、アラブの民族衣装の男性を中心に軍服の人々が並ぶ集合写真",
+        credit: "Feisal party at Versailles／Lowell Thomas（1919年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：アラブの反乱に加わったイギリスの考古学者T・E・ロレンスは「アラビアのロレンス」と呼ばれ、のちに映画の題材にもなった。写真の一行の中にも彼の姿がある。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/フサイン＝マクマホン協定",
+  },
+  {
+    id: "c88", year: 1917, difficulty: 1, era: "近代（帝国主義と世界大戦）", region: "アメリカ合衆国", theme: ["通史", "世界大戦"],
+    front: "1917年にアメリカが参戦する理由となったドイツの作戦と、「十四か条」の平和原則を発表した大統領は？",
+    back: "",
+    cloze: {
+      template: "1917年、ドイツが中立国の船も攻撃する{{1}}作戦を始めたことなどを理由に、アメリカは連合国側で参戦した。翌1918年、大統領{{2}}は秘密外交の廃止や民族自決、国際平和機構の設立などを含む「十四か条」の平和原則を発表した。",
+      slots: [
+        { id: 1, answer: "無制限潜水艦", category: "作戦" },
+        { id: 2, answer: "ウィルソン", category: "人物" },
+      ],
+      points: [
+        { label: "原因", text: "1915年に客船ルシタニア号が撃沈されてアメリカ人の犠牲者が出るなど、ドイツへの反感が高まっていた" },
+        { label: "経過", text: "アメリカの大量の兵力と物資が投入されたことで、行き詰まっていた西部戦線の均衡が崩れ、1918年11月にドイツは休戦に応じた" },
+        { label: "意義", text: "大統領の提案は国際連盟の設立につながったが、アメリカ自身は議会の反対で連盟に加盟しなかった。戦後のアメリカは世界最大の債権国となった" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Woodrow_Wilson_in_1919.jpg/960px-Woodrow_Wilson_in_1919.jpg", caption: "ウィルソン大統領（1919年）",
+        alt: "眼鏡をかけ、背広を着た細面の男性の肖像写真",
+        credit: "Woodrow Wilson／Harris & Ewing（1919年）, Library of Congress, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/J._M._Flagg%2C_I_Want_You_for_U.S._Army_poster_%281917%29.jpg/960px-J._M._Flagg%2C_I_Want_You_for_U.S._Army_poster_%281917%29.jpg", caption: "フラッグ「アメリカ陸軍はきみを求めている」の募兵ポスター（1917年）",
+        alt: "星条旗柄の帽子をかぶった白いひげの男性が、こちらを指さしている有名なポスター",
+        credit: "I Want You for U.S. Army／James Montgomery Flagg（1917年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：ポスターの人物「アンクル・サム」はアメリカ合衆国（United States）の頭文字USにちなむ擬人化で、作者フラッグは自分の顔をもとに描いたといわれる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/十四か条の平和原則",
+  },
+  {
+    id: "c86", year: 1917, difficulty: 0, era: "近代（帝国主義と世界大戦）", region: "ロシア帝国", theme: ["通史", "世界大戦"],
+    front: "1917年の十月革命でソヴィエト政権を樹立した指導者と、新政権がドイツと結んで大戦から離脱した条約は？",
+    back: "",
+    cloze: {
+      template: "1917年3月の二月革命で帝政が倒れ、11月の十月革命では{{1}}の率いるボリシェヴィキが臨時政府を倒してソヴィエト政権を樹立した。新政権は1918年、ドイツと{{2}}条約を結んで大戦から離脱した。",
+      slots: [
+        { id: 1, answer: "レーニン", category: "人物" },
+        { id: 2, answer: "ブレスト＝リトフスク", category: "条約" },
+      ],
+      points: [
+        { label: "原因", text: "大戦の長期化で前線では敗北が続き、首都では食料不足と物価高騰に苦しむ労働者や兵士の不満が爆発した" },
+        { label: "経過", text: "新政権は「平和に関する布告」で即時講和を、「土地に関する布告」で地主の土地の没収を宣言した。広大な領土を失う講和にも応じた" },
+        { label: "意義", text: "世界初の社会主義政権が誕生し、1922年にはソヴィエト社会主義共和国連邦（ソ連）が成立した。資本主義国は干渉戦争を起こしてこれを封じ込めようとした" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/After_Lenin_Speech_1920.jpg/960px-After_Lenin_Speech_1920.jpg", caption: "モスクワで兵士たちに演説した直後のレーニン（1920年）",
+        alt: "広場に設けられた演壇の周りを、兵士や群衆が取り囲む写真",
+        credit: "After Lenin's speech／Grigory Goldstein（1920年）, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/First_Red_Guards_in_Petrograd%2C_fall_1917_cropped.jpg/960px-First_Red_Guards_in_Petrograd%2C_fall_1917_cropped.jpg", caption: "ペトログラードの赤衛軍（1917年秋）",
+        alt: "銃を肩にかけ、赤旗を掲げて並ぶ労働者の武装部隊の写真",
+        credit: "First Red Guards in Petrograd／作者不詳（1917年）, Wikimedia Commons・Public domain" },
+    ],
+    anecdote: "豆知識：ロシアは当時ユリウス暦を使っていたため、西暦（グレゴリオ暦）では3月と11月の革命が、ロシアではそれぞれ「二月革命」「十月革命」と呼ばれる。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ロシア革命",
+  },
+  {
+    id: "c84", year: 1918, difficulty: 2, era: "近代（帝国主義と世界大戦）", region: "ドイツ帝国", theme: ["通史", "世界大戦"],
+    front: "1914年にドイツ軍のフランス侵攻を食い止めた戦いと、1918年にドイツ革命のきっかけとなった水兵反乱の起きた軍港は？",
+    back: "",
+    cloze: {
+      template: "ドイツは中立国ベルギーを通ってフランスを短期間で破ろうとしたが、1914年の{{1}}の戦いで阻まれ、西部戦線は長い塹壕戦となった。1918年11月、{{2}}軍港の水兵反乱をきっかけにドイツ革命が起こり、皇帝は退位して休戦協定が結ばれた。",
+      slots: [
+        { id: 1, answer: "マルヌ", category: "戦い" },
+        { id: 2, answer: "キール", category: "軍港" },
+      ],
+      points: [
+        { label: "原因", text: "東西の二正面作戦を避けるため、ドイツはまずフランスを速攻で倒し、その後ロシアと戦う計画を立てていた" },
+        { label: "経過", text: "西部戦線では機関銃と鉄条網に守られた塹壕を挟んで膠着が続き、ヴェルダンやソンムの戦いでは数十万人の死傷者が出た" },
+        { label: "意義", text: "帝政が倒れてドイツ共和国（ヴァイマル共和国）が成立した。敗戦国ドイツは1919年のヴェルサイユ条約で、巨額の賠償金と領土の割譲を課された" },
+      ],
+    },
+    images: [
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Breastwork_trench_at_Armentieres_1916.jpg/960px-Breastwork_trench_at_Armentieres_1916.jpg", caption: "西部戦線の塹壕（1916年、フランス北部アルマンティエール）",
+        alt: "土嚢を積み上げた塹壕の中で、兵士たちが休んでいる白黒写真",
+        credit: "Breastwork trench at Armentières／イギリス軍公式写真（1916年）, Imperial War Museum, Wikimedia Commons・Public domain" },
+      { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Kieler_Matrosenaufstand_%28Kiel_68.288%29.jpg/960px-Kieler_Matrosenaufstand_%28Kiel_68.288%29.jpg", caption: "キール軍港の水兵反乱（1918年11月）",
+        alt: "広場を埋めつくす水兵や市民の群衆を写した白黒写真",
+        credit: "Kieler Matrosenaufstand／写真: Ernst Meyer（1918年）, Stadtarchiv Kiel, Wikimedia Commons・CC BY-SA 3.0 de" },
+    ],
+    anecdote: "豆知識：開戦直後、フランス軍はパリのタクシーを大量に動員して兵士を前線へ運んだ。この「マルヌのタクシー」は、総力戦の象徴として語り継がれている。",
+    anecdoteLink: "https://ja.wikipedia.org/wiki/ドイツ革命",
+  },
+];
+
 // 古代（オリエント・ギリシャ・ローマ）のカード。
 // 古代オリエント（前3000年〜）から、ギリシアのポリス世界とヘレニズム、ローマの共和政・帝政とパクス・ロマーナまでを扱う。
 // 地図の古代の時代区分（ancient-civilizations／ancient-empires）にはまだ勢力ポリゴンがないため、region は
@@ -3593,6 +4084,374 @@ export const ABSOLUTISM_MAP = snapshotMapPeriod(ABSOLUTISM_SNAPSHOTS, {
   rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: ABSOLUTISM_BLURB,
 });
 
+// =====================================================================
+// 近代（帝国主義と世界大戦）の地図データ
+// 1885・1900・1914年の3時点。地図の時代区分「帝国主義と二つの大戦」のうち1918年までを受け持つ。
+// 列強の植民地は本国と同じ勢力として描く（英領インド・カナダ・アフリカ、仏領アフリカ・インドシナ、独領アフリカ、米領太平洋など）。
+// region の id は IMPERIALISM_CARDS の region と一致させている。カードの答えになる地名（ファショダ、モロッコ、キール、
+// ポーツマス、下関、膠州、フィリピン、ボスニア・ヘルツェゴヴィナなど）は、ラベル・都市名として出さない。輪郭は学習用の模式図。
+// =====================================================================
+const IMPERIALISM_COLORS = {
+  "イギリス": ["#E07A8B", "#F2B8C2"],
+  "フランス": ["#8FA3E0", "#C3CFF0"],
+  "ドイツ帝国": ["#A8A8A8", "#D8D8D8"],
+  "ロシア帝国": ["#B79FD1", "#DCCCEC"],
+  "アメリカ合衆国": ["#7ECBA8", "#B8E5D2"],
+  "オーストリア＝ハンガリー帝国": ["#E8D27A", "#F5E9B8"],
+  "オスマン帝国": ["#7FB8C9", "#BFDCE6"],
+  "日本": ["#F2A65A", "#F8D3AA"],
+  "清": ["#D9866B", "#F0B8A8"],
+};
+const impRegion = (id, rings, label) => mapRegion(IMPERIALISM_COLORS, id, rings, label);
+
+// --- ヨーロッパの本国 ---
+const SAVOY_NICE = [[5.8, 45.9], [6.8, 46.4], [7.1, 45.9], [7.1, 45.2], [6.9, 44.4], [7.5, 43.8], [7.5, 43.3], [7.0, 44.2], [6.6, 45.1], [6.0, 45.3]];
+const LORRAINE_FRENCH = [[5.0, 49.5], [5.8, 49.55], [6.4, 49.0], [6.9, 48.4], [6.8, 47.55], [6.4, 46.9], [5.4, 48.5]];
+const FRANCE_1871 = [FRANCE, FRANCHE_COMTE, SAVOY_NICE, LORRAINE_FRENCH, GENOA_CORSICA];
+// アルザス・ロレーヌを含むドイツ帝国（1871〜1918年）
+const GERMANY_1871 = [
+  [7.2, 53.3], [7.0, 53.9], [8.0, 54.0], [8.4, 55.1], [9.4, 54.85], [10.5, 54.7], [11.0, 54.5], [12.5, 54.5], [14.2, 54.9],
+  [16.8, 54.7], [18.8, 54.9], [19.9, 54.95], [21.0, 55.4], [21.2, 55.9], [22.0, 55.1], [22.8, 54.4], [22.6, 53.6], [21.0, 53.35],
+  [19.3, 53.2], [18.4, 52.7], [17.6, 52.1], [18.0, 51.5], [18.9, 50.6], [19.3, 50.2], [17.8, 50.0], [16.6, 50.2], [16.2, 50.6],
+  [15.0, 50.9], [14.3, 51.0], [13.0, 50.5], [12.1, 50.3], [12.4, 49.7], [13.8, 48.7], [13.0, 48.2], [12.9, 47.6], [11.0, 47.4],
+  [10.2, 47.5], [9.6, 47.5], [8.5, 47.7], [7.6, 47.6], [7.0, 47.5], [6.9, 48.4], [6.4, 49.0], [6.0, 49.45], [6.1, 50.1],
+  [6.0, 50.8], [6.0, 51.8], [6.9, 52.1], [7.2, 52.6],
+];
+const BOSNIA = [[15.8, 45.2], [17.0, 45.15], [18.7, 45.0], [19.3, 44.9], [19.4, 44.2], [19.6, 43.5], [18.7, 42.7], [17.6, 42.9], [16.5, 43.5], [15.8, 44.6]];
+const BUKOVINA = [[25.0, 48.3], [26.3, 48.5], [26.6, 48.25], [25.9, 47.4], [25.0, 47.7]];
+const AUSTRIA_HUNGARY = [AUSTRIA_CORE, BOHEMIA_MORAVIA, HUNGARY, GALICIA, BUKOVINA, VENICE_DALMATIA, BOSNIA];
+const ITALY_1870 = [
+  [7.5, 43.8], [6.8, 44.5], [7.0, 45.9], [8.5, 46.4], [10.4, 46.9], [10.6, 46.3], [11.1, 45.9], [11.6, 46.1], [12.4, 46.6],
+  [13.6, 46.4], [13.4, 45.7], [13.0, 45.5], [12.6, 45.0], [13.8, 44.0], [15.3, 42.8], [17.2, 41.7], [18.9, 40.3], [18.8, 39.7],
+  [17.5, 38.6], [16.4, 37.6], [15.5, 36.4], [14.0, 36.6], [12.2, 37.5], [12.3, 38.3], [13.5, 39.5], [11.8, 41.0], [10.4, 42.4],
+  [9.9, 43.5], [8.5, 44.0],
+];
+
+// --- ロシア帝国（フィンランド・ポーランド・中央アジア・シベリアを含む） ---
+const RUSSIA_EMPIRE = [
+  [21.2, 55.9], [21.0, 56.5], [22.0, 57.8], [21.5, 58.5], [22.0, 59.5], [19.5, 60.2], [21.0, 63.0], [23.0, 65.0], [24.2, 65.8],
+  [23.5, 66.5], [20.5, 69.0], [21.0, 69.2], [25.0, 68.6], [28.0, 69.0], [28.5, 69.8], [33.0, 69.5], [41.0, 68.0], [60.0, 70.0],
+  [100.0, 76.5], [140.0, 73.0], [179.0, 70.0], [179.0, 65.0], [170.0, 60.0], [163.0, 58.0], [156.0, 51.0], [150.0, 58.0],
+  [141.0, 54.5], [143.5, 54.0], [144.0, 49.0], [143.5, 46.0], [142.0, 46.0], [141.0, 48.0], [135.0, 43.5], [131.5, 42.3],
+  [130.7, 42.3], [131.0, 43.0], [133.0, 45.0], [135.0, 48.4], [131.0, 47.7], [127.5, 49.8], [126.0, 52.8], [120.0, 52.6],
+  [116.0, 49.8], [105.0, 50.3], [97.0, 49.8], [88.0, 49.2], [85.0, 47.0], [82.0, 45.0], [80.0, 42.5], [75.0, 40.0], [74.5, 37.0],
+  [71.0, 37.0], [66.5, 37.3], [62.3, 35.4], [61.0, 36.6], [57.0, 38.0], [54.0, 37.3], [52.5, 41.5], [50.8, 39.5], [48.9, 38.4],
+  [46.0, 38.9], [44.8, 39.7], [43.5, 40.0], [42.6, 41.6], [41.6, 41.6], [41.3, 41.7], [38.0, 44.0], [36.0, 44.6], [34.0, 44.2],
+  [32.0, 45.0], [31.5, 45.6], [30.2, 45.8], [29.7, 45.3], [28.2, 45.5], [26.6, 48.25], [26.3, 48.5], [26.0, 49.9], [24.2, 50.4],
+  [23.5, 50.6], [21.5, 50.5], [19.3, 50.2], [18.9, 50.6], [18.0, 51.5], [17.6, 52.1], [18.4, 52.7], [19.3, 53.2], [21.0, 53.35],
+  [22.6, 53.6], [22.8, 54.4], [22.0, 55.1],
+];
+const KWANTUNG = [[121.0, 39.3], [122.2, 39.3], [122.2, 38.7], [121.0, 38.7]]; // 遼東半島南端の租借地（1898年ロシア→1905年日本）
+
+// --- アメリカ合衆国 ---
+const USA_MAINLAND = [
+  [-124.7, 48.4], [-123.2, 49.0], [-95.2, 49.0], [-89.5, 48.0], [-84.5, 46.5], [-82.5, 45.3], [-82.5, 42.3], [-79.0, 43.3],
+  [-76.0, 44.3], [-74.7, 45.0], [-71.5, 45.0], [-70.0, 46.5], [-69.0, 47.3], [-67.8, 47.1], [-67.0, 45.0], [-66.5, 44.5],
+  [-69.5, 41.7], [-73.5, 40.4], [-75.0, 37.5], [-75.0, 35.2], [-79.5, 32.0], [-79.8, 26.0], [-80.5, 24.5], [-82.5, 24.5],
+  [-83.5, 29.0], [-89.0, 28.8], [-94.0, 29.0], [-97.0, 26.0], [-99.5, 27.5], [-101.4, 29.8], [-104.5, 29.6], [-106.5, 31.8],
+  [-108.2, 31.3], [-111.0, 31.3], [-114.8, 32.5], [-117.1, 32.5], [-118.5, 33.0], [-121.0, 34.5], [-124.0, 40.0],
+];
+const ALASKA = [
+  [-141.0, 69.8], [-141.0, 60.3], [-137.5, 59.0], [-133.5, 58.4], [-130.0, 55.9], [-130.5, 54.6], [-134.0, 54.5], [-145.0, 59.5],
+  [-152.0, 57.0], [-162.0, 54.0], [-168.0, 53.5], [-166.0, 58.0], [-168.5, 65.5], [-166.5, 68.5], [-156.0, 71.6],
+];
+const HAWAII = [[-160.5, 22.4], [-154.7, 22.4], [-154.7, 18.8], [-160.5, 18.8]];
+const US_PACIFIC_ISLANDS = [[116.8, 19.0], [127.0, 19.0], [127.0, 5.0], [119.5, 5.0], [117.6, 7.6], [116.8, 9.0]]; // 1898年に獲得した島々（ラベルは出さない）
+const PUERTO_RICO = [[-67.3, 18.6], [-65.5, 18.6], [-65.5, 17.8], [-67.3, 17.8]];
+
+// --- 東アジア ---
+const JAPAN_ISLANDS = [
+  [129.3, 35.0], [131.0, 37.5], [139.0, 42.5], [141.7, 45.8], [148.5, 46.5], [156.5, 51.0], [157.0, 50.5], [150.0, 43.0],
+  [142.0, 36.0], [139.0, 33.5], [135.0, 32.8], [132.0, 31.0], [131.0, 28.0], [128.5, 26.0], [125.0, 24.0], [123.0, 24.0],
+  [123.0, 25.0], [128.0, 29.5], [129.5, 31.0], [128.5, 32.5], [128.9, 34.3],
+];
+const TAIWAN = [[120.0, 25.4], [122.1, 25.4], [122.1, 21.8], [120.7, 21.8], [119.3, 23.5]];
+const KOREA = [
+  [124.2, 39.8], [126.0, 40.9], [127.5, 41.5], [128.3, 42.0], [129.7, 42.4], [130.7, 42.3], [131.0, 42.0], [129.8, 37.0],
+  [129.4, 35.2], [128.5, 34.5], [126.5, 33.0], [125.0, 34.5], [124.5, 37.0], [124.2, 38.0],
+];
+const SOUTH_SAKHALIN = [[141.6, 50.0], [144.5, 50.0], [144.5, 45.8], [141.6, 45.8]];
+const QING = [
+  [130.7, 42.3], [129.7, 42.4], [128.3, 42.0], [127.5, 41.5], [126.0, 40.9], [124.2, 39.8], [122.5, 38.6], [121.0, 38.5],
+  [120.0, 37.8], [122.8, 37.5], [121.0, 36.0], [122.5, 31.0], [122.0, 29.0], [120.0, 26.0], [119.0, 24.0], [116.8, 22.5],
+  [114.0, 22.0], [111.0, 20.8], [111.5, 19.5], [110.5, 17.8], [108.5, 18.2], [108.5, 19.5], [108.0, 21.55], [106.7, 22.8],
+  [105.0, 23.2], [103.5, 22.6], [102.2, 22.4], [101.0, 21.6], [99.5, 22.0], [98.5, 24.0], [97.5, 25.5], [98.5, 28.0],
+  [96.0, 29.3], [92.0, 27.8], [88.8, 27.3], [88.0, 27.9], [84.0, 28.6], [81.0, 30.3], [79.0, 32.5], [78.0, 35.5], [77.0, 35.8],
+  [74.5, 37.0], [75.0, 40.0], [80.0, 42.5], [82.0, 45.0], [85.0, 47.0], [88.0, 49.2], [97.0, 49.8], [105.0, 50.3], [116.0, 49.8],
+  [120.0, 52.6], [126.0, 52.8], [127.5, 49.8], [131.0, 47.7], [135.0, 48.4], [133.0, 45.0], [131.0, 43.0],
+];
+const JIAOZHOU = [[119.9, 36.4], [120.6, 36.4], [120.6, 35.9], [119.9, 35.9]]; // ドイツの租借地（ラベルは出さない）
+
+// --- オスマン帝国 ---
+const OTTOMAN_ASIA_1878 = [
+  [26.0, 39.5], [26.6, 40.6], [29.0, 41.25], [31.0, 41.6], [36.0, 42.3], [41.3, 41.7], [41.6, 41.6], [42.6, 41.6], [43.5, 40.0],
+  [44.8, 39.7], [44.3, 38.4], [44.8, 37.2], [45.5, 35.8], [46.0, 33.0], [47.5, 31.5], [48.5, 29.95], [47.8, 29.4], [46.5, 29.1],
+  [44.5, 29.5], [41.0, 31.0], [38.5, 30.0], [40.0, 25.0], [41.0, 21.0], [43.0, 17.5], [45.0, 15.0], [44.0, 13.0], [43.5, 12.7],
+  [41.5, 14.5], [38.5, 19.0], [36.5, 22.5], [35.5, 25.0], [34.8, 27.5], [34.9, 29.5], [34.2, 31.3], [34.0, 31.6], [34.6, 32.5],
+  [35.5, 34.5], [35.6, 36.0], [33.5, 35.85], [31.5, 36.2], [29.0, 35.8], [25.8, 38.3], [25.4, 39.5],
+];
+const OTTOMAN_RUMELIA_1878 = [
+  [19.5, 42.5], [20.3, 43.3], [21.0, 42.9], [21.5, 42.3], [22.4, 42.3], [23.0, 41.6], [24.5, 41.5], [26.0, 41.7], [26.4, 41.8],
+  [28.0, 42.0], [29.0, 41.25], [28.0, 40.8], [26.6, 40.6], [26.0, 40.3], [24.0, 40.0], [23.5, 39.8], [22.8, 39.9], [21.5, 39.6],
+  [21.0, 39.1], [20.0, 39.5], [19.2, 40.5], [19.3, 41.8],
+];
+const OTTOMAN_THRACE_1913 = [[26.0, 40.6], [26.3, 41.8], [27.0, 42.1], [28.0, 42.0], [29.0, 41.25], [28.0, 40.8], [26.6, 40.4]];
+const OTTOMAN_LIBYA = [
+  [11.6, 33.2], [15.2, 32.5], [19.5, 31.0], [20.0, 32.9], [25.0, 31.9], [25.0, 22.0], [24.0, 20.0], [16.0, 23.5], [11.5, 24.5],
+  [10.0, 25.5], [10.0, 30.5], [11.6, 32.8],
+];
+
+// --- イギリスの植民地 ---
+const CANADA = [
+  [-141.0, 69.7], [-141.0, 60.3], [-137.5, 59.0], [-133.5, 58.4], [-130.0, 55.9], [-134.0, 54.2], [-129.0, 51.0], [-125.5, 48.3],
+  [-123.2, 49.0], [-95.2, 49.0], [-89.5, 48.0], [-84.5, 46.5], [-82.5, 45.3], [-82.5, 42.3], [-79.0, 43.3], [-76.0, 44.3],
+  [-74.7, 45.0], [-71.5, 45.0], [-70.0, 46.5], [-69.0, 47.3], [-67.8, 47.1], [-67.0, 45.0], [-66.5, 44.5], [-60.0, 45.0],
+  [-52.5, 47.0], [-55.0, 52.0], [-62.0, 58.5], [-65.0, 61.0], [-80.0, 63.0], [-75.0, 72.0], [-90.0, 76.0], [-120.0, 76.0],
+  [-125.0, 72.0], [-135.0, 69.5],
+];
+const BRITISH_INDIA = [
+  [61.6, 25.2], [61.6, 29.8], [66.5, 31.0], [69.0, 31.5], [70.5, 33.5], [71.5, 35.0], [74.5, 36.8], [77.0, 35.8], [78.0, 35.5],
+  [79.0, 32.5], [81.0, 30.3], [80.0, 28.9], [84.0, 27.3], [88.0, 26.4], [88.8, 27.3], [89.0, 26.8], [92.0, 26.8], [92.0, 27.8],
+  [96.0, 29.3], [98.5, 28.0], [97.5, 25.5], [98.5, 24.0], [99.5, 22.0], [101.0, 21.6], [100.1, 20.3], [98.0, 18.5], [98.6, 16.5],
+  [99.0, 13.0], [98.6, 10.0], [97.0, 15.0], [94.0, 16.0], [91.5, 21.5], [89.0, 21.0], [86.5, 19.5], [82.0, 16.0], [80.5, 13.0],
+  [82.0, 7.0], [80.5, 5.8], [79.5, 7.5], [78.5, 8.5], [76.5, 8.0], [74.0, 14.0], [72.5, 19.0], [68.0, 23.5], [66.5, 24.8],
+];
+const AUSTRALIA = [
+  [112.5, -21.0], [129.0, -14.0], [136.0, -11.0], [142.5, -10.0], [145.0, -15.0], [154.0, -26.0], [150.5, -38.0], [147.5, -44.0],
+  [143.5, -40.0], [140.0, -38.5], [131.0, -32.5], [117.0, -36.0], [113.0, -27.0],
+];
+const NEW_ZEALAND = [[172.5, -34.0], [179.0, -37.5], [175.0, -42.0], [170.0, -47.5], [166.0, -46.5], [166.5, -44.5]];
+const EGYPT_BRITISH = [[25.0, 31.9], [30.0, 31.7], [32.5, 31.4], [34.2, 31.3], [34.9, 29.5], [34.8, 27.5], [35.5, 25.0], [36.5, 22.5], [36.0, 22.0], [31.4, 22.0], [25.0, 22.0]];
+const ANGLO_EGYPTIAN_SUDAN = [
+  [25.0, 22.0], [36.5, 22.0], [38.5, 18.0], [36.5, 14.5], [35.0, 12.0], [34.0, 9.0], [35.0, 5.0], [31.0, 3.7], [27.5, 5.0],
+  [24.0, 8.5], [22.5, 11.0], [22.0, 13.0], [24.0, 15.5], [24.0, 20.0],
+];
+const CAPE_NATAL_1885 = [[16.5, -28.6], [20.0, -28.4], [24.8, -28.7], [28.0, -30.5], [30.0, -28.0], [31.9, -27.0], [33.0, -27.0], [30.0, -31.5], [26.0, -34.3], [20.0, -35.2], [17.5, -33.5], [16.0, -28.6]];
+// 南アフリカ戦争後の南アフリカと、北のローデシア・ニヤサランド
+const BRITISH_SOUTHERN_AFRICA = [
+  [16.5, -28.6], [20.0, -28.4], [20.0, -22.0], [20.0, -18.0], [23.0, -17.8], [22.0, -16.0], [22.0, -13.0], [24.0, -11.0],
+  [28.0, -12.0], [29.0, -13.5], [30.7, -8.3], [33.0, -9.5], [34.6, -11.5], [35.0, -9.5], [35.5, -14.0], [35.0, -17.0], [33.0, -17.0],
+  [32.8, -19.0], [31.3, -22.4], [31.9, -25.5], [32.0, -26.8], [32.9, -26.9], [30.0, -31.5], [26.0, -34.3], [20.0, -35.2],
+  [17.5, -33.5], [16.0, -28.6],
+];
+const BRITISH_EAST_AFRICA = [[29.6, -1.0], [29.6, 1.5], [31.0, 3.7], [34.0, 4.5], [35.8, 5.0], [38.5, 3.5], [41.0, 4.0], [41.0, -1.6], [41.6, -1.7], [40.0, -4.7], [39.3, -4.6], [37.6, -3.0], [33.9, -1.0]];
+const NIGERIA = [[2.7, 6.4], [2.7, 9.0], [3.6, 11.7], [4.0, 13.5], [9.0, 13.0], [12.0, 13.5], [14.0, 13.0], [13.5, 10.0], [12.0, 8.5], [9.6, 6.5], [8.6, 4.7], [6.0, 4.2], [4.0, 6.2]];
+
+// --- フランスの植民地 ---
+const ALGERIA_TUNISIA_1885 = [[-2.0, 35.6], [8.5, 37.2], [11.2, 37.4], [11.4, 35.6], [11.6, 34.0], [11.6, 33.0], [10.0, 32.0], [9.0, 30.5], [5.0, 31.5], [0.0, 32.0], [-1.2, 32.5], [-1.7, 35.1]];
+const SENEGAL_1885 = [[-17.5, 16.5], [-13.0, 16.5], [-11.5, 13.5], [-16.7, 12.4]];
+const FRENCH_CONGO_1885 = [[8.5, -1.0], [11.5, 2.2], [16.0, 2.2], [17.5, 0.0], [15.3, -4.3], [12.0, -5.0], [11.5, -4.5]];
+// 1900年以降：アルジェリアからサハラ・西アフリカ・赤道アフリカに広がる植民地（周囲の他国領を避けてたどる）
+const FRENCH_AFRICA = [
+  [-1.7, 35.1], [-2.0, 35.6], [8.5, 37.2], [11.2, 37.4], [11.4, 35.6], [11.6, 34.0], [11.6, 33.0], [10.0, 30.5], [10.0, 25.5],
+  [11.5, 24.5], [16.0, 23.5], [24.0, 20.0], [22.0, 13.0], [22.5, 11.0], [24.0, 8.5], [24.0, 5.0], [18.5, 3.5], [17.8, 1.0],
+  [16.5, -1.5], [15.3, -4.3], [12.0, -5.0], [11.5, -4.5], [8.5, -1.0], [9.6, 1.0], [11.3, 2.2], [16.0, 2.2], [15.5, 7.5],
+  [14.5, 10.5], [14.5, 13.0], [12.0, 13.5], [9.0, 13.0], [4.0, 13.5], [3.6, 11.7], [2.7, 9.0], [2.7, 6.4], [2.5, 6.0],
+  [1.8, 6.2], [1.8, 11.0], [0.1, 11.0], [-2.8, 11.0], [-2.8, 5.1], [-3.0, 4.8], [-7.5, 4.3], [-8.5, 7.5], [-10.0, 8.5],
+  [-11.0, 9.0], [-13.5, 9.5], [-13.6, 12.6], [-16.7, 12.4], [-17.5, 14.7], [-17.0, 20.8], [-13.0, 21.3], [-12.0, 23.5],
+  [-8.7, 27.7], [-3.5, 30.0], [-1.2, 32.0],
+];
+const MOROCCO_FRENCH_ZONE = [[-6.3, 35.0], [-1.8, 35.1], [-1.2, 32.0], [-3.5, 30.0], [-8.7, 28.3], [-10.3, 29.0], [-10.0, 31.0], [-7.4, 34.0]]; // 1912年の保護国化（ラベルは出さない）
+const MADAGASCAR = [[43.0, -12.0], [51.0, -12.0], [51.0, -26.0], [43.0, -26.0]];
+const INDOCHINA = [
+  [102.2, 22.4], [103.5, 22.6], [105.0, 23.2], [106.7, 22.8], [108.0, 21.55], [107.6, 20.8], [107.0, 20.5], [106.5, 18.0],
+  [108.8, 15.5], [109.5, 12.0], [106.9, 10.4], [104.5, 8.4], [103.0, 10.5], [102.9, 11.7], [102.5, 12.5], [103.0, 14.4],
+  [105.6, 15.0], [104.8, 16.5], [102.6, 17.9], [101.3, 17.9], [100.5, 20.2], [101.0, 21.6],
+];
+
+// --- ドイツの植民地 ---
+const TOGO = [[0.1, 11.0], [1.8, 11.0], [1.8, 6.2], [0.1, 6.0]];
+const CAMEROON = [[8.6, 4.0], [9.6, 2.3], [11.3, 2.2], [16.0, 2.2], [15.5, 7.5], [14.5, 10.5], [14.5, 13.0], [13.5, 10.0], [12.0, 8.5], [9.6, 6.5], [8.6, 4.7]];
+const GERMAN_SW_AFRICA = [[11.7, -17.3], [25.0, -17.6], [20.0, -18.2], [20.0, -22.0], [20.0, -28.4], [16.5, -28.6], [15.0, -27.0], [11.5, -17.5]];
+const GERMAN_EAST_AFRICA = [[29.0, -1.0], [33.9, -1.0], [37.6, -3.0], [39.3, -4.6], [40.0, -4.7], [40.6, -10.5], [34.6, -11.5], [33.0, -9.5], [30.7, -8.3], [29.3, -6.0], [29.6, -4.4], [29.0, -2.8]];
+
+// --- 背景（タップ不可） ---
+const PERSIA = [
+  [44.8, 39.7], [46.0, 38.9], [48.9, 38.4], [51.0, 37.3], [54.0, 37.3], [57.0, 38.0], [61.0, 36.6], [61.0, 34.5], [60.5, 31.0],
+  [61.6, 29.8], [61.6, 25.2], [57.5, 25.3], [56.4, 26.65], [54.0, 26.4], [51.0, 27.3], [49.5, 28.6], [48.5, 29.95], [47.5, 31.5],
+  [46.0, 33.0], [45.5, 35.8], [44.8, 37.2], [44.3, 38.4],
+];
+const CONGO = [
+  [12.2, -6.0], [13.0, -5.8], [15.3, -4.3], [16.5, -1.5], [17.8, 1.0], [18.5, 3.5], [24.0, 5.0], [27.5, 5.0], [31.0, 3.7],
+  [29.6, 1.5], [29.6, -1.0], [29.0, -2.8], [29.3, -6.0], [30.7, -8.3], [29.0, -13.5], [28.0, -12.0], [24.0, -11.0], [22.0, -11.0],
+  [22.0, -7.5], [17.0, -7.5], [16.0, -6.0],
+];
+const DUTCH_EAST_INDIES = [
+  [95.0, 6.0], [100.5, 2.5], [103.5, 1.2], [104.5, 1.5], [109.6, 1.9], [114.5, 1.5], [115.5, 4.0], [117.6, 4.2], [119.0, 4.5],
+  [127.0, 4.0], [128.0, 2.5], [141.0, -2.6], [141.0, -9.1], [131.0, -9.0], [125.0, -8.5], [123.0, -11.0], [115.0, -9.5],
+  [106.0, -7.5], [100.0, -4.0], [95.0, 2.0],
+];
+const SERBIA_1878 = [[19.3, 44.9], [20.5, 44.8], [22.5, 44.6], [22.7, 44.2], [22.4, 43.8], [22.0, 42.3], [21.5, 42.3], [21.0, 42.9], [20.3, 43.3], [19.6, 43.5], [19.4, 44.2]];
+const BULGARIA_1885 = [[22.7, 44.2], [27.3, 44.15], [28.0, 43.8], [28.6, 43.4], [28.0, 42.0], [26.4, 41.8], [24.5, 41.5], [23.0, 41.6], [22.4, 42.3]];
+const ROMANIA_1878 = [[22.5, 44.6], [22.7, 45.3], [25.5, 45.4], [26.5, 46.5], [26.0, 47.9], [26.6, 48.25], [28.2, 45.5], [29.7, 45.3], [28.7, 44.3], [27.6, 44.0], [27.3, 44.15], [25.3, 43.7], [22.7, 44.2]];
+const GREECE_1881 = [[20.0, 39.0], [21.0, 39.1], [22.0, 40.0], [22.6, 40.0], [23.5, 39.8], [24.6, 38.9], [25.9, 37.0], [26.5, 36.2], [23.0, 36.0], [21.2, 36.4], [20.3, 37.8], [19.6, 39.0]];
+const SERBIA_1913 = [[19.3, 44.9], [20.5, 44.8], [22.5, 44.6], [22.7, 44.2], [22.4, 43.8], [22.4, 42.3], [22.9, 41.3], [22.8, 41.1], [21.0, 40.9], [20.5, 41.5], [20.5, 42.2], [20.0, 42.6], [19.5, 43.0], [19.3, 44.4]];
+const BULGARIA_1913 = [[22.7, 44.2], [27.3, 44.15], [28.0, 43.7], [28.6, 43.4], [28.0, 42.0], [27.0, 42.1], [26.3, 41.8], [26.0, 41.2], [25.5, 40.9], [25.0, 40.8], [24.0, 41.1], [23.0, 41.4], [22.8, 41.3], [22.4, 42.3]];
+const GREECE_1913 = [[19.9, 39.8], [20.3, 40.0], [21.0, 40.9], [22.8, 41.1], [23.5, 41.4], [24.5, 41.3], [24.6, 41.0], [24.8, 40.8], [26.5, 39.5], [26.6, 37.0], [26.5, 35.0], [23.3, 34.9], [21.2, 36.4], [20.3, 37.8], [19.6, 39.0]];
+const ITALIAN_EAST_AFRICA = [[36.5, 14.5], [38.5, 18.0], [43.3, 12.7], [42.0, 12.0], [39.0, 14.5]]; // エリトリア（ソマリアは省略）
+const IMP_BG = { neutral: "#8C9A7A", iberia: "#A89A8C", balkan: "#9A8CA8", persia: "#7A8CA8", korea: "#A8A07A" };
+
+const IMPERIALISM_LABELS = {
+  britain: { at: [-2.0, 53.0], lines: ["イギリス"], size: 4.5 },
+  france: { at: [2.3, 46.8], lines: ["フランス"], size: 5.5 },
+  germany: { at: [10.3, 51.3], lines: ["ドイツ帝国"], size: 5 },
+  russia: { at: [50.0, 58.0], lines: ["ロシア帝国"], size: 9 },
+  usa: { at: [-99.0, 39.0], lines: ["アメリカ合衆国"], size: 7 },
+  austria: { at: [16.8, 47.8], lines: ["オーストリア＝", "ハンガリー帝国"], size: 3.6 },
+  ottoman: { at: [35.0, 38.8], lines: ["オスマン帝国"], size: 5.5 },
+  japan: { at: [137.5, 37.0], lines: ["日本"], size: 5 },
+  qing: { at: [104.0, 34.0], lines: ["清"], size: 9 },
+};
+
+// 3時点で共通の背景（バルカン諸国・朝鮮は時点ごとに追加）
+const impCommonBackground = (italyRings) => [
+  mapBackground("イタリア", italyRings, [12.5, 42.8], IMP_BG.neutral),
+  mapBackground("スペイン", [SPAIN_IBERIA_1659], [-3.8, 40.0], IMP_BG.iberia),
+  mapBackground("ポルトガル", [PORTUGAL_IBERIA], [-8.2, 39.8], IMP_BG.iberia),
+  mapBackground("オランダ領東インド", [DUTCH_EAST_INDIES], [113.0, -2.0], IMP_BG.neutral),
+  mapBackground("ペルシア", [PERSIA], [53.0, 32.5], IMP_BG.persia),
+];
+const IMP_COMMON_CITIES = [
+  mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
+  mapCity("パリ", 2.35, 48.86, "フランス"),
+  mapCity("ベルリン", 13.40, 52.52, "ドイツ帝国", "r"),
+  mapCity("サンクトペテルブルク", 30.32, 59.94, "ロシア帝国", "r"),
+  mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
+  mapCity("ウラジオストク", 131.89, 43.12, "ロシア帝国", "r"),
+  mapCity("ワシントンD.C.", -77.04, 38.90, "アメリカ合衆国", "r"),
+  mapCity("ウィーン", 16.37, 48.21, "オーストリア＝ハンガリー帝国", "r"),
+  mapCity("サラエボ", 18.41, 43.86, "オーストリア＝ハンガリー帝国", "bl"),
+  mapCity("イスタンブール", 28.98, 41.01, "オスマン帝国", "r"),
+  mapCity("バグダード", 44.36, 33.31, "オスマン帝国"),
+  mapCity("東京", 139.69, 35.69, "日本", "r"),
+  mapCity("北京", 116.40, 39.90, "清", "l"),
+  mapCity("カイロ", 31.24, 30.04, "イギリス", "l"),
+  mapCity("カルカッタ", 88.36, 22.57, "イギリス", "r"),
+  mapCity("ケープタウン", 18.42, -33.92, "イギリス", "l"),
+  mapCity("アルジェ", 3.06, 36.75, "フランス", "r"),
+  mapCity("ハノイ", 105.85, 21.03, "フランス", "l"),
+];
+
+const IMPERIALISM_SNAPSHOTS = {
+  // ベルリン会議（1884〜85年）でアフリカ分割の原則が定まったころ。朝鮮は独立国
+  [1885]: {
+    regions: [
+      impRegion("清", [QING, TAIWAN], IMPERIALISM_LABELS.qing),
+      impRegion("ロシア帝国", [RUSSIA_EMPIRE], IMPERIALISM_LABELS.russia),
+      impRegion("オスマン帝国", [OTTOMAN_ASIA_1878, OTTOMAN_RUMELIA_1878, OTTOMAN_LIBYA], IMPERIALISM_LABELS.ottoman),
+      impRegion("オーストリア＝ハンガリー帝国", AUSTRIA_HUNGARY, IMPERIALISM_LABELS.austria),
+      impRegion("ドイツ帝国", [GERMANY_1871, TOGO, CAMEROON, GERMAN_SW_AFRICA, GERMAN_EAST_AFRICA], IMPERIALISM_LABELS.germany),
+      impRegion("フランス", [...FRANCE_1871, ALGERIA_TUNISIA_1885, SENEGAL_1885, FRENCH_CONGO_1885, INDOCHINA], IMPERIALISM_LABELS.france),
+      impRegion("イギリス", [GREAT_BRITAIN, IRELAND, CANADA, BRITISH_INDIA, AUSTRALIA, NEW_ZEALAND, EGYPT_BRITISH, CAPE_NATAL_1885, BYZ_CYPRUS], IMPERIALISM_LABELS.britain),
+      impRegion("アメリカ合衆国", [USA_MAINLAND, ALASKA], IMPERIALISM_LABELS.usa),
+      impRegion("日本", [JAPAN_ISLANDS], IMPERIALISM_LABELS.japan),
+    ],
+    background: [
+      ...impCommonBackground([ITALY_1870, SPAIN_SARDINIA]),
+      mapBackground("コンゴ自由国", [CONGO], [23.5, -3.0], IMP_BG.neutral),
+      mapBackground("セルビア", [SERBIA_1878], [21.0, 43.9], IMP_BG.balkan),
+      mapBackground("ブルガリア", [BULGARIA_1885], [25.0, 42.9], IMP_BG.balkan),
+      mapBackground("ルーマニア", [ROMANIA_1878], [25.5, 44.9], IMP_BG.balkan),
+      mapBackground("ギリシア", [GREECE_1881], [22.0, 38.9], IMP_BG.balkan),
+      mapBackground("朝鮮", [KOREA], [127.5, 38.5], IMP_BG.korea),
+    ],
+    cities: [...IMP_COMMON_CITIES],
+  },
+  // 中国分割と義和団の乱（1900年）。ロシアは旅順・大連を租借、アメリカは太平洋の島々とハワイを獲得
+  [1900]: {
+    regions: [
+      impRegion("清", [QING], IMPERIALISM_LABELS.qing),
+      impRegion("ロシア帝国", [RUSSIA_EMPIRE, KWANTUNG], IMPERIALISM_LABELS.russia),
+      impRegion("オスマン帝国", [OTTOMAN_ASIA_1878, OTTOMAN_RUMELIA_1878, OTTOMAN_LIBYA], IMPERIALISM_LABELS.ottoman),
+      impRegion("オーストリア＝ハンガリー帝国", AUSTRIA_HUNGARY, IMPERIALISM_LABELS.austria),
+      impRegion("ドイツ帝国", [GERMANY_1871, TOGO, CAMEROON, GERMAN_SW_AFRICA, GERMAN_EAST_AFRICA, JIAOZHOU], IMPERIALISM_LABELS.germany),
+      impRegion("フランス", [...FRANCE_1871, FRENCH_AFRICA, MADAGASCAR, INDOCHINA], IMPERIALISM_LABELS.france),
+      impRegion("イギリス", [
+        GREAT_BRITAIN, IRELAND, CANADA, BRITISH_INDIA, AUSTRALIA, NEW_ZEALAND, EGYPT_BRITISH, ANGLO_EGYPTIAN_SUDAN,
+        BRITISH_SOUTHERN_AFRICA, BRITISH_EAST_AFRICA, NIGERIA, BYZ_CYPRUS,
+      ], IMPERIALISM_LABELS.britain),
+      impRegion("アメリカ合衆国", [USA_MAINLAND, ALASKA, HAWAII, US_PACIFIC_ISLANDS, PUERTO_RICO], IMPERIALISM_LABELS.usa),
+      impRegion("日本", [JAPAN_ISLANDS, TAIWAN], IMPERIALISM_LABELS.japan),
+    ],
+    background: [
+      ...impCommonBackground([ITALY_1870, SPAIN_SARDINIA, ITALIAN_EAST_AFRICA]),
+      mapBackground("コンゴ自由国", [CONGO], [23.5, -3.0], IMP_BG.neutral),
+      mapBackground("セルビア", [SERBIA_1878], [21.0, 43.9], IMP_BG.balkan),
+      mapBackground("ブルガリア", [BULGARIA_1885], [25.0, 42.9], IMP_BG.balkan),
+      mapBackground("ルーマニア", [ROMANIA_1878], [25.5, 44.9], IMP_BG.balkan),
+      mapBackground("ギリシア", [GREECE_1881], [22.0, 38.9], IMP_BG.balkan),
+      mapBackground("大韓帝国", [KOREA], [127.5, 38.5], IMP_BG.korea),
+    ],
+    cities: [
+      ...IMP_COMMON_CITIES,
+      mapCity("旅順", 121.25, 38.80, "ロシア帝国", "l"),
+      mapCity("青島", 120.38, 36.07, "ドイツ帝国", "r"),
+      mapCity("マニラ", 120.98, 14.60, "アメリカ合衆国", "l"),
+      mapCity("ホノルル", -157.86, 21.31, "アメリカ合衆国", "r"),
+      mapCity("台北", 121.56, 25.04, "日本", "r"),
+    ],
+  },
+  // 第一次世界大戦の開戦（1914年）。日本は朝鮮・南樺太・関東州を領有、オスマン帝国はバルカン戦争でヨーロッパ側の大半を失った
+  [1914]: {
+    regions: [
+      impRegion("清", [QING], { ...IMPERIALISM_LABELS.qing, lines: ["中華民国"], size: 8 }),
+      impRegion("ロシア帝国", [RUSSIA_EMPIRE], IMPERIALISM_LABELS.russia),
+      impRegion("オスマン帝国", [OTTOMAN_ASIA_1878, OTTOMAN_THRACE_1913], IMPERIALISM_LABELS.ottoman),
+      impRegion("オーストリア＝ハンガリー帝国", AUSTRIA_HUNGARY, IMPERIALISM_LABELS.austria),
+      impRegion("ドイツ帝国", [GERMANY_1871, TOGO, CAMEROON, GERMAN_SW_AFRICA, GERMAN_EAST_AFRICA, JIAOZHOU], IMPERIALISM_LABELS.germany),
+      impRegion("フランス", [...FRANCE_1871, FRENCH_AFRICA, MOROCCO_FRENCH_ZONE, MADAGASCAR, INDOCHINA], IMPERIALISM_LABELS.france),
+      impRegion("イギリス", [
+        GREAT_BRITAIN, IRELAND, CANADA, BRITISH_INDIA, AUSTRALIA, NEW_ZEALAND, EGYPT_BRITISH, ANGLO_EGYPTIAN_SUDAN,
+        BRITISH_SOUTHERN_AFRICA, BRITISH_EAST_AFRICA, NIGERIA, BYZ_CYPRUS,
+      ], IMPERIALISM_LABELS.britain),
+      impRegion("アメリカ合衆国", [USA_MAINLAND, ALASKA, HAWAII, US_PACIFIC_ISLANDS, PUERTO_RICO], IMPERIALISM_LABELS.usa),
+      impRegion("日本", [JAPAN_ISLANDS, TAIWAN, KOREA, SOUTH_SAKHALIN, KWANTUNG], IMPERIALISM_LABELS.japan),
+    ],
+    background: [
+      ...impCommonBackground([ITALY_1870, SPAIN_SARDINIA, ITALIAN_EAST_AFRICA, OTTOMAN_LIBYA]),
+      mapBackground("ベルギー領コンゴ", [CONGO], [23.5, -3.0], IMP_BG.neutral),
+      mapBackground("セルビア", [SERBIA_1913], [21.2, 43.4], IMP_BG.balkan),
+      mapBackground("ブルガリア", [BULGARIA_1913], [25.3, 42.7], IMP_BG.balkan),
+      mapBackground("ルーマニア", [ROMANIA_1878], [25.5, 44.9], IMP_BG.balkan),
+      mapBackground("ギリシア", [GREECE_1913], [22.0, 39.3], IMP_BG.balkan),
+    ],
+    cities: [
+      ...IMP_COMMON_CITIES,
+      mapCity("旅順", 121.25, 38.80, "日本", "l"),
+      mapCity("京城（ソウル）", 126.98, 37.57, "日本", "l"),
+      mapCity("台北", 121.56, 25.04, "日本", "r"),
+      mapCity("青島", 120.38, 36.07, "ドイツ帝国", "r"),
+      mapCity("マニラ", 120.98, 14.60, "アメリカ合衆国", "l"),
+      mapCity("ホノルル", -157.86, 21.31, "アメリカ合衆国", "r"),
+      mapCity("ベオグラード", 20.46, 44.79, null, "r"),
+    ],
+  },
+};
+
+export const IMPERIALISM_BLURB = {
+  "イギリス": "「世界の工場」として繁栄し、インド・カナダ・オーストラリア・アフリカ各地に植民地を持つ世界最大の帝国となった。「日の沈まぬ帝国」と呼ばれ、海軍力で世界の海を支配した。",
+  "フランス": "1870年の普仏戦争に敗れて第三共和政となった。アフリカ北西部からサハラ以南、インドシナ、マダガスカルに及ぶ、イギリスに次ぐ植民地帝国を築いた。",
+  "ドイツ帝国": "1871年にプロイセン王を皇帝として成立した。急速な工業化で世界有数の工業国となり、遅れてアフリカや太平洋に植民地を獲得したが、第一次世界大戦に敗れて帝政は崩壊した。",
+  "ロシア帝国": "ヨーロッパからシベリア・中央アジアにまたがる世界最大の領土を持つ国。南下政策を進めてバルカン半島や東アジアで他国と衝突し、第一次世界大戦中の革命で帝政が倒れた。",
+  "アメリカ合衆国": "南北戦争後に急速に工業化し、19世紀末には世界最大の工業国となった。カリブ海と太平洋に進出し、第一次世界大戦を経て世界最大の債権国となった。",
+  "オーストリア＝ハンガリー帝国": "1867年にハンガリーに大幅な自治を認めて成立した二重帝国。多くの民族をかかえ、バルカン半島への進出をめぐってセルビアやロシアと対立した。",
+  "オスマン帝国": "「瀕死の病人」と呼ばれ、列強の圧力とバルカン諸民族の独立で領土を失い続けた。近代化と立憲政治を求める改革が繰り返された。",
+  "日本": "明治維新で近代国家の建設を進め、日清・日露の二つの戦争に勝利して台湾や朝鮮を植民地とし、アジアで唯一の帝国主義国となった。",
+  "清": "満州人が建てた中国最後の王朝。アヘン戦争以来、列強の侵略で半植民地化が進み、1912年に滅亡して中華民国が成立した。",
+};
+
+const IMPERIALISM_SEA_LABELS = RENAISSANCE_SEA_LABELS.filter((s) => s.name !== "シチリア島").concat(
+  [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["南シナ海", 114.0, 14.0, 6], ["北極海", 60.0, 78.0, 8]].map(([name, lon, lat, size]) => {
+    const [x, y] = lonLatToXY(lon, lat);
+    return { name, x, y, size };
+  }),
+);
+
+// 1885・1900・1914年（帝国主義と二つの大戦の区分のうち1918年まで）
+export const IMPERIALISM_MAP = snapshotMapPeriod(IMPERIALISM_SNAPSHOTS, {
+  rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: IMPERIALISM_BLURB,
+});
+
 // src/data/historyData.js の末尾イメージ
 
 export const ERAS_DATA = {
@@ -3622,7 +4481,7 @@ export const ERAS_DATA = {
     yearRange: [500, 1449],
     defaultMapYear: 1095,
     cards: MEDIEVAL_CARDS,
-    // この時代の勢力図・都市データは未作成（Step 2 で作成予定。地図タブでは「準備中」表示）。
+    // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は MEDIEVAL_CARDS の region と同じ勢力IDを付けること
     mapData: {
       years: [800, 1095, 1348],
@@ -3640,7 +4499,7 @@ export const ERAS_DATA = {
     yearRange: [1450, 1599],
     defaultMapYear: 1517,
     cards: RENAISSANCE_CARDS,
-    // この時代の勢力図・都市データは未作成（Step 2 で作成予定。地図タブでは「準備中」表示）。
+    // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は RENAISSANCE_CARDS の region と同じ勢力IDを付けること
     mapData: {
       years: [1492, 1517, 1555],
@@ -3675,4 +4534,22 @@ export const ERAS_DATA = {
       landPath: WORLD_LAND_PATH,
     }
   },
+  "imperialism": {
+    id: "imperialism",
+    title: "帝国主義と世界大戦",
+    period: "近代（帝国主義と世界大戦）",
+    // 地図の時代区分「帝国主義と二つの大戦」（1870〜1945年）のうち1918年までを受け持つ。
+    // 1870・1871年は直前の区分「市民革命と国民国家」（〜1871年）が先に一致するため、シークバー上では実質1872年から
+    mapPeriodId: "imperialism-wars",
+    yearRange: [1870, 1918],
+    defaultMapYear: 1914,
+    cards: IMPERIALISM_CARDS,
+    // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
+    // 作成する際は IMPERIALISM_CARDS の region と同じ勢力IDを付けること
+    mapData: {
+      years: [1885, 1900, 1914],
+      landPath: WORLD_LAND_PATH,
+    }
+  },
+
 };
