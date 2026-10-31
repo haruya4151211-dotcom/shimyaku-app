@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# geo/build.mjs が使う Natural Earth の元データ（約80MB。geo/lib.mjs の SOURCE_URL から取得）
+geo/.cache/
