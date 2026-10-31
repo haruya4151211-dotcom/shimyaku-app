@@ -1,5 +1,5 @@
-// 各時代・各年代の勢力の輪郭を、現代の国・州・県の組み合わせで定義する（キーは「時代略号+年/勢力ID」、背景は「…/bg:名前」）。
-// 時代略号：anc（古代）、med（中世）、ren（大航海時代・ルネサンス）、abs（絶対王政）、rev（市民革命）、imp（帝国主義）。
+// 勢力の輪郭を、現代の国・州・県の組み合わせで定義する。末尾の ENTITIES が勢力ごとの存続期間と、期間ごとの形の定義。
+// 地図の年代は src/data/atlas/series.js、勢力の色・ラベル・都市は src/data/atlas/styles.js にある。
 // 国境が現代の州・県の途中を通る場所は、経緯度の多角形（下の M_…）で切り分け、両隣の勢力で同じ多角形を使う。
 // 学習用の歴史地図としての精度（主要な国境・海岸線・半島・島の再現）を目標とし、細かな飛び地や係争地は省略している。
 
@@ -144,7 +144,7 @@ const SUMER = p([[44.0, 33.4], [44.8, 33.5], [45.5, 33.0], [46.6, 32.3], [47.6, 
 const BABYLONIA_1750 = p([[40.4, 35.2], [41.5, 34.2], [42.5, 33.9], [43.5, 34.7], [43.1, 36.3], [43.8, 36.9], [44.6, 36.5], [45.4, 35.1], [46.2, 33.8], [47.4, 32.3], [48.6, 30.2], [47.8, 29.7], [46.4, 30.4], [44.8, 31.3], [43.6, 32.1], [42.3, 33.3], [41.0, 34.1], [40.2, 34.6]], "IRQ", "SYR", "KWT");
 const FERTILE_CRESCENT = [[35.0, 29.4], [34.2, 31.3], [34.9, 33.1], [35.7, 35.2], [36.1, 36.7], [37.5, 37.1], [39.5, 37.0], [42.0, 37.3], [43.4, 37.3], [44.6, 36.6], [45.5, 35.2], [46.3, 33.7], [47.6, 32.1], [48.6, 30.2], [47.7, 29.5], [46.3, 30.3], [44.5, 31.1], [42.6, 32.2], [40.5, 33.5], [38.6, 33.8], [37.5, 32.9], [36.8, 31.4], [36.2, 30.0], [35.6, 29.3]];
 const LEVANT_MESO_COUNTRIES = ["IRQ", "SYR", "LBN", "ISR", "PSX", "JOR", "KWT", "TUR/Sanliurfa", "TUR/Mardin", "TUR/Gaziantep", "TUR/Kilis", "TUR/Hatay"];
-const NAFRICA_ROMAN = [[-7.5, 33.9], [-4.5, 33.9], [-2.0, 34.5], [0.0, 34.9], [2.0, 35.0], [4.0, 35.0], [5.5, 34.6], [6.5, 34.6], [7.5, 34.3], [8.5, 33.4], [9.3, 32.4], [10.2, 31.7], [11.5, 31.2], [13.0, 31.4], [15.0, 31.0], [16.5, 30.8], [18.5, 30.3], [20.0, 30.6], [21.0, 30.8], [23.0, 31.4], [25.2, 31.5], [25.2, 34.0], [-7.5, 37.5]];
+const NAFRICA_ROMAN = [[-7.5, 33.9], [-4.5, 33.9], [-2.0, 34.5], [0.0, 34.9], [2.0, 35.0], [4.0, 35.0], [5.5, 34.6], [6.5, 34.6], [7.5, 34.3], [8.5, 33.4], [9.3, 32.4], [10.2, 31.7], [11.5, 31.2], [13.0, 31.4], [15.0, 31.0], [16.5, 30.8], [18.5, 30.3], [20.0, 30.6], [21.0, 30.8], [23.0, 31.4], [25.2, 31.5], [25.2, 38.5], [-7.5, 38.5]]; // 北は地中海の沖まで（陸地と交差させて海岸線に合わせる）
 const NAFRICA_COUNTRIES = ["MAR", "DZA", "TUN", "LBY"];
 const ROMAN_AFRICA_117 = p(NAFRICA_ROMAN, ...NAFRICA_COUNTRIES);
 // 中世イスラーム諸王朝の北アフリカ：地中海・大西洋岸からサハラ北縁まで（オアシス都市の連なり）と、ナイル川流域
@@ -265,382 +265,722 @@ const BRITISH_INDIA_1815 = [{ add: ["IND"], sub: [...ind("Punjab", "Himachal Pra
 const BRITISH_INDIA_1871 = [{ add: ["IND"], sub: ["IND/Goa", "IND/Puducherry", "IND/Dadra and Nagar Haveli and Daman and Diu"] }, "PAK", "KAS", "BGD", "MMR/Rakhine", "MMR/Tanintharyi", "MMR/Yangon", "MMR/Ayeyarwady", "MMR/Bago", "MMR/Mon", "MMR/Kayin"];
 
 // ---------------------------------------------------------------------------
-// 定義本体
+// 勢力の定義（存続期間ベース）
+//   life   … 存続期間 [[開始年, 終了年], ...]。地図の年代（atlas/series.js）のうち、この期間に入る年代に描く。
+//             複数の区間に分かれる勢力（例：エジプト＝古代文明期とプトレマイオス朝期）は区間を並べる
+//   shapes … 期間ごとの形。from〜to の年代に def（州・県の組み合わせ。書き方は lib.mjs の buildShape）を使う。
+//             life の各区間の中で途切れなく並べる（ビルドで検査する）
+// キーは勢力ID（カードの region と一致させる）。背景（タップできない周辺勢力）は "bg:名前"。
+// 存続期間は、史実の年（例：唐 618〜907年）か、まだ史実の年に揃えていない勢力は地図に描いている年代の範囲にしている。
+// 新しい年代を足すと、その年に存続する勢力が自動で地図に入る。形が変わる場合は shapes を分けて期間を区切る。
 // ---------------------------------------------------------------------------
-export const REGIONS = {
-  // ===== 古代オリエント =====
-  "anc-2500/エジプト": { add: [EGYPT_NILE] },
-  "anc-2500/メソポタミア": { add: [SUMER] },
-  "anc-1750/エジプト": { add: [EGYPT_NILE] },
-  "anc-1750/メソポタミア": { add: [BABYLONIA_1750] },
-  "anc-600/エジプト": { add: [EGYPT_NILE] },
-  "anc-600/メソポタミア": { add: [p(FERTILE_CRESCENT, ...LEVANT_MESO_COUNTRIES)], sub: ["IRQ/Dihok", "IRQ/Arbil", "IRQ/As-Sulaymaniyah"] },
-  "anc-600/bg:メディア": { add: ["IRN[44,24,62,40]", "IRQ/Dihok", "IRQ/Arbil", "IRQ/As-Sulaymaniyah", "ARM", "AZE", "TUR[35,36,45,42]"], sub: ["TUR/Sanliurfa", "TUR/Mardin", "TUR/Gaziantep", "TUR/Kilis", "TUR/Hatay", "TUR/Adana", "TUR/Mersin", "TUR/Osmaniye", "IRN/Sistan and Baluchestan", "IRN/Hormozgan", "IRN/Kerman", "IRN/Fars", "IRN/Bushehr", "IRN/Khuzestan", "IRN/South Khorasan", "IRN/Razavi Khorasan", "IRN/North Khorasan", "IRN/Kohgiluyeh and Buyer Ahmad"] },
-  "anc-600/bg:リディア": { add: ["TUR[25,35.5,35,42.5]"], sub: [...EURO_TURKEY, "TUR/Adana", "TUR/Mersin", "TUR/Osmaniye", "TUR/Hatay"] },
-
-  // ===== 古代の帝国 =====
-  "anc-480/アケメネス朝ペルシア": { add: ["IRN", "IRQ", "SYR", "LBN", "ISR", "PSX", "JOR", "KWT", "TUR", "CYP", "AFG", "TKM", "TJK", "UZB[55,37,72,42]", "PAK", "ARM", "AZE", ...EGYPT_PROVINCE, CYRENAICA], sub: EURO_TURKEY },
-  "anc-480/ギリシア": { add: SOUTH_GREECE.concat(gr("Thessalia", "Ipeiros")) },
-  "anc-480/カルタゴ": { add: [CARTHAGE_COAST, ...SARDINIA, ...itp("Trapani", "Palermo", "Agrigento"), "ESP/Baleares", "MLT"] },
-  "anc-480/ローマ": { add: ["ITA/Roma"] },
-  "anc-323/マケドニア": { add: ["IRN", "IRQ", "SYR", "LBN", "ISR", "PSX", "JOR", "KWT", "TUR", "CYP", "AFG", "TKM", "TJK", "UZB[55,37,72,42]", "PAK", "ARM", "AZE", ...EGYPT_PROVINCE, CYRENAICA, "GRC", "MKD", "ALB[19,39,21.5,41]", "BGR"], sub: gr("Peloponnisos", "Attiki", "Stereá Elláda", "Dytiki Ellada", "Notio Aigaio", "Ionioi Nisoi", "Kriti") },
-  "anc-323/ギリシア": { add: gr("Peloponnisos", "Attiki", "Stereá Elláda", "Dytiki Ellada", "Notio Aigaio", "Ionioi Nisoi", "Kriti") },
-  "anc-323/カルタゴ": { add: [CARTHAGE_COAST, ...SARDINIA, ...itp("Trapani", "Palermo", "Agrigento", "Caltanissetta"), "ESP/Baleares", "MLT", p([[-7.0, 36.0], [-7.0, 37.3], [-4.0, 37.0], [-1.5, 37.7], [-0.5, 38.3], [-0.5, 36.0]], "ESP")] },
-  "anc-323/ローマ": { add: itp("Roma", "Latina", "Frosinone", "Caserta", "Napoli") },
-  "anc-218/ローマ": { add: [...it("Toscana", "Umbria", "Marche", "Lazio", "Abruzzo", "Molise", "Campania", "Apulia", "Basilicata", "Calabria", "Sicily", "Sardegna"), ...CORSICA, "ITA/Rimini"] },
-  "anc-218/カルタゴ": { add: [CARTHAGE_COAST, "ESP/region:Andalucía", "ESP/region:Murcia", ...es("Alicante", "Valencia", "Castellón", "Albacete", "Ciudad Real", "Badajoz"), "PRT/Faro", "PRT/Beja", "ESP/Baleares"] },
-  "anc-44/ローマ": { add: ["ITA", FRA, "BEL", "LUX", "CHE", "NLD/Zeeland", "NLD/Noord-Brabant", "NLD/Limburg", ...LEFT_RHINE, ESP, PRT, ...hr("Istarska", "Primorsko-Goranska", "Licko-Senjska", "Zadarska", "Šibensko-Kninska", "Splitsko-Dalmatinska", "Dubrovacko-Neretvanska"), "MNE/Kotor", "MNE/Budva", "MNE/Bar", "MNE/Ulcinj", "MNE/Herceg Novi", "MNE/Tivat", "GRC", "MKD", "ALB", ...tr("Çanakkale", "Balikesir", "Izmir", "Manisa", "Aydin", "Mugla", "Denizli", "Usak", "Kütahya", "Afyonkarahisar", "Bursa", "Bilecik", "Sakarya", "Kocaeli", "Yalova", "Düzce", "Bolu", "Zinguldak", "Bartın", "Kastamonu", "Sinop", "Samsun", "Mersin", "Adana", "Osmaniye", "Hatay"), p([[35.6, 37.3], [38.3, 36.9], [38.6, 35.3], [37.6, 33.0], [36.9, 32.6], [35.6, 33.0]], "SYR", "LBN"), "LBN", AFRICA_44BC, CYRENAICA], sub: es("La Coruña", "Lugo", "Orense", "Pontevedra", "Asturias", "Cantabria", "León", "Bizkaia", "Gipuzkoa", "Álava") },
-  "anc-44/エジプト": { add: [EGYPT_NILE, "CYP"] },
-  "anc117/ローマ": { add: [...ROME_117_EUROPE, ENGLAND, ...WALES, "TUR", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "ARM", "SAU/Tabuk", ...EGYPT_PROVINCE, ROMAN_AFRICA_NO_MAR, ROMAN_MOROCCO], sub: [AUT_NORTH_OF_DANUBE] },
-  "anc395/西ローマ帝国": { add: ["ITA", FRA, ESP, PRT, "BEL", "LUX", "CHE", "NLD/Zeeland", "NLD/Noord-Brabant", "NLD/Limburg", ...LEFT_RHINE, DANUBE_SOUTH_BAVARIA, "AUT", "SVN", "HRV", "BIH", ...TRANSDANUBIA, "SRB/Sremski", "MLT", ENGLAND, ...WALES, p(NAFRICA_ROMAN, "DZA", "TUN"), ROMAN_MOROCCO, TRIPOLITANIA], sub: [AUT_NORTH_OF_DANUBE] },
-  "anc395/東ローマ帝国": { add: ["GRC", "MKD", "ALB", "MNE", "SRB", "KOS", "BGR", ...DOBRUJA, "TUR[25,35,42,43]", "CYP", DESERT_EDGE_LEVANT, "LBN", "ISR", "PSX", ...EGYPT_PROVINCE, CYRENAICA], sub: ["SRB/Sremski", ...VOJVODINA.filter((s) => s !== "SRB/Sremski")] },
-
-  // ===== 中世① =====
-  "med550/フランク王国": { add: [FRA, "BEL", "LUX", "CHE", "NLD/Zeeland", "NLD/Noord-Brabant", "NLD/Limburg", ...de("Rheinland-Pfalz", "Saarland", "Nordrhein-Westfalen", "Hessen", "Baden-Württemberg", "Bayern", "Thüringen"), "AUT/Vorarlberg", "AUT/Tirol"], sub: [...SEPTIMANIA, ...BRITTANY_WEST, ...CORSICA] },
-  "med550/ビザンツ帝国": { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...VENICE_DALMATIA, "HRV/Dubrovacko-Neretvanska", "ITA", ...CORSICA, "MLT", "TUR[25,35,42,43]", "CYP", DESERT_EDGE_LEVANT, "LBN", "ISR", "PSX", ...EGYPT_PROVINCE, CYRENAICA, TRIPOLITANIA, p(NAFRICA_ROMAN, "TUN"), p([[5.0, 37.5], [5.0, 35.4], [8.6, 35.0], [8.6, 37.5]], "DZA")], sub: VOJVODINA },
-  "med800/フランク王国": { add: [FRA, "BEL", "LUX", "NLD", "CHE", "DEU", "AUT", "SVN", ...it("Lombardia", "Piemonte", "Liguria", "Veneto", "Friuli-Venezia Giulia", "Trentino-Alto Adige", "Valle d'Aosta", "Emilia-Romagna", "Toscana", "Umbria", "Lazio", "Marche", "Abruzzo"), "ESP/Gerona", "ESP/Barcelona", "HRV/Istarska"], sub: ["DEU/Mecklenburg-Vorpommern", "DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen", "ITA/Venezia"] },
-  "med800/ビザンツ帝国": { add: ["GRC", "TUR[25,35,40,43]", ...it("Sicily", "Calabria"), ...itp("Lecce", "Brindisi", "Taranto"), "ITA/Venezia", "RUS/Crimea", "RUS/Sevastopol"], sub: ["TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", "TUR/Gaziantep", "TUR/Kilis", "TUR/Sanliurfa", "TUR/K. Maras", "TUR/Adiyaman", "TUR/Malatya"] },
-  "med800/イスラーム世界": { add: [ESP, "PRT", ...ISLAMIC_NAFRICA, "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "IRN", ...ARABIA, "AFG", "TKM", "UZB", "TJK", "PAK[60,23,72,30]", "ARM", "AZE", "GEO/Tbilisi", ...tr("Hatay", "Adana", "Osmaniye", "Gaziantep", "Kilis", "Sanliurfa", "Mardin", "Diyarbakir", "Batman", "Siirt", "Sirnak", "Hakkari", "Van", "Bitlis", "Mus", "Agri", "Iğdir", "K. Maras", "Adiyaman", "Malatya")], sub: [...es("La Coruña", "Lugo", "Orense", "Pontevedra", "Asturias", "Cantabria", "León", "Palencia", "Burgos", "Bizkaia", "Gipuzkoa", "Álava", "Navarra", "Gerona", "Barcelona"), "PRT/Viana do Castelo", "PRT/Braga", "PRT/Madeira", "PRT/Azores", "ESP[-19,27,-13,30]"] },
-  "med962/フランス王国": { add: [FRA, ...es("Gerona", "Barcelona")], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, ...CORSICA] },
-  "med962/神聖ローマ帝国": { add: ["DEU", "NLD", "LUX", "AUT", "SVN", "CZE", "CHE", ...ALSACE, ...LORRAINE, "FRA/Meuse", ...bel("Antwerp", "Limburg", "Flemish Brabant", "Walloon Brabant", "Brussels", "Liege", "Namur", "Luxembourg", "Hainaut"), ...it("Lombardia", "Piemonte", "Liguria", "Veneto", "Friuli-Venezia Giulia", "Trentino-Alto Adige", "Valle d'Aosta", "Emilia-Romagna", "Toscana", "Umbria", "Lazio", "Marche")], sub: ["DEU/Mecklenburg-Vorpommern", "DEU/Brandenburg", "DEU/Berlin", "CHE/Genève", "CHE/Vaud", "CHE/Valais", "CHE/Neuchâtel"] },
-  "med962/イングランド王国": ENGLAND,
-  "med962/ビザンツ帝国": { add: ["TUR[25,35,40,43]", ...gr("Peloponnisos", "Attiki", "Stereá Elláda", "Dytiki Ellada", "Thessalia", "Ipeiros", "Kentriki Makedonia", "Anatoliki Makedonia kai Thraki", "Ayion Oros", "Notio Aigaio", "Voreio Aigaio", "Ionioi Nisoi", "Kriti"), ...it("Calabria", "Apulia", "Basilicata"), "RUS/Crimea", "RUS/Sevastopol"], sub: ["TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", "TUR/Gaziantep", "TUR/Kilis", "TUR/Sanliurfa", "TUR/K. Maras", "TUR/Adiyaman", "TUR/Malatya"] },
-  "med962/イスラーム世界": { add: [ESP, "PRT", ...it("Sicily"), ...ISLAMIC_NAFRICA, "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "IRN", ...ARABIA, "AFG", "TKM", "UZB", "TJK", "PAK[60,23,72,30]", "ARM", "AZE", ...tr("Hatay", "Adana", "Osmaniye", "Gaziantep", "Kilis", "Sanliurfa", "Mardin", "Diyarbakir", "Batman", "Siirt", "Sirnak", "Hakkari", "Van", "Bitlis", "Mus", "Agri", "Iğdir", "K. Maras", "Adiyaman", "Malatya")], sub: [...es("La Coruña", "Lugo", "Orense", "Pontevedra", "Asturias", "Cantabria", "León", "Palencia", "Burgos", "Zamora", "Valladolid", "Bizkaia", "Gipuzkoa", "Álava", "Navarra", "Huesca", "Gerona", "Barcelona", "Lérida", "La Rioja"), "PRT/Viana do Castelo", "PRT/Braga", "PRT/Vila Real", "PRT/Bragança", "PRT/Porto", "PRT/Aveiro", "PRT/Viseu", "PRT/Guarda", "PRT/Madeira", "PRT/Azores", ESP_CANARY] },
-
-  // ===== 中世② =====
-  ...(() => {
-    const hre1095 = { add: ["DEU", "NLD", "LUX", "AUT", "SVN", "CZE", "CHE", ...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, ...bel("Antwerp", "Limburg", "Flemish Brabant", "Walloon Brabant", "Brussels", "Liege", "Namur", "Luxembourg", "Hainaut"), ...it("Lombardia", "Piemonte", "Veneto", "Friuli-Venezia Giulia", "Trentino-Alto Adige", "Valle d'Aosta", "Emilia-Romagna", "Toscana")], sub: ["ITA/Venezia", "DEU/Mecklenburg-Vorpommern", VORPOMMERN] };
-    const flanders1095 = { add: [...FLANDERS, "FRA/Pas-de-Calais"] };
-    const flanders = { add: [...FLANDERS, ZEELAND_FLANDERS] };
-    const hre1204 = { add: hre1095.add, sub: [...hre1095.sub, ZEELAND_FLANDERS] };
-    const venice1095 = { add: ["ITA/Venezia"] };
-    const genoa1095 = { add: it("Liguria") };
-    const islam1095 = { add: [...es("Cádiz", "Málaga", "Granada", "Almería", "Sevilla", "Córdoba", "Jaén", "Huelva", "Murcia", "Alicante", "Valencia", "Castellón", "Badajoz", "Baleares", "Zaragoza", "Lérida", "Huesca", "Teruel", "Albacete", "Cuenca"), "PRT/Faro", "PRT/Beja", "PRT/Évora", "PRT/Setúbal", "PRT/Lisboa", "PRT/Santarém", "PRT/Portalegre", ...ISLAMIC_NAFRICA, ...ARABIA, "ISR", "PSX"] };
-    return {
-      "med1095/神聖ローマ帝国": hre1095,
-      "med1095/フランス王国": { add: [FRA, ...es("Gerona", "Barcelona")], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, ...FLANDERS, "FRA/Pas-de-Calais", ...CORSICA] },
-      "med1095/イングランド王国": ENGLAND,
-      "med1095/ビザンツ帝国": { add: ["GRC", "BGR", "MKD", "ALB", "KOS", ...EURO_TURKEY, "TUR/Istanbul", "TUR/Kocaeli", "TUR/Yalova", "TUR/Trabzon", "TUR/Rize", "CYP"] },
-      "med1095/セルジューク朝": { add: ["TUR", "SYR", "LBN", "JOR", "IRQ", "IRN", "TKM", "ARM", "AZE"], sub: [...EURO_TURKEY, "TUR/Istanbul", "TUR/Kocaeli", "TUR/Yalova", "TUR/Trabzon", "TUR/Rize"] },
-      "med1095/イスラーム世界": islam1095,
-      "med1095/ヴェネツィア共和国": venice1095,
-      "med1095/ジェノヴァ共和国": genoa1095,
-      "med1095/フランドル": flanders1095,
-      "med1204/神聖ローマ帝国": hre1204,
-      "med1204/フランス王国": { add: [FRA, ...es("Gerona", "Barcelona")], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, ...FLANDERS, ...AQUITAINE_1204, ...CORSICA] },
-      "med1204/イングランド王国": { add: [ENGLAND, ...AQUITAINE_1204] },
-      "med1204/ビザンツ帝国": { add: [...tr("Bursa", "Balikesir", "Izmir", "Manisa", "Aydin", "Sakarya", "Kocaeli", "Yalova", "Bilecik", "Kütahya", "Usak", "Denizli", "Trabzon", "Rize", "Giresun", "Artvin"), p([[26.1, 40.6], [27.6, 40.6], [27.6, 39.4], [26.1, 39.4]], "TUR/Çanakkale"), "GRC/Ipeiros", "ALB/Vlorë", "ALB/Gjirokastër"] },
-      "med1204/セルジューク朝": { add: ["TUR"], sub: [...EURO_TURKEY, "TUR/Istanbul", ...tr("Bursa", "Balikesir", "Izmir", "Manisa", "Aydin", "Sakarya", "Kocaeli", "Yalova", "Bilecik", "Kütahya", "Usak", "Denizli", "Trabzon", "Rize", "Giresun", "Artvin", "Çanakkale", "Adana", "Mersin", "Osmaniye", "Hatay", "Mardin", "Sanliurfa", "Diyarbakir", "Batman", "Siirt", "Sirnak", "Hakkari", "Van", "Bitlis", "Mus", "Agri", "Iğdir", "Kars", "Ardahan", "Erzurum", "Bingöl", "Tunceli", "Elazig")] },
-      "med1204/イスラーム世界": { add: [...es("Cádiz", "Málaga", "Granada", "Almería", "Sevilla", "Córdoba", "Jaén", "Huelva", "Murcia", "Alicante", "Valencia", "Castellón", "Badajoz", "Cáceres", "Baleares"), "PRT/Faro", "PRT/Beja", "PRT/Évora", ...ISLAMIC_NAFRICA, "SYR", "JOR", "IRQ", "IRN", ...ARABIA, CRUSADER_PALESTINE_INLAND, ...tr("Mardin", "Sanliurfa", "Diyarbakir", "Batman", "Siirt", "Sirnak", "Hakkari", "Van", "Bitlis", "Mus", "Agri", "Iğdir", "Erzurum", "Bingöl", "Tunceli", "Elazig")], sub: [CRUSADER_SYRIA_COAST] },
-      "med1204/ヴェネツィア共和国": { add: ["ITA/Venezia", "GRC/Kriti", "HRV/Zadarska"] },
-      "med1204/ジェノヴァ共和国": genoa1095,
-      "med1204/フランドル": flanders,
-      "med1204/bg:十字軍の諸国家": { add: [...EURO_TURKEY, "TUR/Istanbul", ...gr("Kentriki Makedonia", "Anatoliki Makedonia kai Thraki", "Ayion Oros", "Thessalia", "Stereá Elláda", "Attiki", "Peloponnisos", "Dytiki Ellada"), "LBN", CRUSADER_GALILEE, CRUSADER_SYRIA_COAST, "CYP"] },
-      "med1360/神聖ローマ帝国": { add: ["DEU", "NLD", "LUX", "AUT", "SVN", "CZE", "CHE", ...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...SAVOY, ...NICE, ...f("Ain", "Alpes-de-Haute-Provence", "Bouches-du-Rhône", "Var", "Vaucluse"), ...bel("Antwerp", "Limburg", "Flemish Brabant", "Walloon Brabant", "Brussels", "Liege", "Namur", "Luxembourg", "Hainaut"), ...it("Lombardia", "Piemonte", "Friuli-Venezia Giulia", "Trentino-Alto Adige", "Valle d'Aosta", "Emilia-Romagna", "Toscana"), ...itp("Verona", "Vicenza", "Padova", "Rovigo", "Belluno"), ...pl("Lower Silesian", "Opole", "West Pomeranian")], sub: [ZEELAND_FLANDERS] },
-      "med1360/フランス王国": { add: [FRA], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...SAVOY, ...NICE, ...f("Ain", "Alpes-de-Haute-Provence", "Bouches-du-Rhône", "Var", "Vaucluse"), ...FLANDERS, ...AQUITAINE_1360, ...CORSICA, p([[1.55, 50.75], [2.2, 50.75], [2.2, 51.1], [1.55, 51.1]], "FRA/Pas-de-Calais")] },
-      "med1360/イングランド王国": { add: [ENGLAND, ...WALES, ...AQUITAINE_1360, p([[1.55, 50.75], [2.2, 50.75], [2.2, 51.1], [1.55, 51.1]], "FRA/Pas-de-Calais")] },
-      "med1360/ビザンツ帝国": { add: ["TUR/Istanbul", "TUR/Tekirdag", "GRC/Kentriki Makedonia", "GRC/Peloponnisos"] },
-      "med1360/イスラーム世界": { add: [...es("Granada", "Málaga", "Almería"), ...ISLAMIC_NAFRICA, "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "IRN", ...ARABIA, "TUR"], sub: ["TUR/Istanbul", "TUR/Tekirdag", ...EURO_TURKEY, ...tr("Bursa", "Bilecik", "Kocaeli", "Sakarya", "Yalova", "Balikesir", "Çanakkale", "Eskisehir", "Düzce", "Bolu", "Ankara", "Trabzon", "Rize", "Giresun")] },
-      "med1360/ヴェネツィア共和国": { add: ["ITA/Venezia", "ITA/Treviso", "GRC/Kriti"] },
-      "med1360/ジェノヴァ共和国": { add: [...it("Liguria"), ...CORSICA] },
-      "med1360/フランドル": flanders,
-      "med1360/bg:オスマン朝": { add: tr("Bursa", "Bilecik", "Kocaeli", "Sakarya", "Yalova", "Balikesir", "Çanakkale", "Eskisehir", "Düzce", "Bolu", "Ankara") },
-    };
-  })(),
-
-  // ===== 大航海時代・ルネサンス・宗教改革 =====
-  ...(() => {
-    const switzerland1492 = { add: ["CHE"], sub: ["CHE/Genève", "CHE/Vaud", "CHE/Ticino"] }; // 盟約者団と同盟地域（ヴァレー、グラウビュンデンなど）
-    const hreSub = ["CHE", "ITA/region:Lombardia", ...MILAN_CORE, ...VENICE_TERRAFERMA, ...FLORENCE, ...PAPAL, ...NAPLES];
-    const hre = (extraSub = [], post = []) => ({ add: ["DEU", "AUT", "CZE", "SVN", "NLD", "BEL", "LUX", ...ALSACE, ...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, ...NICE, ...NORD_ARTOIS, ...pl("Lower Silesian", "Opole", "West Pomeranian", "Lubusz"), SILESIA_PRUSSIAN, ...it("Piemonte", "Liguria", "Emilia-Romagna", "Trentino-Alto Adige", "Valle d'Aosta", "Toscana"), "ITA/Trieste", "ITA/Gorizia", "LIE"], sub: [...hreSub, ...extraSub], post: [...post, "ITA/Mantova"] });
-    const milan = (sub = []) => ({ add: [...MILAN_CORE, ...PARMA_PIACENZA, "CHE/Ticino", "ITA/Sondrio"], sub });
-    const venice = { add: [...VENICE_TERRAFERMA, ...itp("Rovigo"), ...VENICE_DALMATIA, "GRC/Kriti", "GRC/Ionioi Nisoi", "CYP"] };
-    const ottomanBalkans = ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul"];
-    const hungary1492 = { add: ["HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, "HRV", ...VOJVODINA], sub: VENICE_DALMATIA };
-    const aztec = { add: ["MEX/México", "MEX/Distrito Federal", "MEX/Puebla", "MEX/Tlaxcala", "MEX/Hidalgo", "MEX/Morelos", "MEX/Guerrero", p([[-98.6, 22.2], [-97.6, 21.6], [-96.9, 20.4], [-96.2, 19.5], [-95.6, 18.9], [-95.0, 18.4], [-94.6, 17.9], [-95.8, 17.6], [-97.4, 18.2], [-98.6, 18.6]], "MEX/Veracruz"), p([[-98.6, 18.6], [-97.4, 18.2], [-96.3, 17.4], [-95.6, 16.6], [-95.9, 15.7], [-97.2, 15.9], [-98.6, 16.3]], "MEX/Oaxaca")] };
-    const inca = { add: ["PER", p([[-81.5, 0.9], [-78.6, 0.9], [-78.0, 0.3], [-77.8, -1.0], [-78.1, -2.4], [-78.4, -3.6], [-78.6, -5.0], [-81.5, -5.0]], "ECU"), p([[-69.6, -14.0], [-68.4, -15.0], [-67.6, -16.2], [-66.6, -17.0], [-65.6, -18.2], [-65.0, -19.6], [-64.9, -21.2], [-65.2, -22.9], [-70.0, -22.9]], "BOL"), "CHL[-76,-35.5,-66,-17]", p([[-68.6, -21.8], [-64.8, -21.8], [-65.0, -23.8], [-65.4, -25.6], [-65.6, -27.2], [-66.6, -29.0], [-67.6, -30.6], [-68.4, -31.6], [-69.8, -31.6]], "ARG")] };
-    const spain1492 = { add: [ESP, ...SICILY, ...SARDINIA, ESP_CANARY], sub: ["ESP/Navarra"] };
-    const spain1517 = { add: [ESP, ...SICILY, ...SARDINIA, ...NAPLES, ESP_CANARY, "CUB", "DOM", "HTI", "PRI", "JAM", "PAN"] };
-    const spain1555 = { add: [ESP, ...SICILY, ...SARDINIA, ...NAPLES, ESP_CANARY, "CUB", "DOM", "HTI", "PRI", "JAM", MEXICO_CORE, ...CENTRAL_AMERICA, "PER", "ECU", "COL", "VEN", p([[-69.6, -10.9], [-67.0, -11.8], [-65.6, -14.0], [-64.0, -16.6], [-63.2, -18.6], [-63.0, -21.0], [-63.6, -22.9], [-70.0, -22.9]], "BOL"), "CHL[-76,-38,-66,-17]"] };
-    const france = (sub = []) => ({ add: [FRA], sub: [...ALSACE, ...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, ...NICE, ...NORD_ARTOIS, "FRA/Vaucluse", ...sub] });
-    const ottoman1517 = { add: [...ottomanBalkans, ...WALLACHIA, ...MOLDAVIA, "MDA", "TUR", "SYR", "LBN", "ISR", "PSX", "JOR", ...OTTOMAN_EGYPT, ...HEJAZ, "RUS/Crimea", "RUS/Sevastopol"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi", ...VOJVODINA] };
-    return {
-      "ren1492/ポルトガル王国": { add: [PRT] },
-      "ren1492/スペイン王国": spain1492,
-      "ren1492/フランス王国": france(),
-      "ren1492/神聖ローマ帝国": hre(PARMA_PIACENZA, ["CHE/Vaud"]),
-      "ren1492/ミラノ公国": milan(),
-      "ren1492/ヴェネツィア共和国": venice,
-      "ren1492/フィレンツェ": { add: FLORENCE },
-      "ren1492/ローマ教皇領": { add: [...PAPAL_1492, "FRA/Vaucluse"] },
-      "ren1492/ナポリ王国": { add: NAPLES },
-      "ren1492/アステカ帝国": aztec,
-      "ren1492/インカ帝国": inca,
-      "ren1492/bg:オスマン帝国": { add: [...ottomanBalkans, ...WALLACHIA, "TUR[25,35,38.5,43]"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi", "TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", ...VOJVODINA] },
-      "ren1492/bg:ハンガリー王国": hungary1492,
-      "ren1492/bg:スイス": switzerland1492,
-      "ren1492/bg:ナバラ王国": { add: ["ESP/Navarra"] },
-      "ren1517/ポルトガル王国": { add: [PRT] },
-      "ren1517/スペイン王国": spain1517,
-      "ren1517/フランス王国": france(),
-      "ren1517/神聖ローマ帝国": hre(["CHE/Genève", ...PARMA_PIACENZA], ["CHE/Vaud"]),
-      "ren1517/ジュネーヴ": { add: ["CHE/Genève"] },
-      "ren1517/ミラノ公国": milan([...PARMA_PIACENZA, "CHE/Ticino", "ITA/Sondrio"]),
-      "ren1517/ヴェネツィア共和国": venice,
-      "ren1517/フィレンツェ": { add: FLORENCE },
-      "ren1517/ローマ教皇領": { add: [...PAPAL, ...PARMA_PIACENZA, "FRA/Vaucluse"] },
-      "ren1517/アステカ帝国": aztec,
-      "ren1517/インカ帝国": inca,
-      "ren1517/bg:オスマン帝国": ottoman1517,
-      "ren1517/bg:ハンガリー王国": hungary1492,
-      "ren1517/bg:スイス": { add: ["CHE", "ITA/Sondrio"], sub: ["CHE/Genève", "CHE/Vaud"] },
-      "ren1555/ポルトガル王国": { add: [PRT] },
-      "ren1555/スペイン王国": spain1555,
-      "ren1555/フランス王国": france(),
-      "ren1555/神聖ローマ帝国": hre(["CHE/Genève", "ITA/Siena", "ITA/Grosseto"]),
-      "ren1555/ジュネーヴ": { add: ["CHE/Genève"] },
-      "ren1555/ミラノ公国": milan([...PARMA_PIACENZA, "CHE/Ticino", "ITA/Sondrio"]),
-      "ren1555/ヴェネツィア共和国": venice,
-      "ren1555/フィレンツェ": { add: [...FLORENCE, "ITA/Siena", "ITA/Grosseto"] },
-      "ren1555/ローマ教皇領": { add: [...PAPAL, "FRA/Vaucluse"] },
-      "ren1555/bg:オスマン帝国": { add: [...ottoman1517.add, ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...VOJVODINA, ...SLAVONIA, "IRQ", ALGERIA_COAST, TRIPOLITANIA, ...["HUN/region:Great Southern Plain", "HUN/region:Northern Great Plain", "HUN/region:Central Hungary", "HUN/region:Southern Transdanubia"], "HUN/Fejér", "HUN/Tolna", "HUN/Székesfehérvár", "HUN/Dunaújváros"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi"] },
-      "ren1555/bg:スイス": { add: ["CHE", "ITA/Sondrio"], sub: ["CHE/Genève"] },
-    };
-  })(),
-
-  // ===== 絶対王政・主権国家体制 =====
-  ...(() => {
-    const SPAIN_NL = ["BEL", "LUX", ...NORD_ARTOIS];
-    const swedenGerman1648 = [VORPOMMERN, STETTIN, BREMEN_VERDEN];
-    const ducalPrussia = [{ poly: [[19.0, 55.0], [23.0, 55.0], [23.0, 53.0], [19.0, 53.0]], of: ["POL/Warmian-Masurian"] }, "RUS/Kaliningrad", "LTU/Klaipedos"];
-    const austria1648 = ["UKR/Transcarpathia", "AUT", "CZE", "SVN", ...pl("Lower Silesian", "Opole"), SILESIA_PRUSSIAN, "SVK", "HUN/region:Western Transdanubia", "HUN/Komárom-Esztergom", "HUN/Tatabánya", "HUN/Nógrád", "HUN/Salgótarján", "HUN/Borsod-Abaúj-Zemplén", "HUN/Miskolc", ...hr("Grad Zagreb", "Zagrebacka", "Karlovacka", "Varaždinska", "Krapinsko-Zagorska", "Medimurska", "Koprivničko-Križevačka", "Bjelovarsko-bilogorska", "Sisacko-Moslavacka", "Licko-Senjska", "Primorsko-Goranska")];
-    const ottoman1648 = ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", "ROU", "MDA", ...SLAVONIA, "HUN", ...UKR_STEPPE.filter((s) => !s.includes("Kirovohrad") && !s.includes("Dnipro") && !s.includes("Luhans") && !s.includes("Donets")), "UKR/Chernivtsi", "RUS/Sevastopol", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST];
-    const ottomanSub1648 = ["HUN/region:Western Transdanubia", "HUN/Komárom-Esztergom", "HUN/Tatabánya", "HUN/Nógrád", "HUN/Salgótarján", "HUN/Borsod-Abaúj-Zemplén", "HUN/Miskolc", "GRC/Ionioi Nisoi"];
-    const spainAmericas1648 = [MEXICO_CORE, ...CENTRAL_AMERICA, "CUB", "DOM", "HTI", "PRI", "JAM", ...SPANISH_SOUTH_AMERICA, "USA/New Mexico", "USA/Florida"];
-    const spainAmericas1715 = [MEXICO_CORE, ...CENTRAL_AMERICA, "CUB", "DOM", "PRI", ...SPANISH_SOUTH_AMERICA, ...us("New Mexico", "Florida", "Texas", "Arizona")];
-    const spainAmericas1772 = [MEXICO_CORE, ...CENTRAL_AMERICA, "CUB", "DOM", "PRI", ...SPANISH_SOUTH_AMERICA, "URY", ...us("New Mexico", "Texas", "Arizona", "California"), ...LOUISIANA_WEST];
-    return {
-      "abs1648/フランス王国": { add: [FRA, ...ALSACE, "FRA/Meuse", NEW_FRANCE, "FRA/Martinique", "FRA/Guadeloupe"], sub: [...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, ...NICE, ...NORD_ARTOIS, ...ROUSSILLON, "FRA/Vaucluse"] },
-      "abs1648/スペイン王国": { add: [ESP, ...ROUSSILLON, ...SPAIN_NL, ...FRANCHE_COMTE, ...MILAN_CORE, ...NAPLES, ...SICILY, ...SARDINIA, ESP_CANARY, ...spainAmericas1648], sub: ["BEL/Liege"] },
-      "abs1648/オランダ": { add: [NLD] },
-      "abs1648/イギリス": { add: ["GBR", "IRL", ...us("Massachusetts", "Connecticut", "Rhode Island", "New Hampshire", "Virginia", "Maryland")] },
-      "abs1648/オーストリア": { add: austria1648 },
-      "abs1648/プロイセン王国": { add: ["DEU/Brandenburg", "DEU/Berlin", { add: ["POL/West Pomeranian"], sub: [STETTIN] }, "POL/Lubusz", ...ducalPrussia, CLEVES_MARK], sub: [WARMIA_ELBLAG] },
-      "abs1648/神聖ローマ帝国": { add: ["DEU", ...LORRAINE, "BEL/Liege"], sub: ["DEU/Brandenburg", "DEU/Berlin", CLEVES_MARK, ...swedenGerman1648] },
-      "abs1648/ロシア帝国": { add: [RUS_EUROPE, SIBERIA_1648, "RUS/Khabarovsk"], sub: [...ru("Kaliningrad", "Leningrad", "City of St. Petersburg", "Smolensk", "Bryansk"), ...RUS_STEPPE_SOUTH] },
-      "abs1648/bg:スウェーデン": { add: ["SWE", "FIN", "EST", "LVA/region:Vidzeme", "LVA/region:Riga", "RUS/Leningrad", "RUS/City of St. Petersburg", ...swedenGerman1648], sub: ["SWE/Skåne", "SWE/Blekinge"] },
-      "abs1648/bg:ポーランド＝リトアニア": { add: ["POL", "LTU", "BLR", "UKR", "LVA", "RUS/Smolensk", "RUS/Bryansk"], post: [WARMIA_ELBLAG], sub: [...pl("Lower Silesian", "Opole", "West Pomeranian", "Lubusz"), SILESIA_PRUSSIAN, "POL/Warmian-Masurian", "LTU/Klaipedos", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_STEPPE, "UKR/Transcarpathia", "UKR/Chernivtsi", "UKR/Kharkiv"] },
-      "abs1648/bg:オスマン帝国": { add: ottoman1648, sub: ottomanSub1648 },
-      "abs1648/bg:ポルトガル王国": { add: [PRT, p([[-42.0, -2.0], [-34.0, -2.0], [-34.0, -25.0], [-48.0, -25.0], [-44.0, -12.0]], "BRA")] },
-      "abs1715/フランス王国": { add: [FRA, ...ALSACE, ...ROUSSILLON, ...FRANCHE_COMTE, "FRA/Nord", "FRA/Pas-de-Calais", "FRA/Meuse", "HTI", ...us("Louisiana", "Mississippi"), NEW_FRANCE, "FRA/Martinique", "FRA/Guadeloupe"], sub: [...LORRAINE, ...SAVOY, ...NICE, "FRA/Vaucluse"] },
-      "abs1715/スペイン王国": { add: [ESP, ESP_CANARY, ...spainAmericas1715] },
-      "abs1715/オランダ": { add: [NLD] },
-      "abs1715/イギリス": { add: ["GBR", "IRL", ...THIRTEEN_COLONIES_1715, "USA/Vermont", "CAN/Nova Scotia", NEWFOUNDLAND, "JAM", "BHS"] },
-      "abs1715/オーストリア": { add: [...austria1648, "HUN", ...TRANSYLVANIA, ...PARTIUM, ...SLAVONIA, ...VOJVODINA.filter((s) => !s.includes("Banat")), "BEL", "LUX", ...MILAN_CORE, ...NAPLES, ...SARDINIA, "ITA/Mantova"], sub: ["BEL/Liege"] },
-      "abs1715/プロイセン王国": { add: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", { add: ["POL/West Pomeranian"], sub: [STETTIN] }, "POL/Lubusz", ...ducalPrussia, CLEVES_MARK], sub: [WARMIA_ELBLAG] },
-      "abs1715/神聖ローマ帝国": { add: ["DEU", ...LORRAINE, "BEL/Liege"], sub: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", CLEVES_MARK, ...swedenGerman1648] },
-      "abs1715/ロシア帝国": { add: [RUS_EUROPE, "RUS[60,40,180,82]", "EST", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_LEFT_BANK, "UKR/Luhans'k"], sub: [...ru("Kaliningrad", "Amur", "Yevrey", "Primor'ye", "Tuva", "Gorno-Altay", "Altay", "Chukchi Autonomous Okrug", "Sakhalin"), ...RUS_STEPPE_SOUTH] },
-      "abs1715/bg:スウェーデン": { add: ["SWE", "FIN", ...swedenGerman1648] },
-      "abs1715/bg:ポーランド＝リトアニア": { add: ["POL", "LTU", "BLR", "UKR", "LVA"], post: [WARMIA_ELBLAG], sub: [...pl("Lower Silesian", "Opole", "West Pomeranian", "Lubusz"), SILESIA_PRUSSIAN, "POL/Warmian-Masurian", "LTU/Klaipedos", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_STEPPE, ...UKR_LEFT_BANK, "UKR/Transcarpathia", "UKR/Chernivtsi"] },
-      "abs1715/bg:オスマン帝国": { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", ...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "MDA", ...BANAT_RO, "SRB/Severno-Banatski", "SRB/Srednje-Banatski", "SRB/Južno-Banatski", ...UKR_STEPPE.filter((s) => !s.includes("Luhans")), "RUS/Sevastopol", "RUS/Rostov", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST, "UKR/Chernivtsi", "ROU/Suceava"], sub: ["GRC/Ionioi Nisoi", ...VOJVODINA.filter((s) => !s.includes("Banat"))] },
-      "abs1715/bg:ポルトガル王国": { add: [PRT, "BRA[-60,-34,-34,5]"] },
-      "abs1772/フランス王国": { add: [FRA, ...ALSACE, ...LORRAINE, ...ROUSSILLON, ...FRANCHE_COMTE, ...NORD_ARTOIS, "FRA/Meuse", ...CORSICA, "HTI", "FRA/Guyane française", "FRA/Martinique", "FRA/Guadeloupe"], sub: [...SAVOY, ...NICE, "FRA/Vaucluse"] },
-      "abs1772/スペイン王国": { add: [ESP, ESP_CANARY, ...spainAmericas1772] },
-      "abs1772/オランダ": { add: [NLD] },
-      "abs1772/イギリス": { add: ["GBR", "IRL", ...THIRTEEN_COLONIES_1772, "USA/Florida", QUEBEC_1763, ...ca("New Brunswick", "Nova Scotia", "Prince Edward Island"), NEWFOUNDLAND, "JAM", "BHS", "IND/West Bengal", "IND/Bihar", "BGD"] },
-      "abs1772/オーストリア": { add: ["UKR/Transcarpathia", "AUT", "CZE", "SVN", "SVK", "HUN", "HRV", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...VOJVODINA, ...GALICIA_1772, "BEL", "LUX", ...MILAN_CORE, "ITA/Mantova"], sub: [...VENICE_DALMATIA, "BEL/Liege"] },
-      "abs1772/プロイセン王国": { add: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", VORPOMMERN, "POL/West Pomeranian", "POL/Lubusz", "POL/Lower Silesian", "POL/Opole", SILESIA_PRUSSIAN, "POL/Pomeranian", "POL/Warmian-Masurian", NETZE_DISTRICT, "RUS/Kaliningrad", "LTU/Klaipedos", CLEVES_MARK, EAST_FRISIA], sub: [VORPOMMERN_N_PEENE, p([[18.45, 54.45], [18.8, 54.45], [18.8, 54.25], [18.45, 54.25]], "POL/Pomeranian")] },
-      "abs1772/神聖ローマ帝国": { add: ["DEU", "BEL/Liege"], sub: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", VORPOMMERN, CLEVES_MARK, EAST_FRISIA] },
-      "abs1772/ロシア帝国": { add: [RUS_EUROPE, "RUS[60,40,180,82]", "EST", "LVA/region:Vidzeme", "LVA/region:Riga", "LVA/region:Latgale", ...by("Vitebsk", "Mogilev", "Gomel"), ...UKR_LEFT_BANK, ...ua("Luhans'k", "Donets'k", "Dnipropetrovs'k", "Zaporizhzhya", "Kirovohrad"), "RUS/Rostov", "FIN/South Karelia", "FIN/Kymenlaakso"], sub: [...ru("Kaliningrad", "Amur", "Yevrey", "Primor'ye", "Tuva", "Chukchi Autonomous Okrug", "Sakhalin"), ...RUS_STEPPE_SOUTH.filter((s) => !s.includes("Rostov"))] },
-      "abs1772/bg:スウェーデン": { add: ["SWE", "FIN", VORPOMMERN_N_PEENE], sub: ["FIN/South Karelia", "FIN/Kymenlaakso"] },
-      "abs1772/bg:ポーランド＝リトアニア": { add: ["POL", "LTU", "BLR", "UKR", "LVA/region:Kurzeme", "LVA/region:Zemgale"], sub: [...pl("Lower Silesian", "Opole", "West Pomeranian", "Lubusz", "Pomeranian", "Warmian-Masurian", "Subcarpathian"), SILESIA_PRUSSIAN, NETZE_DISTRICT, ...GALICIA_WEST, "LTU/Klaipedos", ...by("Vitebsk", "Mogilev", "Gomel"), ...UKR_STEPPE, ...UKR_LEFT_BANK, ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi"] },
-      "abs1772/bg:オスマン帝国": { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", ...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "MDA", "UKR/Odessa", "UKR/Mykolayiv", "UKR/Kherson", "RUS/Crimea", "RUS/Sevastopol", "UKR/Chernivtsi", "ROU/Suceava", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST], sub: ["GRC/Ionioi Nisoi", ...VOJVODINA] },
-      "abs1772/bg:ポルトガル王国": { add: [PRT, "BRA"] },
-    };
-  })(),
-
-  // ===== 市民革命と国民国家 =====
-  ...(() => {
-    const prussia1815 = ["DEU/Brandenburg", "DEU/Berlin", VORPOMMERN, "DEU/Sachsen-Anhalt", "DEU/Nordrhein-Westfalen", "DEU/Saarland", RLP_NORTH, UPPER_LUSATIA_PRUSSIAN, ...PRUSSIAN_POLAND_1815, SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos"];
-    const austria1815 = ["AUT", "CZE", "SVN", "HRV", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...GALICIA_EAST, "UKR/Transcarpathia", "POL/Subcarpathian", ...GALICIA_WEST, ...LOMBARDY, ...VENETO, "ITA/region:Friuli-Venezia Giulia", "ITA/region:Trentino-Alto Adige"];
-    return {
-      "rev1812/フランス帝国": { add: [FRA, ...CORSICA, "BEL", "NLD", "LUX", ...LEFT_RHINE, "DEU/Hamburg", "DEU/Bremen", NW_GERMANY_1810, ...it("Piemonte", "Liguria", "Valle d'Aosta", "Toscana", "Lazio", "Umbria"), ...PARMA_PIACENZA, "CHE/Valais", "CHE/Genève", "SVN", ...hr("Istarska", "Primorsko-Goranska", "Licko-Senjska", "Karlovacka", "Zadarska", "Šibensko-Kninska", "Splitsko-Dalmatinska", "Dubrovacko-Neretvanska", "Sisacko-Moslavacka"), "ITA/Trieste", "ITA/Gorizia", "AUT/Kärnten", ...es("Gerona", "Barcelona", "Lérida", "Tarragona")] },
-      "rev1812/ライン同盟": { add: ["DEU", "AUT/Salzburg", "AUT/Tirol", "ITA/Bozen", "ITA/Trento"], sub: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Hamburg", "DEU/Bremen", ...LEFT_RHINE, NW_GERMANY_1810, VORPOMMERN, JERICHOW_1812, "DEU/Schleswig-Holstein"] },
-      "rev1812/プロイセン王国（1812）": { add: ["DEU/Brandenburg", "DEU/Berlin", JERICHOW_1812, { add: [VORPOMMERN], sub: [VORPOMMERN_N_PEENE] }, ...pl("West Pomeranian", "Pomeranian", "Lubusz", "Lower Silesian", "Opole", "Warmian-Masurian"), SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos"], sub: [p([[18.45, 54.45], [18.8, 54.45], [18.8, 54.25], [18.45, 54.25]], "POL/Pomeranian")] },
-      "rev1812/オーストリア帝国（1812）": { add: ["AUT", "CZE", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...SLAVONIA, ...hr("Grad Zagreb", "Zagrebacka", "Varaždinska", "Krapinsko-Zagorska", "Medimurska", "Koprivničko-Križevačka", "Bjelovarsko-bilogorska"), "UKR/L'viv", "UKR/Ivano-Frankivs'k", "UKR/Transcarpathia", "POL/Subcarpathian"], sub: ["AUT/Salzburg", "AUT/Tirol", "AUT/Kärnten"] },
-      "rev1812/ワルシャワ大公国": { add: [...pl("Masovian", "Łódź", "Greater Poland", "Kuyavian-Pomeranian", "Lublin", "Świętokrzyskie", "Lesser Poland"), SILESIA_RUSSIAN, p([[22.0, 53.3], [22.5, 53.2], [22.9, 52.9], [23.2, 52.6], [23.0, 52.25], [22.0, 52.3]], "POL/Podlachian")] },
-      "rev1815/フランス王国": { add: [FRA, ...CORSICA], sub: [...SAVOY, ...NICE] },
-      "rev1815/ネーデルラント連合王国": { add: [NLD, "BEL", "LUX"] },
-      // プロイセン・オーストリア以外の加盟国（バイエルン、ザクセン、ハノーファーなど）
-      "rev1815/ドイツ連邦": { add: ["DEU"], sub: ["DEU/Brandenburg", "DEU/Berlin", VORPOMMERN, "DEU/Sachsen-Anhalt", "DEU/Nordrhein-Westfalen", "DEU/Saarland", RLP_NORTH, UPPER_LUSATIA_PRUSSIAN] },
-      "rev1815/プロイセン王国": { add: prussia1815 },
-      "rev1815/オーストリア帝国": { add: austria1815 },
-      "rev1815/ロシア帝国": { add: [RUS_EUROPE, "RUS[60,40,180,82]", "FIN", "EST", "LVA", "LTU", "BLR", "UKR", "MDA", "GEO", "AZE", ...CONGRESS_POLAND], sub: ["RUS/Kaliningrad", "LTU/Klaipedos", ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi", ...ru("Amur", "Yevrey", "Primor'ye", "Tuva", "Sakhalin")] },
-      "rev1871/ドイツ帝国": { add: ["DEU", ...ALSACE_LORRAINE, ...PRUSSIAN_POLAND_1815, SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos", NORTH_SCHLESWIG] },
-      "rev1871/オーストリア＝ハンガリー帝国": { add: ["AUT", "CZE", "SVN", "HRV", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...GALICIA_EAST, "UKR/Transcarpathia", "POL/Subcarpathian", ...GALICIA_WEST, ...TRENTINO_TRIESTE] },
-      "rev1871/イタリア王国": { add: ["ITA"], sub: TRENTINO_TRIESTE },
-      "rev1871/フランス": { add: [FRA, ...CORSICA], sub: ALSACE_LORRAINE },
-    };
-  })(),
-
-  // ===== 帝国主義と世界大戦 =====
-  ...(() => {
-    const germanyEurope = ["DEU", ...ALSACE_LORRAINE, ...PRUSSIAN_POLAND_1815, SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos", NORTH_SCHLESWIG];
-    // ドイツ領ニューギニア（北東部と島々）。南東部は英領パプア（PAPUA）と同じ境界線で分ける
-    const germanColonies1885 = ["TGO", "CMR", "NAM", "TZA", "RWA", "BDI", { poly: GERMAN_NEW_GUINEA, of: ["PNG"] }];
-    const germanColonies1900 = [...germanColonies1885, JIAOZHOU, "WSM", "FSM", "MHL", "PLW", "MNP"];
-    const austriaHungary = ["AUT", "CZE", "SVN", "HRV", "BIH", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...GALICIA_EAST, "UKR/Transcarpathia", "POL/Subcarpathian", ...GALICIA_WEST, ...TRENTINO_TRIESTE, SILESIA_AUSTRIAN];
-    const russiaCore = [RUS_EUROPE, "RUS[60,40,180,82]", "FIN", "EST", "LVA", "LTU", "BLR", "UKR", "MDA", ...CONGRESS_POLAND, "GEO", "ARM", "AZE", "KAZ", "KAB", "UZB", "TKM", "KGZ", "TJK", ...tr("Kars", "Ardahan", "Artvin")];
-    const russiaSub = ["RUS/Kaliningrad", "LTU/Klaipedos", ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi", KURILS];
-    const ottomanAsia1885 = ["TUR", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...HEJAZ, "SAU/Ash Sharqiyah", "YEM"];
-    const ottomanEurope1885 = [...EURO_TURKEY, "TUR/Istanbul", ...GREEK_MACEDONIA_THRACE, "GRC/Ipeiros", "GRC/Kriti", "GRC/Voreio Aigaio", "MKD", "ALB", "KOS", ...SANDZAK, ...["BGR/Kardzhali", "BGR/Smolyan", "BGR/Blagoevgrad"]];
-    const britain1885 = ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", EGY, "CYP", ...["ZAF/Western Cape", "ZAF/Eastern Cape", "ZAF/Northern Cape", "ZAF/KwaZulu-Natal"], "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7.0], [-3.3, 7.0]], "GHA"), p([[2.6, 4.0], [9.0, 4.0], [9.0, 7.0], [2.6, 7.0]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100.0, 6.5], [104.5, 6.5], [104.5, 1.2], [100.0, 1.2]], "MYS")];
-    const britain1900 = [...britain1885.filter((s) => !String(s).startsWith("ZAF/")), "ZAF", "LSO", "SDN", "SDS", "KEN", "UGA", "NGA", "GHA", "ZWE", "ZMB", "MWI", "MYS", "BRN", { poly: PAPUA, of: ["PNG"] }];
-    const britain1914 = [...britain1900, "SWZ", "KWT", "QAT", "BHR", "ARE"];
-    const france1885 = [FRA, ...CORSICA, ALGERIA_NORTH, "TUN", "SEN", "GAB", "COG", "VNM", "KHM", "NCL", "DJI", "FRA/Guyane française", "FRA/Martinique", "FRA/Guadeloupe", "FRA/La Réunion"];
-    const france1900 = [...france1885.filter((s) => s !== ALGERIA_NORTH), "DZA", "MLI", "GIN", "CIV", "BFA", "BEN", "NER", "MRT", "TCD", "CAF", "MDG", "LAO", "COM", "FRA/Mayotte"];
-    const usa1885 = { add: ["USA"], sub: ["USA/Hawaii"] };
-    const italy1885 = ["ITA", p([[38.6, 18.1], [39.3, 16.3], [40.2, 15.4], [41.6, 13.8], [43.2, 12.7], [43.3, 13.6], [39.6, 16.6], [38.6, 18.6]], "ERI")]; // マッサワ周辺の沿岸
-    const spain1885 = [ESP, ESP_CANARY, "ESP/Ceuta", "ESP/Melilla", "CUB", "PRI", "PHL", "SAH", "GNQ"];
-    const portugal = [PRT, "PRT/Madeira", "PRT/Azores", "AGO", "MOZ", "GNB", "CPV", "STP", "TLS", "MAC"];
-    const greece1885 = { add: ["GRC"], sub: [...GREEK_MACEDONIA_THRACE, "GRC/Ipeiros", "GRC/Kriti", "GRC/Voreio Aigaio"] };
-    const serbia1885 = { add: ["SRB"], sub: [...VOJVODINA, "SRB/Raški"] };
-    const bulgaria1885 = { add: ["BGR"], sub: ["BGR/Kardzhali", "BGR/Smolyan", "BGR/Blagoevgrad"] };
-    const romania1885 = { add: [...WALLACHIA, ...MOLDAVIA, ...DOBRUJA] };
-    const montenegro1885 = { add: ["MNE"], sub: SANDZAK };
-    return {
-      "imp1885/清": { add: ["CHN", "MNG", "TWN"], sub: [] },
-      "imp1885/ロシア帝国": { add: russiaCore, sub: russiaSub },
-      "imp1885/オスマン帝国": { add: [...ottomanAsia1885, ...ottomanEurope1885, "LBY"], sub: tr("Kars", "Ardahan", "Artvin") },
-      "imp1885/オーストリア＝ハンガリー帝国": { add: austriaHungary },
-      "imp1885/ドイツ帝国": { add: [...germanyEurope, ...germanColonies1885] },
-      "imp1885/フランス": { add: france1885, sub: ALSACE_LORRAINE },
-      "imp1885/イギリス": { add: britain1885 },
-      "imp1885/アメリカ合衆国": usa1885,
-      "imp1885/日本": { add: ["JPN", KURILS] },
-      "imp1885/bg:イタリア": { add: italy1885, sub: TRENTINO_TRIESTE },
-      "imp1885/bg:スペイン": { add: spain1885 },
-      "imp1885/bg:ポルトガル": { add: portugal },
-      "imp1885/bg:オランダ領東インド": { add: ["IDN"] },
-      "imp1885/bg:ペルシア": { add: ["IRN"] },
-      "imp1885/bg:スイス": { add: ["CHE"] },
-      "imp1885/bg:アフガニスタン": { add: ["AFG"] },
-      "imp1885/bg:エチオピア": { add: ["ETH"] },
-      "imp1885/bg:コンゴ自由国": { add: ["COD"] },
-      "imp1885/bg:セルビア": serbia1885,
-      "imp1885/bg:ブルガリア": bulgaria1885,
-      "imp1885/bg:ルーマニア": romania1885,
-      "imp1885/bg:ギリシア": greece1885,
-      "imp1885/bg:朝鮮": { add: KOREA },
-      "imp1885/bg:モンテネグロ": montenegro1885,
-      "imp1900/清": { add: ["CHN", "MNG"], sub: [KWANTUNG, JIAOZHOU, WEIHAIWEI] },
-      "imp1900/ロシア帝国": { add: [...russiaCore, KWANTUNG], sub: russiaSub },
-      "imp1900/オスマン帝国": { add: [...ottomanAsia1885, ...ottomanEurope1885, "LBY"], sub: tr("Kars", "Ardahan", "Artvin") },
-      "imp1900/オーストリア＝ハンガリー帝国": { add: austriaHungary },
-      "imp1900/ドイツ帝国": { add: [...germanyEurope, ...germanColonies1900] },
-      "imp1900/フランス": { add: france1900, sub: ALSACE_LORRAINE },
-      "imp1900/イギリス": { add: [...britain1900, WEIHAIWEI] },
-      "imp1900/アメリカ合衆国": { add: ["USA", "PRI", "PHL", "GUM", "ASM"] },
-      "imp1900/日本": { add: ["JPN", KURILS, "TWN"] },
-      "imp1900/bg:イタリア": { add: [...italy1885, "ERI", "SOM"], sub: TRENTINO_TRIESTE },
-      "imp1900/bg:スペイン": { add: [ESP, ESP_CANARY, "ESP/Ceuta", "ESP/Melilla", "SAH", "GNQ"] },
-      "imp1900/bg:ポルトガル": { add: portugal },
-      "imp1900/bg:オランダ領東インド": { add: ["IDN"] },
-      "imp1900/bg:ペルシア": { add: ["IRN"] },
-      "imp1900/bg:スイス": { add: ["CHE"] },
-      "imp1900/bg:アフガニスタン": { add: ["AFG"] },
-      "imp1900/bg:エチオピア": { add: ["ETH"] },
-      "imp1900/bg:コンゴ自由国": { add: ["COD"] },
-      "imp1900/bg:セルビア": serbia1885,
-      "imp1900/bg:ブルガリア": bulgaria1885,
-      "imp1900/bg:ルーマニア": romania1885,
-      "imp1900/bg:ギリシア": greece1885,
-      "imp1900/bg:大韓帝国": { add: KOREA },
-      "imp1900/bg:モンテネグロ": montenegro1885,
-      "imp1914/清": { add: ["CHN", "MNG"], sub: [KWANTUNG, JIAOZHOU, WEIHAIWEI] },
-      "imp1914/ロシア帝国": { add: russiaCore, sub: [...russiaSub, SOUTH_SAKHALIN] },
-      "imp1914/オスマン帝国": { add: ["TUR", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...HEJAZ, "YEM"], sub: tr("Kars", "Ardahan", "Artvin") },
-      "imp1914/オーストリア＝ハンガリー帝国": { add: austriaHungary },
-      "imp1914/ドイツ帝国": { add: [...germanyEurope, ...germanColonies1900] },
-      "imp1914/フランス": { add: [...france1900, "MAR"], sub: [...ALSACE_LORRAINE, ...SPANISH_MOROCCO] },
-      "imp1914/イギリス": { add: [...britain1914, WEIHAIWEI] },
-      "imp1914/アメリカ合衆国": { add: ["USA", "PRI", "PHL", "GUM", "ASM"] },
-      "imp1914/日本": { add: ["JPN", KURILS, "TWN", ...KOREA, SOUTH_SAKHALIN, KWANTUNG] },
-      "imp1914/bg:イタリア": { add: [...italy1885, "ERI", "SOM", "LBY"], sub: TRENTINO_TRIESTE },
-      "imp1914/bg:スペイン": { add: [ESP, ESP_CANARY, "ESP/Ceuta", "ESP/Melilla", "SAH", "GNQ", ...SPANISH_MOROCCO] },
-      "imp1914/bg:ポルトガル": { add: portugal },
-      "imp1914/bg:オランダ領東インド": { add: ["IDN"] },
-      "imp1914/bg:ペルシア": { add: ["IRN"] },
-      "imp1914/bg:スイス": { add: ["CHE"] },
-      "imp1914/bg:アフガニスタン": { add: ["AFG"] },
-      "imp1914/bg:エチオピア": { add: ["ETH"] },
-      "imp1914/bg:ベルギー領コンゴ": { add: ["COD"] },
-      "imp1914/bg:セルビア": { add: ["SRB", "KOS", "MKD"], sub: VOJVODINA },
-      "imp1914/bg:ブルガリア": { add: ["BGR", WESTERN_THRACE], sub: ["BGR/Dobrich", "BGR/Silistra"] },
-      "imp1914/bg:ルーマニア": { add: [...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "BGR/Dobrich", "BGR/Silistra"] },
-      "imp1914/bg:ギリシア": { add: ["GRC"], sub: [WESTERN_THRACE] },
-      "imp1914/bg:モンテネグロ": { add: ["MNE"] },
-      "imp1914/bg:アルバニア": { add: ["ALB"] },
-    };
-  })(),
-  // ===== 東アジア・南アジア（フェーズ2） =====
-  "anc-2500/インダス文明": { add: INDUS },
-  "anc-1750/インダス文明": { add: INDUS },
-  "anc-1750/殷": { add: SHANG },
-  "anc-600/周": { add: ZHOU_STATES },
-  "anc-218/秦": { add: QIN },
-  "anc-218/マウリヤ朝": { add: MAURYA },
-  "anc-44/漢": { add: HAN },
-  "anc117/漢": { add: HAN },
-  "anc117/クシャーナ朝": { add: KUSHAN },
-  "anc117/倭国": JAPAN_HONSHU_SOUTH,
-  "anc395/グプタ朝": { add: GUPTA },
-  "anc395/高句麗": { add: GOGURYEO_395 },
-  "med800/唐": { add: TANG_800 },
-  "med800/日本": JAPAN_HONSHU_SOUTH,
-  "med800/新羅": { add: UNIFIED_SILLA },
-  "med962/宋": { add: NORTHERN_SONG },
-  "med962/高麗": { add: GORYEO },
-  "med962/日本": JAPAN_MAIN,
-  "med1095/宋": { add: NORTHERN_SONG },
-  "med1095/高麗": { add: GORYEO },
-  "med1095/日本": JAPAN_MAIN,
-  "med1204/宋": { add: SOUTHERN_SONG },
-  "med1204/高麗": { add: GORYEO },
-  "med1204/日本": JAPAN_MAIN,
-  "med1204/モンゴル帝国": { add: MONGOL_1206 },
-  "med1204/デリー＝スルタン朝": { add: DELHI_1204 },
-  "med1360/元": { add: YUAN },
-  "med1360/高麗": { add: GORYEO_1360 },
-  "med1360/日本": JAPAN_MAIN,
-  "med1360/デリー＝スルタン朝": { add: DELHI_1360 },
-  "ren1492/明": { add: MING },
-  "ren1492/朝鮮": { add: KOREA_ALL },
-  "ren1492/日本": JAPAN_MAIN,
-  "ren1517/明": { add: MING },
-  "ren1517/朝鮮": { add: KOREA_ALL },
-  "ren1517/日本": JAPAN_MAIN,
-  "ren1555/明": { add: MING },
-  "ren1555/朝鮮": { add: KOREA_ALL },
-  "ren1555/日本": JAPAN_MAIN,
-  "ren1555/ムガル帝国": { add: MUGHAL_1555 },
-  "abs1648/清": { add: QING_1648 },
-  "abs1648/日本": JAPAN_EDO,
-  "abs1648/ムガル帝国": { add: MUGHAL_1648 },
-  "abs1715/清": { add: QING_1715, sub: QING_1715_SUB },
-  "abs1715/日本": JAPAN_EDO,
-  "abs1715/ムガル帝国": { add: MUGHAL_1715 },
-  "abs1772/清": { add: QING_1772 },
-  "abs1772/日本": JAPAN_EDO,
-  "abs1772/ムガル帝国": { add: MUGHAL_1772 },
-  "rev1812/清": { add: QING_1772 },
-  "rev1812/日本": JAPAN_MODERN,
-  "rev1812/インド": { add: BRITISH_INDIA_1815 },
-  "rev1815/清": { add: QING_1772 },
-  "rev1815/日本": JAPAN_MODERN,
-  "rev1815/インド": { add: BRITISH_INDIA_1815 },
-  "rev1871/清": { add: QING_1871 },
-  "rev1871/日本": JAPAN_MODERN,
-  "rev1871/インド": { add: BRITISH_INDIA_1871 },
-
+export const ENTITIES = {
+  "エジプト": {
+    life: [[-2500,-600],[-44,-44]],
+    shapes: [
+      { from: -2500, to: -600, def: { add: [EGYPT_NILE] } },
+      { from: -44, to: -44, def: { add: [EGYPT_NILE, "CYP"] } },
+    ],
+  },
+  "メソポタミア": {
+    life: [[-3500,-539]],
+    shapes: [
+      { from: -3500, to: -1751, def: { add: [SUMER] } },
+      { from: -1750, to: -601, def: { add: [BABYLONIA_1750] } },
+      { from: -600, to: -539, def: { add: [p(FERTILE_CRESCENT, "IRQ", "SYR", "LBN", "ISR", "PSX", "JOR", "KWT", "TUR/Sanliurfa", "TUR/Mardin", "TUR/Gaziantep", "TUR/Kilis", "TUR/Hatay")], sub: ["IRQ/Dihok", "IRQ/Arbil", "IRQ/As-Sulaymaniyah"] } },
+    ],
+  },
+  "インダス文明": {
+    life: [[-2500,-1750]],
+    shapes: [
+      { from: -2500, to: -1750, def: { add: INDUS } },
+    ],
+  },
+  "殷": {
+    life: [[-1750,-1750]],
+    shapes: [
+      { from: -1750, to: -1750, def: { add: SHANG } },
+    ],
+  },
+  "bg:メディア": {
+    life: [[-600,-600]],
+    shapes: [
+      { from: -600, to: -600, def: { add: ["IRN[44,24,62,40]", "IRQ/Dihok", "IRQ/Arbil", "IRQ/As-Sulaymaniyah", "ARM", "AZE", "TUR[35,36,45,42]"], sub: ["TUR/Sanliurfa", "TUR/Mardin", "TUR/Gaziantep", "TUR/Kilis", "TUR/Hatay", "TUR/Adana", "TUR/Mersin", "TUR/Osmaniye", "IRN/Sistan and Baluchestan", "IRN/Hormozgan", "IRN/Kerman", "IRN/Fars", "IRN/Bushehr", "IRN/Khuzestan", "IRN/South Khorasan", "IRN/Razavi Khorasan", "IRN/North Khorasan", "IRN/Kohgiluyeh and Buyer Ahmad"] } },
+    ],
+  },
+  "bg:リディア": {
+    life: [[-600,-600]],
+    shapes: [
+      { from: -600, to: -600, def: { add: ["TUR[25,35.5,35,42.5]"], sub: [...EURO_TURKEY, "TUR/Adana", "TUR/Mersin", "TUR/Osmaniye", "TUR/Hatay"] } },
+    ],
+  },
+  "周": {
+    life: [[-600,-600]],
+    shapes: [
+      { from: -600, to: -600, def: { add: ZHOU_STATES } },
+    ],
+  },
+  "アケメネス朝ペルシア": {
+    life: [[-550,-330]],
+    shapes: [
+      { from: -550, to: -330, def: { add: ["IRN", "IRQ", "SYR", "LBN", "ISR", "PSX", "JOR", "KWT", "TUR", "CYP", "AFG", "TKM", "TJK", "UZB[55,37,72,42]", "PAK", "ARM", "AZE", ...EGYPT_PROVINCE, CYRENAICA], sub: EURO_TURKEY } },
+    ],
+  },
+  "ギリシア": {
+    life: [[-480,-323]],
+    shapes: [
+      { from: -480, to: -324, def: { add: [...SOUTH_GREECE, "GRC/Thessalia", "GRC/Ipeiros"] } },
+      { from: -323, to: -323, def: { add: ["GRC/Peloponnisos", "GRC/Attiki", "GRC/Stereá Elláda", "GRC/Dytiki Ellada", "GRC/Notio Aigaio", "GRC/Ionioi Nisoi", "GRC/Kriti"] } },
+    ],
+  },
+  "カルタゴ": {
+    life: [[-480,-218]],
+    shapes: [
+      { from: -480, to: -324, def: { add: [CARTHAGE_COAST, "ITA/region:Sardegna", "ITA/Trapani", "ITA/Palermo", "ITA/Agrigento", "ESP/Baleares", "MLT"] } },
+      { from: -323, to: -219, def: { add: [CARTHAGE_COAST, "ITA/region:Sardegna", "ITA/Trapani", "ITA/Palermo", "ITA/Agrigento", "ITA/Caltanissetta", "ESP/Baleares", "MLT", p([[-7, 36], [-7, 37.3], [-4, 37], [-1.5, 37.7], [-0.5, 38.3], [-0.5, 36]], "ESP")] } },
+      { from: -218, to: -218, def: { add: [CARTHAGE_COAST, "ESP/region:Andalucía", "ESP/region:Murcia", "ESP/Alicante", "ESP/Valencia", "ESP/Castellón", "ESP/Albacete", "ESP/Ciudad Real", "ESP/Badajoz", "PRT/Faro", "PRT/Beja", "ESP/Baleares"] } },
+    ],
+  },
+  "ローマ": {
+    life: [[-509,394]],
+    shapes: [
+      { from: -509, to: -324, def: { add: ["ITA/Roma"] } },
+      { from: -323, to: -219, def: { add: ["ITA/Roma", "ITA/Latina", "ITA/Frosinone", "ITA/Caserta", "ITA/Napoli"] } },
+      { from: -218, to: -45, def: { add: ["ITA/region:Toscana", "ITA/region:Umbria", "ITA/region:Marche", "ITA/region:Lazio", "ITA/region:Abruzzo", "ITA/region:Molise", "ITA/region:Campania", "ITA/region:Apulia", "ITA/region:Basilicata", "ITA/region:Calabria", "ITA/region:Sicily", "ITA/region:Sardegna", ...CORSICA, "ITA/Rimini"] } },
+      { from: -44, to: 116, def: { add: ["ITA", FRA, "BEL", "LUX", "CHE", "NLD/Zeeland", "NLD/Noord-Brabant", "NLD/Limburg", ...LEFT_RHINE, ESP, PRT, "HRV/Istarska", "HRV/Primorsko-Goranska", "HRV/Licko-Senjska", "HRV/Zadarska", "HRV/Šibensko-Kninska", "HRV/Splitsko-Dalmatinska", "HRV/Dubrovacko-Neretvanska", "MNE/Kotor", "MNE/Budva", "MNE/Bar", "MNE/Ulcinj", "MNE/Herceg Novi", "MNE/Tivat", "GRC", "MKD", "ALB", "TUR/Çanakkale", "TUR/Balikesir", "TUR/Izmir", "TUR/Manisa", "TUR/Aydin", "TUR/Mugla", "TUR/Denizli", "TUR/Usak", "TUR/Kütahya", "TUR/Afyonkarahisar", "TUR/Bursa", "TUR/Bilecik", "TUR/Sakarya", "TUR/Kocaeli", "TUR/Yalova", "TUR/Düzce", "TUR/Bolu", "TUR/Zinguldak", "TUR/Bartın", "TUR/Kastamonu", "TUR/Sinop", "TUR/Samsun", "TUR/Mersin", "TUR/Adana", "TUR/Osmaniye", "TUR/Hatay", p([[35.6, 37.3], [38.3, 36.9], [38.6, 35.3], [37.6, 33], [36.9, 32.6], [35.6, 33]], "SYR", "LBN"), "LBN", AFRICA_44BC, CYRENAICA], sub: ["ESP/La Coruña", "ESP/Lugo", "ESP/Orense", "ESP/Pontevedra", "ESP/Asturias", "ESP/Cantabria", "ESP/León", "ESP/Bizkaia", "ESP/Gipuzkoa", "ESP/Álava"] } },
+      { from: 117, to: 394, def: { add: [...ROME_117_EUROPE, ENGLAND, ...WALES, "TUR", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "ARM", "SAU/Tabuk", ...EGYPT_PROVINCE, ROMAN_AFRICA_NO_MAR, ROMAN_MOROCCO], sub: [AUT_NORTH_OF_DANUBE] } },
+    ],
+  },
+  "マケドニア": {
+    life: [[-323,-323]],
+    shapes: [
+      { from: -323, to: -323, def: { add: ["IRN", "IRQ", "SYR", "LBN", "ISR", "PSX", "JOR", "KWT", "TUR", "CYP", "AFG", "TKM", "TJK", "UZB[55,37,72,42]", "PAK", "ARM", "AZE", ...EGYPT_PROVINCE, CYRENAICA, "GRC", "MKD", "ALB[19,39,21.5,41]", "BGR"], sub: ["GRC/Peloponnisos", "GRC/Attiki", "GRC/Stereá Elláda", "GRC/Dytiki Ellada", "GRC/Notio Aigaio", "GRC/Ionioi Nisoi", "GRC/Kriti"] } },
+    ],
+  },
+  "秦": {
+    life: [[-221,-206]],
+    shapes: [
+      { from: -221, to: -206, def: { add: QIN } },
+    ],
+  },
+  "マウリヤ朝": {
+    life: [[-317,-180]],
+    shapes: [
+      { from: -317, to: -180, def: { add: MAURYA } },
+    ],
+  },
+  "漢": {
+    life: [[-202,220]],
+    shapes: [
+      { from: -202, to: 220, def: { add: HAN } },
+    ],
+  },
+  "クシャーナ朝": {
+    life: [[30,375]],
+    shapes: [
+      { from: 30, to: 375, def: { add: KUSHAN } },
+    ],
+  },
+  "倭国": {
+    life: [[117,117]],
+    shapes: [
+      { from: 117, to: 117, def: JAPAN_HONSHU_SOUTH },
+    ],
+  },
+  "西ローマ帝国": {
+    life: [[395,476]],
+    shapes: [
+      { from: 395, to: 476, def: { add: ["ITA", FRA, ESP, PRT, "BEL", "LUX", "CHE", "NLD/Zeeland", "NLD/Noord-Brabant", "NLD/Limburg", ...LEFT_RHINE, DANUBE_SOUTH_BAVARIA, "AUT", "SVN", "HRV", "BIH", ...TRANSDANUBIA, "SRB/Sremski", "MLT", ENGLAND, ...WALES, p(NAFRICA_ROMAN, "DZA", "TUN"), ROMAN_MOROCCO, TRIPOLITANIA], sub: [AUT_NORTH_OF_DANUBE] } },
+    ],
+  },
+  "東ローマ帝国": {
+    life: [[395,395]],
+    shapes: [
+      { from: 395, to: 395, def: { add: ["GRC", "MKD", "ALB", "MNE", "SRB", "KOS", "BGR", ...DOBRUJA, "TUR[25,35,42,43]", "CYP", DESERT_EDGE_LEVANT, "LBN", "ISR", "PSX", ...EGYPT_PROVINCE, CYRENAICA], sub: ["SRB/Sremski", "SRB/Severno-Backi", "SRB/Zapadno-Backi", "SRB/Južno-Backi", "SRB/Severno-Banatski", "SRB/Srednje-Banatski", "SRB/Južno-Banatski"] } },
+    ],
+  },
+  "グプタ朝": {
+    life: [[395,395]],
+    shapes: [
+      { from: 395, to: 395, def: { add: GUPTA } },
+    ],
+  },
+  "高句麗": {
+    life: [[395,395]],
+    shapes: [
+      { from: 395, to: 395, def: { add: GOGURYEO_395 } },
+    ],
+  },
+  "フランク王国": {
+    life: [[481,843]],
+    shapes: [
+      { from: 481, to: 799, def: { add: [FRA, "BEL", "LUX", "CHE", "NLD/Zeeland", "NLD/Noord-Brabant", "NLD/Limburg", "DEU/Rheinland-Pfalz", "DEU/Saarland", "DEU/Nordrhein-Westfalen", "DEU/Hessen", "DEU/Baden-Württemberg", "DEU/Bayern", "DEU/Thüringen", "AUT/Vorarlberg", "AUT/Tirol"], sub: [...SEPTIMANIA, ...BRITTANY_WEST, ...CORSICA] } },
+      { from: 800, to: 843, def: { add: [FRA, "BEL", "LUX", "NLD", "CHE", "DEU", "AUT", "SVN", "ITA/region:Lombardia", "ITA/region:Piemonte", "ITA/region:Liguria", "ITA/region:Veneto", "ITA/region:Friuli-Venezia Giulia", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Emilia-Romagna", "ITA/region:Toscana", "ITA/region:Umbria", "ITA/region:Lazio", "ITA/region:Marche", "ITA/region:Abruzzo", "ESP/Gerona", "ESP/Barcelona", "HRV/Istarska"], sub: ["DEU/Mecklenburg-Vorpommern", "DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen", "ITA/Venezia"] } },
+    ],
+  },
+  "ビザンツ帝国": {
+    life: [[527,1453]],
+    shapes: [
+      { from: 527, to: 799, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...VENICE_DALMATIA, "HRV/Dubrovacko-Neretvanska", "ITA", ...CORSICA, "MLT", "TUR[25,35,42,43]", "CYP", DESERT_EDGE_LEVANT, "LBN", "ISR", "PSX", ...EGYPT_PROVINCE, CYRENAICA, TRIPOLITANIA, p(NAFRICA_ROMAN, "TUN"), p([[5, 37.5], [5, 35.4], [8.6, 35], [8.6, 37.5]], "DZA")], sub: VOJVODINA } },
+      { from: 800, to: 961, def: { add: ["GRC", "TUR[25,35,40,43]", "ITA/region:Sicily", "ITA/region:Calabria", "ITA/Lecce", "ITA/Brindisi", "ITA/Taranto", "ITA/Venezia", "RUS/Crimea", "RUS/Sevastopol"], sub: ["TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", "TUR/Gaziantep", "TUR/Kilis", "TUR/Sanliurfa", "TUR/K. Maras", "TUR/Adiyaman", "TUR/Malatya"] } },
+      { from: 962, to: 1094, def: { add: ["TUR[25,35,40,43]", "GRC/Peloponnisos", "GRC/Attiki", "GRC/Stereá Elláda", "GRC/Dytiki Ellada", "GRC/Thessalia", "GRC/Ipeiros", "GRC/Kentriki Makedonia", "GRC/Anatoliki Makedonia kai Thraki", "GRC/Ayion Oros", "GRC/Notio Aigaio", "GRC/Voreio Aigaio", "GRC/Ionioi Nisoi", "GRC/Kriti", "ITA/region:Calabria", "ITA/region:Apulia", "ITA/region:Basilicata", "RUS/Crimea", "RUS/Sevastopol"], sub: ["TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", "TUR/Gaziantep", "TUR/Kilis", "TUR/Sanliurfa", "TUR/K. Maras", "TUR/Adiyaman", "TUR/Malatya"] } },
+      { from: 1095, to: 1203, def: { add: ["GRC", "BGR", "MKD", "ALB", "KOS", ...EURO_TURKEY, "TUR/Istanbul", "TUR/Kocaeli", "TUR/Yalova", "TUR/Trabzon", "TUR/Rize", "CYP"] } },
+      { from: 1204, to: 1359, def: { add: ["TUR/Bursa", "TUR/Balikesir", "TUR/Izmir", "TUR/Manisa", "TUR/Aydin", "TUR/Sakarya", "TUR/Kocaeli", "TUR/Yalova", "TUR/Bilecik", "TUR/Kütahya", "TUR/Usak", "TUR/Denizli", "TUR/Trabzon", "TUR/Rize", "TUR/Giresun", "TUR/Artvin", p([[26.1, 40.6], [27.6, 40.6], [27.6, 39.4], [26.1, 39.4]], "TUR/Çanakkale"), "GRC/Ipeiros", "ALB/Vlorë", "ALB/Gjirokastër"] } },
+      { from: 1360, to: 1453, def: { add: ["TUR/Istanbul", "TUR/Tekirdag", "GRC/Kentriki Makedonia", "GRC/Peloponnisos"] } },
+    ],
+  },
+  "イスラーム世界": {
+    life: [[800,1360]],
+    shapes: [
+      { from: 800, to: 961, def: { add: [ESP, "PRT", ...ISLAMIC_NAFRICA, "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "IRN", ...ARABIA, "AFG", "TKM", "UZB", "TJK", "PAK[60,23,72,30]", "ARM", "AZE", "GEO/Tbilisi", "TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", "TUR/Gaziantep", "TUR/Kilis", "TUR/Sanliurfa", "TUR/Mardin", "TUR/Diyarbakir", "TUR/Batman", "TUR/Siirt", "TUR/Sirnak", "TUR/Hakkari", "TUR/Van", "TUR/Bitlis", "TUR/Mus", "TUR/Agri", "TUR/Iğdir", "TUR/K. Maras", "TUR/Adiyaman", "TUR/Malatya"], sub: ["ESP/La Coruña", "ESP/Lugo", "ESP/Orense", "ESP/Pontevedra", "ESP/Asturias", "ESP/Cantabria", "ESP/León", "ESP/Palencia", "ESP/Burgos", "ESP/Bizkaia", "ESP/Gipuzkoa", "ESP/Álava", "ESP/Navarra", "ESP/Gerona", "ESP/Barcelona", "PRT/Viana do Castelo", "PRT/Braga", "PRT/Madeira", "PRT/Azores", ESP_CANARY] } },
+      { from: 962, to: 1094, def: { add: [ESP, "PRT", "ITA/region:Sicily", ...ISLAMIC_NAFRICA, "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "IRN", ...ARABIA, "AFG", "TKM", "UZB", "TJK", "PAK[60,23,72,30]", "ARM", "AZE", "TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", "TUR/Gaziantep", "TUR/Kilis", "TUR/Sanliurfa", "TUR/Mardin", "TUR/Diyarbakir", "TUR/Batman", "TUR/Siirt", "TUR/Sirnak", "TUR/Hakkari", "TUR/Van", "TUR/Bitlis", "TUR/Mus", "TUR/Agri", "TUR/Iğdir", "TUR/K. Maras", "TUR/Adiyaman", "TUR/Malatya"], sub: ["ESP/La Coruña", "ESP/Lugo", "ESP/Orense", "ESP/Pontevedra", "ESP/Asturias", "ESP/Cantabria", "ESP/León", "ESP/Palencia", "ESP/Burgos", "ESP/Zamora", "ESP/Valladolid", "ESP/Bizkaia", "ESP/Gipuzkoa", "ESP/Álava", "ESP/Navarra", "ESP/Huesca", "ESP/Gerona", "ESP/Barcelona", "ESP/Lérida", "ESP/La Rioja", "PRT/Viana do Castelo", "PRT/Braga", "PRT/Vila Real", "PRT/Bragança", "PRT/Porto", "PRT/Aveiro", "PRT/Viseu", "PRT/Guarda", "PRT/Madeira", "PRT/Azores", ESP_CANARY] } },
+      { from: 1095, to: 1203, def: { add: ["ESP/Cádiz", "ESP/Málaga", "ESP/Granada", "ESP/Almería", "ESP/Sevilla", "ESP/Córdoba", "ESP/Jaén", "ESP/Huelva", "ESP/Murcia", "ESP/Alicante", "ESP/Valencia", "ESP/Castellón", "ESP/Badajoz", "ESP/Baleares", "ESP/Zaragoza", "ESP/Lérida", "ESP/Huesca", "ESP/Teruel", "ESP/Albacete", "ESP/Cuenca", "PRT/Faro", "PRT/Beja", "PRT/Évora", "PRT/Setúbal", "PRT/Lisboa", "PRT/Santarém", "PRT/Portalegre", ...ISLAMIC_NAFRICA, ...ARABIA] } },
+      { from: 1204, to: 1359, def: { add: ["ESP/Cádiz", "ESP/Málaga", "ESP/Granada", "ESP/Almería", "ESP/Sevilla", "ESP/Córdoba", "ESP/Jaén", "ESP/Huelva", "ESP/Murcia", "ESP/Alicante", "ESP/Valencia", "ESP/Castellón", "ESP/Badajoz", "ESP/Cáceres", "ESP/Baleares", "PRT/Faro", "PRT/Beja", "PRT/Évora", ...ISLAMIC_NAFRICA, "SYR", "JOR", "IRQ", "IRN", ...ARABIA, CRUSADER_PALESTINE_INLAND, "TUR/Mardin", "TUR/Sanliurfa", "TUR/Diyarbakir", "TUR/Batman", "TUR/Siirt", "TUR/Sirnak", "TUR/Hakkari", "TUR/Van", "TUR/Bitlis", "TUR/Mus", "TUR/Agri", "TUR/Iğdir", "TUR/Erzurum", "TUR/Bingöl", "TUR/Tunceli", "TUR/Elazig"], sub: [CRUSADER_SYRIA_COAST] } },
+      { from: 1360, to: 1360, def: { add: ["ESP/Granada", "ESP/Málaga", "ESP/Almería", ...ISLAMIC_NAFRICA, "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", "IRN", ...ARABIA, "TUR"], sub: ["TUR/Istanbul", "TUR/Tekirdag", ...EURO_TURKEY, "TUR/Bursa", "TUR/Bilecik", "TUR/Kocaeli", "TUR/Sakarya", "TUR/Yalova", "TUR/Balikesir", "TUR/Çanakkale", "TUR/Eskisehir", "TUR/Düzce", "TUR/Bolu", "TUR/Ankara", "TUR/Trabzon", "TUR/Rize", "TUR/Giresun"] } },
+    ],
+  },
+  "唐": {
+    life: [[618,907]],
+    shapes: [
+      { from: 618, to: 907, def: { add: TANG_800 } },
+    ],
+  },
+  "日本": {
+    life: [[800,1914]],
+    shapes: [
+      { from: 800, to: 961, def: JAPAN_HONSHU_SOUTH },
+      { from: 962, to: 1811, def: JAPAN_MAIN },
+      { from: 1812, to: 1884, def: JAPAN_MODERN },
+      { from: 1885, to: 1899, def: { add: ["JPN", KURILS] } },
+      { from: 1900, to: 1913, def: { add: ["JPN", KURILS, "TWN"] } },
+      { from: 1914, to: 1914, def: { add: ["JPN", KURILS, "TWN", ...KOREA, SOUTH_SAKHALIN, KWANTUNG] } },
+    ],
+  },
+  "新羅": {
+    life: [[800,800]],
+    shapes: [
+      { from: 800, to: 800, def: { add: UNIFIED_SILLA } },
+    ],
+  },
+  "フランス王国": {
+    life: [[962,1772],[1815,1815]],
+    shapes: [
+      { from: 962, to: 1094, def: { add: [FRA, "ESP/Gerona", "ESP/Barcelona"], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, ...CORSICA] } },
+      { from: 1095, to: 1203, def: { add: [FRA, "ESP/Gerona", "ESP/Barcelona"], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, ...FLANDERS, "FRA/Pas-de-Calais", ...CORSICA] } },
+      { from: 1204, to: 1359, def: { add: [FRA, "ESP/Gerona", "ESP/Barcelona"], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, ...FLANDERS, ...AQUITAINE_1204, ...CORSICA] } },
+      { from: 1360, to: 1491, def: { add: [FRA], sub: [...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...SAVOY, "FRA/Alpes-Maritimes", "FRA/Ain", "FRA/Alpes-de-Haute-Provence", "FRA/Bouches-du-Rhône", "FRA/Var", "FRA/Vaucluse", ...FLANDERS, ...AQUITAINE_1360, ...CORSICA, p([[1.55, 50.75], [2.2, 50.75], [2.2, 51.1], [1.55, 51.1]], "FRA/Pas-de-Calais")] } },
+      { from: 1492, to: 1647, def: { add: [FRA], sub: [...ALSACE, ...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, "FRA/Alpes-Maritimes", ...NORD_ARTOIS, "FRA/Vaucluse"] } },
+      { from: 1648, to: 1714, def: { add: [FRA, ...ALSACE, "FRA/Meuse", NEW_FRANCE, "FRA/Martinique", "FRA/Guadeloupe"], sub: [...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, "FRA/Alpes-Maritimes", ...NORD_ARTOIS, "FRA/Pyrénées-Orientales", "FRA/Vaucluse"] } },
+      { from: 1715, to: 1771, def: { add: [FRA, ...ALSACE, "FRA/Pyrénées-Orientales", ...FRANCHE_COMTE, ...NORD_ARTOIS, "FRA/Meuse", "HTI", "USA/Louisiana", "USA/Mississippi", NEW_FRANCE, "FRA/Martinique", "FRA/Guadeloupe"], sub: [...LORRAINE, ...SAVOY, "FRA/Alpes-Maritimes", "FRA/Vaucluse"] } },
+      { from: 1772, to: 1772, def: { add: [FRA, ...ALSACE, ...LORRAINE, "FRA/Pyrénées-Orientales", ...FRANCHE_COMTE, ...NORD_ARTOIS, "FRA/Meuse", ...CORSICA, "HTI", "FRA/Guyane française", "FRA/Martinique", "FRA/Guadeloupe"], sub: [...SAVOY, "FRA/Alpes-Maritimes", "FRA/Vaucluse"] } },
+      { from: 1815, to: 1815, def: { add: [FRA, ...CORSICA], sub: [...SAVOY, "FRA/Alpes-Maritimes"] } },
+    ],
+  },
+  "神聖ローマ帝国": {
+    life: [[962,1806]],
+    shapes: [
+      { from: 962, to: 1094, def: { add: ["DEU", "NLD", "LUX", "AUT", "SVN", "CZE", "CHE", ...ALSACE, ...LORRAINE, "FRA/Meuse", "BEL/Antwerp", "BEL/Limburg", "BEL/Flemish Brabant", "BEL/Walloon Brabant", "BEL/Brussels", "BEL/Liege", "BEL/Namur", "BEL/Luxembourg", "BEL/Hainaut", "ITA/region:Lombardia", "ITA/region:Piemonte", "ITA/region:Liguria", "ITA/region:Veneto", "ITA/region:Friuli-Venezia Giulia", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Emilia-Romagna", "ITA/region:Toscana", "ITA/region:Umbria", "ITA/region:Lazio", "ITA/region:Marche"], sub: ["DEU/Mecklenburg-Vorpommern", "DEU/Brandenburg", "DEU/Berlin", "CHE/Genève", "CHE/Vaud", "CHE/Valais", "CHE/Neuchâtel"] } },
+      { from: 1095, to: 1203, def: { add: ["DEU", "NLD", "LUX", "AUT", "SVN", "CZE", "CHE", ...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, "BEL/Antwerp", "BEL/Limburg", "BEL/Flemish Brabant", "BEL/Walloon Brabant", "BEL/Brussels", "BEL/Liege", "BEL/Namur", "BEL/Luxembourg", "BEL/Hainaut", "ITA/region:Lombardia", "ITA/region:Piemonte", "ITA/region:Veneto", "ITA/region:Friuli-Venezia Giulia", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Emilia-Romagna", "ITA/region:Toscana"], sub: ["ITA/Venezia", "DEU/Mecklenburg-Vorpommern", VORPOMMERN] } },
+      { from: 1204, to: 1359, def: { add: ["DEU", "NLD", "LUX", "AUT", "SVN", "CZE", "CHE", ...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...BURGUNDY_ARLES, "BEL/Antwerp", "BEL/Limburg", "BEL/Flemish Brabant", "BEL/Walloon Brabant", "BEL/Brussels", "BEL/Liege", "BEL/Namur", "BEL/Luxembourg", "BEL/Hainaut", "ITA/region:Lombardia", "ITA/region:Piemonte", "ITA/region:Veneto", "ITA/region:Friuli-Venezia Giulia", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Emilia-Romagna", "ITA/region:Toscana"], sub: ["ITA/Venezia", "DEU/Mecklenburg-Vorpommern", VORPOMMERN, ZEELAND_FLANDERS] } },
+      { from: 1360, to: 1491, def: { add: ["DEU", "NLD", "LUX", "AUT", "SVN", "CZE", "CHE", ...ALSACE, ...LORRAINE, "FRA/Meuse", ...FRANCHE_COMTE, ...SAVOY, "FRA/Alpes-Maritimes", "FRA/Ain", "FRA/Alpes-de-Haute-Provence", "FRA/Bouches-du-Rhône", "FRA/Var", "FRA/Vaucluse", "BEL/Antwerp", "BEL/Limburg", "BEL/Flemish Brabant", "BEL/Walloon Brabant", "BEL/Brussels", "BEL/Liege", "BEL/Namur", "BEL/Luxembourg", "BEL/Hainaut", "ITA/region:Lombardia", "ITA/region:Piemonte", "ITA/region:Friuli-Venezia Giulia", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Emilia-Romagna", "ITA/region:Toscana", "ITA/Verona", "ITA/Vicenza", "ITA/Padova", "ITA/Rovigo", "ITA/Belluno", "POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian"], sub: [ZEELAND_FLANDERS] } },
+      { from: 1492, to: 1516, def: { add: ["DEU", "AUT", "CZE", "SVN", "NLD", "BEL", "LUX", ...ALSACE, ...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, "FRA/Alpes-Maritimes", ...NORD_ARTOIS, "POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "ITA/region:Piemonte", "ITA/region:Liguria", "ITA/region:Emilia-Romagna", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Toscana", "ITA/Trieste", "ITA/Gorizia", "LIE"], sub: ["CHE", "ITA/region:Lombardia", ...MILAN_CORE, ...VENICE_TERRAFERMA, ...FLORENCE, ...PAPAL, ...NAPLES, ...PARMA_PIACENZA], post: ["CHE/Vaud", "ITA/Mantova"] } },
+      { from: 1517, to: 1554, def: { add: ["DEU", "AUT", "CZE", "SVN", "NLD", "BEL", "LUX", ...ALSACE, ...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, "FRA/Alpes-Maritimes", ...NORD_ARTOIS, "POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "ITA/region:Piemonte", "ITA/region:Liguria", "ITA/region:Emilia-Romagna", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Toscana", "ITA/Trieste", "ITA/Gorizia", "LIE"], sub: ["CHE", "ITA/region:Lombardia", ...MILAN_CORE, ...VENICE_TERRAFERMA, ...FLORENCE, ...PAPAL, ...NAPLES, "CHE/Genève", ...PARMA_PIACENZA], post: ["CHE/Vaud", "ITA/Mantova"] } },
+      { from: 1555, to: 1647, def: { add: ["DEU", "AUT", "CZE", "SVN", "NLD", "BEL", "LUX", ...ALSACE, ...LORRAINE, ...FRANCHE_COMTE, ...SAVOY, "FRA/Alpes-Maritimes", ...NORD_ARTOIS, "POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "ITA/region:Piemonte", "ITA/region:Liguria", "ITA/region:Emilia-Romagna", "ITA/region:Trentino-Alto Adige", "ITA/region:Valle d'Aosta", "ITA/region:Toscana", "ITA/Trieste", "ITA/Gorizia", "LIE"], sub: ["CHE", "ITA/region:Lombardia", ...MILAN_CORE, ...VENICE_TERRAFERMA, ...FLORENCE, ...PAPAL, ...NAPLES, "CHE/Genève", "ITA/Siena", "ITA/Grosseto"], post: ["ITA/Mantova"] } },
+      { from: 1648, to: 1714, def: { add: ["DEU", ...LORRAINE, "BEL/Liege"], sub: ["DEU/Brandenburg", "DEU/Berlin", CLEVES_MARK, VORPOMMERN, STETTIN, BREMEN_VERDEN] } },
+      { from: 1715, to: 1771, def: { add: ["DEU", ...LORRAINE, "BEL/Liege"], sub: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", CLEVES_MARK, VORPOMMERN, STETTIN, BREMEN_VERDEN] } },
+      { from: 1772, to: 1806, def: { add: ["DEU", "BEL/Liege"], sub: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", VORPOMMERN, CLEVES_MARK, EAST_FRISIA] } },
+    ],
+  },
+  "イングランド王国": {
+    life: [[962,1360]],
+    shapes: [
+      { from: 962, to: 1203, def: ENGLAND },
+      { from: 1204, to: 1359, def: { add: [ENGLAND, ...AQUITAINE_1204] } },
+      { from: 1360, to: 1360, def: { add: [ENGLAND, ...WALES, ...AQUITAINE_1360, p([[1.55, 50.75], [2.2, 50.75], [2.2, 51.1], [1.55, 51.1]], "FRA/Pas-de-Calais")] } },
+    ],
+  },
+  "宋": {
+    life: [[960,1279]],
+    shapes: [
+      { from: 960, to: 1203, def: { add: NORTHERN_SONG } },
+      { from: 1204, to: 1279, def: { add: SOUTHERN_SONG } },
+    ],
+  },
+  "高麗": {
+    life: [[918,1392]],
+    shapes: [
+      { from: 918, to: 1359, def: { add: GORYEO } },
+      { from: 1360, to: 1392, def: { add: GORYEO_1360 } },
+    ],
+  },
+  "セルジューク朝": {
+    life: [[1038,1308]],
+    shapes: [
+      // 1095年：イェルサレムを含むパレスチナもセルジューク系（アルトゥク朝）の支配下（1098年にファーティマ朝が奪回）
+      { from: 1038, to: 1203, def: { add: ["TUR", "SYR", "LBN", "JOR", "IRQ", "IRN", "TKM", "ARM", "AZE", "ISR", "PSX"], sub: [...EURO_TURKEY, "TUR/Istanbul", "TUR/Kocaeli", "TUR/Yalova", "TUR/Trabzon", "TUR/Rize"] } },
+      { from: 1204, to: 1308, def: { add: ["TUR"], sub: [...EURO_TURKEY, "TUR/Istanbul", "TUR/Bursa", "TUR/Balikesir", "TUR/Izmir", "TUR/Manisa", "TUR/Aydin", "TUR/Sakarya", "TUR/Kocaeli", "TUR/Yalova", "TUR/Bilecik", "TUR/Kütahya", "TUR/Usak", "TUR/Denizli", "TUR/Trabzon", "TUR/Rize", "TUR/Giresun", "TUR/Artvin", "TUR/Çanakkale", "TUR/Adana", "TUR/Mersin", "TUR/Osmaniye", "TUR/Hatay", "TUR/Mardin", "TUR/Sanliurfa", "TUR/Diyarbakir", "TUR/Batman", "TUR/Siirt", "TUR/Sirnak", "TUR/Hakkari", "TUR/Van", "TUR/Bitlis", "TUR/Mus", "TUR/Agri", "TUR/Iğdir", "TUR/Kars", "TUR/Ardahan", "TUR/Erzurum", "TUR/Bingöl", "TUR/Tunceli", "TUR/Elazig"] } },
+    ],
+  },
+  "ヴェネツィア共和国": {
+    life: [[1095,1555]],
+    shapes: [
+      { from: 1095, to: 1203, def: { add: ["ITA/Venezia"] } },
+      { from: 1204, to: 1359, def: { add: ["ITA/Venezia", "GRC/Kriti", "HRV/Zadarska"] } },
+      { from: 1360, to: 1491, def: { add: ["ITA/Venezia", "ITA/Treviso", "GRC/Kriti"] } },
+      { from: 1492, to: 1555, def: { add: [...VENICE_TERRAFERMA, "ITA/Rovigo", ...VENICE_DALMATIA, "GRC/Kriti", "GRC/Ionioi Nisoi", "CYP"] } },
+    ],
+  },
+  "ジェノヴァ共和国": {
+    life: [[1095,1360]],
+    shapes: [
+      { from: 1095, to: 1359, def: { add: ["ITA/region:Liguria"] } },
+      { from: 1360, to: 1360, def: { add: ["ITA/region:Liguria", ...CORSICA] } },
+    ],
+  },
+  "フランドル": {
+    life: [[1095,1360]],
+    shapes: [
+      { from: 1095, to: 1203, def: { add: [...FLANDERS, "FRA/Pas-de-Calais"] } },
+      { from: 1204, to: 1360, def: { add: [...FLANDERS, ZEELAND_FLANDERS] } },
+    ],
+  },
+  "bg:十字軍の諸国家": {
+    life: [[1204,1204]],
+    shapes: [
+      { from: 1204, to: 1204, def: { add: [...EURO_TURKEY, "TUR/Istanbul", "GRC/Kentriki Makedonia", "GRC/Anatoliki Makedonia kai Thraki", "GRC/Ayion Oros", "GRC/Thessalia", "GRC/Stereá Elláda", "GRC/Attiki", "GRC/Peloponnisos", "GRC/Dytiki Ellada", "LBN", CRUSADER_GALILEE, CRUSADER_SYRIA_COAST, "CYP"] } },
+    ],
+  },
+  "モンゴル帝国": {
+    life: [[1204,1204]],
+    shapes: [
+      { from: 1204, to: 1204, def: { add: MONGOL_1206 } },
+    ],
+  },
+  "デリー＝スルタン朝": {
+    life: [[1204,1360]],
+    shapes: [
+      { from: 1204, to: 1359, def: { add: DELHI_1204 } },
+      { from: 1360, to: 1360, def: { add: DELHI_1360 } },
+    ],
+  },
+  "bg:オスマン朝": {
+    life: [[1360,1360]],
+    shapes: [
+      { from: 1360, to: 1360, def: { add: ["TUR/Bursa", "TUR/Bilecik", "TUR/Kocaeli", "TUR/Sakarya", "TUR/Yalova", "TUR/Balikesir", "TUR/Çanakkale", "TUR/Eskisehir", "TUR/Düzce", "TUR/Bolu", "TUR/Ankara"] } },
+    ],
+  },
+  "元": {
+    life: [[1271,1368]],
+    shapes: [
+      { from: 1271, to: 1368, def: { add: YUAN } },
+    ],
+  },
+  "ポルトガル王国": {
+    life: [[1492,1555]],
+    shapes: [
+      { from: 1492, to: 1509, def: { add: [PRT] } },
+      { from: 1510, to: 1555, def: { add: [PRT, "IND/Goa"] } }, // 1510年にインドのゴアを占領
+    ],
+  },
+  "スペイン王国": {
+    life: [[1492,1772]],
+    shapes: [
+      { from: 1492, to: 1516, def: { add: [ESP, "ITA/region:Sicily", "ITA/region:Sardegna", ESP_CANARY], sub: ["ESP/Navarra"] } },
+      { from: 1517, to: 1554, def: { add: [ESP, "ITA/region:Sicily", "ITA/region:Sardegna", ...NAPLES, ESP_CANARY, "CUB", "DOM", "HTI", "PRI", "JAM", "PAN"] } },
+      { from: 1555, to: 1647, def: { add: [ESP, "ITA/region:Sicily", "ITA/region:Sardegna", ...NAPLES, ESP_CANARY, "CUB", "DOM", "HTI", "PRI", "JAM", MEXICO_CORE, ...CENTRAL_AMERICA, "PER", "ECU", "COL", "VEN", p([[-69.6, -10.9], [-67, -11.8], [-65.6, -14], [-64, -16.6], [-63.2, -18.6], [-63, -21], [-63.6, -22.9], [-70, -22.9]], "BOL"), "CHL[-76,-38,-66,-17]"] } },
+      { from: 1648, to: 1714, def: { add: [ESP, "FRA/Pyrénées-Orientales", "BEL", "LUX", ...NORD_ARTOIS, ...FRANCHE_COMTE, ...MILAN_CORE, ...NAPLES, "ITA/region:Sicily", "ITA/region:Sardegna", ESP_CANARY, MEXICO_CORE, ...CENTRAL_AMERICA, "CUB", "DOM", "HTI", "PRI", "JAM", ...SPANISH_SOUTH_AMERICA, "USA/New Mexico", "USA/Florida"], sub: ["BEL/Liege"] } },
+      { from: 1715, to: 1771, def: { add: [ESP, ESP_CANARY, MEXICO_CORE, ...CENTRAL_AMERICA, "CUB", "DOM", "PRI", ...SPANISH_SOUTH_AMERICA, "USA/New Mexico", "USA/Florida", "USA/Texas", "USA/Arizona"] } },
+      { from: 1772, to: 1772, def: { add: [ESP, ESP_CANARY, MEXICO_CORE, ...CENTRAL_AMERICA, "CUB", "DOM", "PRI", ...SPANISH_SOUTH_AMERICA, "URY", "USA/New Mexico", "USA/Texas", "USA/Arizona", "USA/California", ...LOUISIANA_WEST] } },
+    ],
+  },
+  "ミラノ公国": {
+    life: [[1492,1555]],
+    shapes: [
+      { from: 1492, to: 1516, def: { add: [...MILAN_CORE, ...PARMA_PIACENZA, "CHE/Ticino", "ITA/Sondrio"], sub: [] } },
+      { from: 1517, to: 1555, def: { add: [...MILAN_CORE, ...PARMA_PIACENZA, "CHE/Ticino", "ITA/Sondrio"], sub: [...PARMA_PIACENZA, "CHE/Ticino", "ITA/Sondrio"] } },
+    ],
+  },
+  "フィレンツェ": {
+    life: [[1492,1555]],
+    shapes: [
+      { from: 1492, to: 1554, def: { add: FLORENCE } },
+      { from: 1555, to: 1555, def: { add: [...FLORENCE, "ITA/Siena", "ITA/Grosseto"] } },
+    ],
+  },
+  "ローマ教皇領": {
+    life: [[1492,1555]],
+    shapes: [
+      { from: 1492, to: 1516, def: { add: [...PAPAL_1492, "FRA/Vaucluse"] } },
+      { from: 1517, to: 1554, def: { add: [...PAPAL, ...PARMA_PIACENZA, "FRA/Vaucluse"] } },
+      { from: 1555, to: 1555, def: { add: [...PAPAL, "FRA/Vaucluse"] } },
+    ],
+  },
+  "ナポリ王国": {
+    life: [[1492,1492]],
+    shapes: [
+      { from: 1492, to: 1492, def: { add: NAPLES } },
+    ],
+  },
+  "アステカ帝国": {
+    life: [[1428,1521]],
+    shapes: [
+      { from: 1428, to: 1521, def: { add: ["MEX/México", "MEX/Distrito Federal", "MEX/Puebla", "MEX/Tlaxcala", "MEX/Hidalgo", "MEX/Morelos", "MEX/Guerrero", p([[-98.6, 22.2], [-97.6, 21.6], [-96.9, 20.4], [-96.2, 19.5], [-95.6, 18.9], [-95, 18.4], [-94.6, 17.9], [-95.8, 17.6], [-97.4, 18.2], [-98.6, 18.6]], "MEX/Veracruz"), p([[-98.6, 18.6], [-97.4, 18.2], [-96.3, 17.4], [-95.6, 16.6], [-95.9, 15.7], [-97.2, 15.9], [-98.6, 16.3]], "MEX/Oaxaca")] } },
+    ],
+  },
+  "インカ帝国": {
+    life: [[1438,1533]],
+    shapes: [
+      { from: 1438, to: 1533, def: { add: ["PER", p([[-81.5, 0.9], [-78.6, 0.9], [-78, 0.3], [-77.8, -1], [-78.1, -2.4], [-78.4, -3.6], [-78.6, -5], [-81.5, -5]], "ECU"), p([[-69.6, -14], [-68.4, -15], [-67.6, -16.2], [-66.6, -17], [-65.6, -18.2], [-65, -19.6], [-64.9, -21.2], [-65.2, -22.9], [-70, -22.9]], "BOL"), "CHL[-76,-35.5,-66,-17]", p([[-68.6, -21.8], [-64.8, -21.8], [-65, -23.8], [-65.4, -25.6], [-65.6, -27.2], [-66.6, -29], [-67.6, -30.6], [-68.4, -31.6], [-69.8, -31.6]], "ARG")] } },
+    ],
+  },
+  "bg:オスマン帝国": {
+    life: [[1492,1772]],
+    shapes: [
+      { from: 1492, to: 1516, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, "TUR[25,35,38.5,43]"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi", "TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", ...VOJVODINA] } },
+      { from: 1517, to: 1554, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, ...MOLDAVIA, "MDA", "TUR", "SYR", "LBN", "ISR", "PSX", "JOR", ...OTTOMAN_EGYPT, ...HEJAZ, "RUS/Crimea", "RUS/Sevastopol"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi", ...VOJVODINA] } },
+      { from: 1555, to: 1647, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, ...MOLDAVIA, "MDA", "TUR", "SYR", "LBN", "ISR", "PSX", "JOR", ...OTTOMAN_EGYPT, ...HEJAZ, "RUS/Crimea", "RUS/Sevastopol", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...VOJVODINA, ...SLAVONIA, "IRQ", ALGERIA_COAST, TRIPOLITANIA, "HUN/region:Great Southern Plain", "HUN/region:Northern Great Plain", "HUN/region:Central Hungary", "HUN/region:Southern Transdanubia", "HUN/Fejér", "HUN/Tolna", "HUN/Székesfehérvár", "HUN/Dunaújváros"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi"] } },
+      { from: 1648, to: 1714, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", "ROU", "MDA", ...SLAVONIA, "HUN", "UKR/Odessa", "UKR/Mykolayiv", "UKR/Kherson", "UKR/Zaporizhzhya", "RUS/Crimea", "UKR/Chernivtsi", "RUS/Sevastopol", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST], sub: ["HUN/region:Western Transdanubia", "HUN/Komárom-Esztergom", "HUN/Tatabánya", "HUN/Nógrád", "HUN/Salgótarján", "HUN/Borsod-Abaúj-Zemplén", "HUN/Miskolc", "GRC/Ionioi Nisoi"] } },
+      { from: 1715, to: 1771, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", ...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "MDA", ...BANAT_RO, "SRB/Severno-Banatski", "SRB/Srednje-Banatski", "SRB/Južno-Banatski", "UKR/Odessa", "UKR/Mykolayiv", "UKR/Kherson", "UKR/Zaporizhzhya", "UKR/Dnipropetrovs'k", "UKR/Kirovohrad", "UKR/Donets'k", "RUS/Crimea", "RUS/Sevastopol", "RUS/Rostov", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST, ...BUKOVINA], sub: ["GRC/Ionioi Nisoi", "SRB/Severno-Backi", "SRB/Zapadno-Backi", "SRB/Južno-Backi", "SRB/Sremski"] } },
+      { from: 1772, to: 1772, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", ...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "MDA", "UKR/Odessa", "UKR/Mykolayiv", "UKR/Kherson", "RUS/Crimea", "RUS/Sevastopol", ...BUKOVINA, "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST], sub: ["GRC/Ionioi Nisoi", ...VOJVODINA] } },
+    ],
+  },
+  "bg:ハンガリー王国": {
+    life: [[1492,1517]],
+    shapes: [
+      { from: 1492, to: 1517, def: { add: ["HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, "HRV", ...VOJVODINA], sub: VENICE_DALMATIA } },
+    ],
+  },
+  "bg:スイス": {
+    life: [[1492,1555],[1885,1914]],
+    shapes: [
+      { from: 1492, to: 1516, def: { add: ["CHE"], sub: ["CHE/Genève", "CHE/Vaud", "CHE/Ticino"] } },
+      { from: 1517, to: 1554, def: { add: ["CHE", "ITA/Sondrio"], sub: ["CHE/Genève", "CHE/Vaud"] } },
+      { from: 1555, to: 1555, def: { add: ["CHE", "ITA/Sondrio"], sub: ["CHE/Genève"] } },
+      { from: 1885, to: 1914, def: { add: ["CHE"] } },
+    ],
+  },
+  "bg:ナバラ王国": {
+    life: [[1492,1492]],
+    shapes: [
+      { from: 1492, to: 1492, def: { add: ["ESP/Navarra"] } },
+    ],
+  },
+  "明": {
+    life: [[1368,1644]],
+    shapes: [
+      { from: 1368, to: 1644, def: { add: MING } },
+    ],
+  },
+  "朝鮮": {
+    life: [[1492,1555]],
+    shapes: [
+      { from: 1492, to: 1555, def: { add: KOREA } },
+    ],
+  },
+  "ジュネーヴ": {
+    life: [[1517,1555]],
+    shapes: [
+      { from: 1517, to: 1555, def: { add: ["CHE/Genève"] } },
+    ],
+  },
+  "ムガル帝国": {
+    life: [[1555,1772]],
+    shapes: [
+      { from: 1555, to: 1647, def: { add: MUGHAL_1555 } },
+      { from: 1648, to: 1714, def: { add: MUGHAL_1648 } },
+      { from: 1715, to: 1771, def: { add: MUGHAL_1715 } },
+      { from: 1772, to: 1772, def: { add: MUGHAL_1772 } },
+    ],
+  },
+  "オランダ": {
+    life: [[1581,1795]],
+    shapes: [
+      { from: 1581, to: 1795, def: { add: [NLD] } },
+    ],
+  },
+  "イギリス": {
+    life: [[1648,1772],[1885,1914]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: ["GBR", "IRL", "USA/Massachusetts", "USA/Connecticut", "USA/Rhode Island", "USA/New Hampshire", "USA/Virginia", "USA/Maryland"] } },
+      { from: 1715, to: 1771, def: { add: ["GBR", "IRL", ...THIRTEEN_COLONIES_1715, "USA/Vermont", "CAN/Nova Scotia", NEWFOUNDLAND, "JAM", "BHS"] } },
+      { from: 1772, to: 1772, def: { add: ["GBR", "IRL", ...THIRTEEN_COLONIES_1772, "USA/Florida", QUEBEC_1763, "CAN/New Brunswick", "CAN/Nova Scotia", "CAN/Prince Edward Island", NEWFOUNDLAND, "JAM", "BHS", "IND/West Bengal", "IND/Bihar", "BGD"] } },
+      { from: 1885, to: 1899, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "ZAF/Western Cape", "ZAF/Eastern Cape", "ZAF/Northern Cape", "ZAF/KwaZulu-Natal", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS")] } },
+      { from: 1900, to: 1913, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS"), "ZAF", "LSO", "SDN", "SDS", "KEN", "UGA", "NGA", "GHA", "ZWE", "ZMB", "MWI", "MYS", "BRN", p(PAPUA, "PNG"), WEIHAIWEI] } },
+      { from: 1914, to: 1914, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS"), "ZAF", "LSO", "SDN", "SDS", "KEN", "UGA", "NGA", "GHA", "ZWE", "ZMB", "MWI", "MYS", "BRN", p(PAPUA, "PNG"), "SWZ", "KWT", "QAT", "BHR", "ARE", WEIHAIWEI] } },
+    ],
+  },
+  "オーストリア": {
+    life: [[1648,1772]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: ["UKR/Transcarpathia", "AUT", "CZE", "SVN", "POL/Lower Silesian", "POL/Opole", SILESIA_PRUSSIAN, "SVK", "HUN/region:Western Transdanubia", "HUN/Komárom-Esztergom", "HUN/Tatabánya", "HUN/Nógrád", "HUN/Salgótarján", "HUN/Borsod-Abaúj-Zemplén", "HUN/Miskolc", "HRV/Grad Zagreb", "HRV/Zagrebacka", "HRV/Karlovacka", "HRV/Varaždinska", "HRV/Krapinsko-Zagorska", "HRV/Medimurska", "HRV/Koprivničko-Križevačka", "HRV/Bjelovarsko-bilogorska", "HRV/Sisacko-Moslavacka", "HRV/Licko-Senjska", "HRV/Primorsko-Goranska"] } },
+      { from: 1715, to: 1771, def: { add: ["UKR/Transcarpathia", "AUT", "CZE", "SVN", "POL/Lower Silesian", "POL/Opole", SILESIA_PRUSSIAN, "SVK", "HUN/region:Western Transdanubia", "HUN/Komárom-Esztergom", "HUN/Tatabánya", "HUN/Nógrád", "HUN/Salgótarján", "HUN/Borsod-Abaúj-Zemplén", "HUN/Miskolc", "HRV/Grad Zagreb", "HRV/Zagrebacka", "HRV/Karlovacka", "HRV/Varaždinska", "HRV/Krapinsko-Zagorska", "HRV/Medimurska", "HRV/Koprivničko-Križevačka", "HRV/Bjelovarsko-bilogorska", "HRV/Sisacko-Moslavacka", "HRV/Licko-Senjska", "HRV/Primorsko-Goranska", "HUN", ...TRANSYLVANIA, ...PARTIUM, ...SLAVONIA, "SRB/Severno-Backi", "SRB/Zapadno-Backi", "SRB/Južno-Backi", "SRB/Sremski", "BEL", "LUX", ...MILAN_CORE, ...NAPLES, "ITA/region:Sardegna", "ITA/Mantova"], sub: ["BEL/Liege"] } },
+      { from: 1772, to: 1772, def: { add: ["UKR/Transcarpathia", "AUT", "CZE", "SVN", "SVK", "HUN", "HRV", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...VOJVODINA, ...GALICIA_1772, "BEL", "LUX", ...MILAN_CORE, "ITA/Mantova"], sub: [...VENICE_DALMATIA, "BEL/Liege"] } },
+    ],
+  },
+  "プロイセン王国": {
+    life: [[1648,1772],[1815,1815]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: ["DEU/Brandenburg", "DEU/Berlin", { add: ["POL/West Pomeranian"], sub: [STETTIN] }, "POL/Lubusz", p([[19, 55], [23, 55], [23, 53], [19, 53]], "POL/Warmian-Masurian"), "RUS/Kaliningrad", "LTU/Klaipedos", CLEVES_MARK], sub: [WARMIA_ELBLAG] } },
+      { from: 1715, to: 1771, def: { add: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", { add: ["POL/West Pomeranian"], sub: [STETTIN] }, "POL/Lubusz", p([[19, 55], [23, 55], [23, 53], [19, 53]], "POL/Warmian-Masurian"), "RUS/Kaliningrad", "LTU/Klaipedos", CLEVES_MARK], sub: [WARMIA_ELBLAG] } },
+      { from: 1772, to: 1772, def: { add: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Sachsen-Anhalt", VORPOMMERN, "POL/West Pomeranian", "POL/Lubusz", "POL/Lower Silesian", "POL/Opole", SILESIA_PRUSSIAN, "POL/Pomeranian", "POL/Warmian-Masurian", NETZE_DISTRICT, "RUS/Kaliningrad", "LTU/Klaipedos", CLEVES_MARK, EAST_FRISIA], sub: [VORPOMMERN_N_PEENE, p([[18.45, 54.45], [18.8, 54.45], [18.8, 54.25], [18.45, 54.25]], "POL/Pomeranian")] } },
+      { from: 1815, to: 1815, def: { add: ["DEU/Brandenburg", "DEU/Berlin", VORPOMMERN, "DEU/Sachsen-Anhalt", "DEU/Nordrhein-Westfalen", "DEU/Saarland", RLP_NORTH, UPPER_LUSATIA_PRUSSIAN, ...PRUSSIAN_POLAND_1815, SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos"] } },
+    ],
+  },
+  "ロシア帝国": {
+    life: [[1648,1772],[1815,1815],[1885,1914]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: [RUS_EUROPE, SIBERIA_1648, "RUS/Khabarovsk"], sub: ["RUS/Kaliningrad", "RUS/Leningrad", "RUS/City of St. Petersburg", "RUS/Smolensk", "RUS/Bryansk", ...RUS_STEPPE_SOUTH] } },
+      { from: 1715, to: 1771, def: { add: [RUS_EUROPE, "RUS[60,40,180,82]", "EST", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_LEFT_BANK, "UKR/Luhans'k"], sub: ["RUS/Kaliningrad", ...QING_AMUR, "RUS/Tuva", "RUS/Gorno-Altay", "RUS/Altay", "RUS/Chukchi Autonomous Okrug", "RUS/Sakhalin", ...RUS_STEPPE_SOUTH] } },
+      { from: 1772, to: 1772, def: { add: [RUS_EUROPE, "RUS[60,40,180,82]", "EST", "LVA/region:Vidzeme", "LVA/region:Riga", "LVA/region:Latgale", "BLR/Vitebsk", "BLR/Mogilev", "BLR/Gomel", ...UKR_LEFT_BANK, "UKR/Luhans'k", "UKR/Donets'k", "UKR/Dnipropetrovs'k", "UKR/Zaporizhzhya", "UKR/Kirovohrad", "RUS/Rostov", "FIN/South Karelia", "FIN/Kymenlaakso"], sub: ["RUS/Kaliningrad", ...QING_AMUR, "RUS/Tuva", "RUS/Chukchi Autonomous Okrug", "RUS/Sakhalin", "RUS/Krasnodar", "RUS/Adygey", "RUS/Karachay-Cherkess", "RUS/Kabardin-Balkar", "RUS/North Ossetia", "RUS/Ingush", "RUS/Chechnya", "RUS/Dagestan", "RUS/Stavropol'", "RUS/Kalmyk", "RUS/Sevastopol", "RUS/Crimea"] } },
+      { from: 1815, to: 1815, def: { add: [RUS_EUROPE, "RUS[60,40,180,82]", "FIN", "EST", "LVA", "LTU", "BLR", "UKR", "MDA", "GEO", "AZE", ...CONGRESS_POLAND], sub: ["RUS/Kaliningrad", "LTU/Klaipedos", ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi", ...QING_AMUR, "RUS/Tuva", "RUS/Sakhalin"] } },
+      { from: 1885, to: 1899, def: { add: [RUS_EUROPE, "RUS[60,40,180,82]", "FIN", "EST", "LVA", "LTU", "BLR", "UKR", "MDA", ...CONGRESS_POLAND, "GEO", "ARM", "AZE", "KAZ", "KAB", "UZB", "TKM", "KGZ", "TJK", "TUR/Kars", "TUR/Ardahan", "TUR/Artvin"], sub: ["RUS/Kaliningrad", "LTU/Klaipedos", ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi", KURILS] } },
+      { from: 1900, to: 1913, def: { add: [RUS_EUROPE, "RUS[60,40,180,82]", "FIN", "EST", "LVA", "LTU", "BLR", "UKR", "MDA", ...CONGRESS_POLAND, "GEO", "ARM", "AZE", "KAZ", "KAB", "UZB", "TKM", "KGZ", "TJK", "TUR/Kars", "TUR/Ardahan", "TUR/Artvin", KWANTUNG], sub: ["RUS/Kaliningrad", "LTU/Klaipedos", ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi", KURILS] } },
+      { from: 1914, to: 1914, def: { add: [RUS_EUROPE, "RUS[60,40,180,82]", "FIN", "EST", "LVA", "LTU", "BLR", "UKR", "MDA", ...CONGRESS_POLAND, "GEO", "ARM", "AZE", "KAZ", "KAB", "UZB", "TKM", "KGZ", "TJK", "TUR/Kars", "TUR/Ardahan", "TUR/Artvin"], sub: ["RUS/Kaliningrad", "LTU/Klaipedos", ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi", KURILS, SOUTH_SAKHALIN] } },
+    ],
+  },
+  "bg:スウェーデン": {
+    life: [[1648,1772]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: ["SWE", "FIN", "EST", "LVA/region:Vidzeme", "LVA/region:Riga", "RUS/Leningrad", "RUS/City of St. Petersburg", VORPOMMERN, STETTIN, BREMEN_VERDEN], sub: ["SWE/Skåne", "SWE/Blekinge"] } },
+      { from: 1715, to: 1771, def: { add: ["SWE", "FIN", VORPOMMERN, STETTIN, BREMEN_VERDEN] } },
+      { from: 1772, to: 1772, def: { add: ["SWE", "FIN", VORPOMMERN_N_PEENE], sub: ["FIN/South Karelia", "FIN/Kymenlaakso"] } },
+    ],
+  },
+  "bg:ポーランド＝リトアニア": {
+    life: [[1648,1772]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: ["POL", "LTU", "BLR", "UKR", "LVA", "RUS/Smolensk", "RUS/Bryansk"], post: [WARMIA_ELBLAG], sub: ["POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "POL/Warmian-Masurian", "LTU/Klaipedos", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_STEPPE, "UKR/Transcarpathia", "UKR/Chernivtsi", "UKR/Kharkiv"] } },
+      { from: 1715, to: 1771, def: { add: ["POL", "LTU", "BLR", "UKR", "LVA"], post: [WARMIA_ELBLAG], sub: ["POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "POL/Warmian-Masurian", "LTU/Klaipedos", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_STEPPE, ...UKR_LEFT_BANK, "UKR/Transcarpathia", "UKR/Chernivtsi"] } },
+      { from: 1772, to: 1772, def: { add: ["POL", "LTU", "BLR", "UKR", "LVA/region:Kurzeme", "LVA/region:Zemgale"], sub: ["POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", "POL/Pomeranian", "POL/Warmian-Masurian", "POL/Subcarpathian", SILESIA_PRUSSIAN, NETZE_DISTRICT, { add: ["POL/Lesser Poland"], sub: [LESSER_POLAND_RUSSIAN] }, "LTU/Klaipedos", "BLR/Vitebsk", "BLR/Mogilev", "BLR/Gomel", ...UKR_STEPPE, ...UKR_LEFT_BANK, ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi"] } },
+    ],
+  },
+  "bg:ポルトガル王国": {
+    life: [[1648,1772]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: [PRT, p([[-42, -2], [-34, -2], [-34, -25], [-48, -25], [-44, -12]], "BRA")] } },
+      { from: 1715, to: 1771, def: { add: [PRT, "BRA[-60,-34,-34,5]"] } },
+      { from: 1772, to: 1772, def: { add: [PRT, "BRA"] } },
+    ],
+  },
+  "清": {
+    life: [[1648,1914]],
+    shapes: [
+      { from: 1648, to: 1714, def: { add: QING_1648 } },
+      { from: 1715, to: 1771, def: { add: QING_1715, sub: QING_1715_SUB } },
+      { from: 1772, to: 1870, def: { add: QING_1772 } },
+      { from: 1871, to: 1884, def: { add: QING_1871 } },
+      { from: 1885, to: 1899, def: { add: ["CHN", "MNG", "TWN"], sub: [] } },
+      { from: 1900, to: 1914, def: { add: ["CHN", "MNG"], sub: [KWANTUNG, JIAOZHOU, WEIHAIWEI] } },
+    ],
+  },
+  "フランス帝国": {
+    life: [[1804,1814]],
+    shapes: [
+      { from: 1804, to: 1814, def: { add: [FRA, ...CORSICA, "BEL", "NLD", "LUX", ...LEFT_RHINE, "DEU/Hamburg", "DEU/Bremen", NW_GERMANY_1810, "ITA/region:Piemonte", "ITA/region:Liguria", "ITA/region:Valle d'Aosta", "ITA/region:Toscana", "ITA/region:Lazio", "ITA/region:Umbria", ...PARMA_PIACENZA, "CHE/Valais", "CHE/Genève", "SVN", "HRV/Istarska", "HRV/Primorsko-Goranska", "HRV/Licko-Senjska", "HRV/Karlovacka", "HRV/Zadarska", "HRV/Šibensko-Kninska", "HRV/Splitsko-Dalmatinska", "HRV/Dubrovacko-Neretvanska", "HRV/Sisacko-Moslavacka", "ITA/Trieste", "ITA/Gorizia", "AUT/Kärnten", "ESP/Gerona", "ESP/Barcelona", "ESP/Lérida", "ESP/Tarragona"] } },
+    ],
+  },
+  "ライン同盟": {
+    life: [[1806,1813]],
+    shapes: [
+      { from: 1806, to: 1813, def: { add: ["DEU", "AUT/Salzburg", "AUT/Tirol", "ITA/Bozen", "ITA/Trento"], sub: ["DEU/Brandenburg", "DEU/Berlin", "DEU/Hamburg", "DEU/Bremen", ...LEFT_RHINE, NW_GERMANY_1810, VORPOMMERN, JERICHOW_1812, "DEU/Schleswig-Holstein"] } },
+    ],
+  },
+  "プロイセン王国（1812）": {
+    life: [[1812,1812]],
+    shapes: [
+      { from: 1812, to: 1812, def: { add: ["DEU/Brandenburg", "DEU/Berlin", JERICHOW_1812, { add: [VORPOMMERN], sub: [VORPOMMERN_N_PEENE] }, "POL/West Pomeranian", "POL/Pomeranian", "POL/Lubusz", "POL/Lower Silesian", "POL/Opole", "POL/Warmian-Masurian", SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos"], sub: [p([[18.45, 54.45], [18.8, 54.45], [18.8, 54.25], [18.45, 54.25]], "POL/Pomeranian")] } },
+    ],
+  },
+  "オーストリア帝国（1812）": {
+    life: [[1812,1812]],
+    shapes: [
+      { from: 1812, to: 1812, def: { add: ["AUT", "CZE", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...SLAVONIA, "HRV/Grad Zagreb", "HRV/Zagrebacka", "HRV/Varaždinska", "HRV/Krapinsko-Zagorska", "HRV/Medimurska", "HRV/Koprivničko-Križevačka", "HRV/Bjelovarsko-bilogorska", "UKR/L'viv", "UKR/Ivano-Frankivs'k", "UKR/Transcarpathia", "POL/Subcarpathian"], sub: ["AUT/Salzburg", "AUT/Tirol", "AUT/Kärnten"] } },
+    ],
+  },
+  "ワルシャワ大公国": {
+    life: [[1812,1812]],
+    shapes: [
+      { from: 1812, to: 1812, def: { add: ["POL/Masovian", "POL/Łódź", "POL/Greater Poland", "POL/Kuyavian-Pomeranian", "POL/Lublin", "POL/Świętokrzyskie", "POL/Lesser Poland", SILESIA_RUSSIAN, p([[22, 53.3], [22.5, 53.2], [22.9, 52.9], [23.2, 52.6], [23, 52.25], [22, 52.3]], "POL/Podlachian")] } },
+    ],
+  },
+  "インド": {
+    life: [[1812,1871]],
+    shapes: [
+      { from: 1812, to: 1870, def: { add: BRITISH_INDIA_1815 } },
+      { from: 1871, to: 1871, def: { add: BRITISH_INDIA_1871 } },
+    ],
+  },
+  "ネーデルラント連合王国": {
+    life: [[1815,1839]],
+    shapes: [
+      { from: 1815, to: 1839, def: { add: [NLD, "BEL", "LUX"] } },
+    ],
+  },
+  "ドイツ連邦": {
+    life: [[1815,1866]],
+    shapes: [
+      { from: 1815, to: 1866, def: { add: ["DEU"], sub: ["DEU/Brandenburg", "DEU/Berlin", VORPOMMERN, "DEU/Sachsen-Anhalt", "DEU/Nordrhein-Westfalen", "DEU/Saarland", RLP_NORTH, UPPER_LUSATIA_PRUSSIAN] } },
+    ],
+  },
+  "オーストリア帝国": {
+    life: [[1815,1815]],
+    shapes: [
+      { from: 1815, to: 1815, def: { add: ["AUT", "CZE", "SVN", "HRV", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...GALICIA_EAST, "UKR/Transcarpathia", "POL/Subcarpathian", { add: ["POL/Lesser Poland"], sub: [LESSER_POLAND_RUSSIAN] }, "ITA/region:Lombardia", "ITA/region:Veneto", "ITA/region:Friuli-Venezia Giulia", "ITA/region:Trentino-Alto Adige"] } },
+    ],
+  },
+  "ドイツ帝国": {
+    life: [[1871,1918]],
+    shapes: [
+      { from: 1871, to: 1884, def: { add: ["DEU", ...ALSACE_LORRAINE, ...PRUSSIAN_POLAND_1815, SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos", NORTH_SCHLESWIG] } },
+      { from: 1885, to: 1899, def: { add: ["DEU", ...ALSACE_LORRAINE, ...PRUSSIAN_POLAND_1815, SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos", NORTH_SCHLESWIG, "TGO", "CMR", "NAM", "TZA", "RWA", "BDI", p(GERMAN_NEW_GUINEA, "PNG")] } },
+      { from: 1900, to: 1918, def: { add: ["DEU", ...ALSACE_LORRAINE, ...PRUSSIAN_POLAND_1815, SILESIA_PRUSSIAN, "RUS/Kaliningrad", "LTU/Klaipedos", NORTH_SCHLESWIG, "TGO", "CMR", "NAM", "TZA", "RWA", "BDI", p(GERMAN_NEW_GUINEA, "PNG"), JIAOZHOU, "WSM", "FSM", "MHL", "PLW", "MNP"] } },
+    ],
+  },
+  "オーストリア＝ハンガリー帝国": {
+    life: [[1867,1918]],
+    shapes: [
+      { from: 1867, to: 1884, def: { add: ["AUT", "CZE", "SVN", "HRV", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...GALICIA_EAST, "UKR/Transcarpathia", "POL/Subcarpathian", { add: ["POL/Lesser Poland"], sub: [LESSER_POLAND_RUSSIAN] }, ...TRENTINO_TRIESTE] } },
+      { from: 1885, to: 1918, def: { add: ["AUT", "CZE", "SVN", "HRV", "BIH", "HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...BUKOVINA, ...VOJVODINA, ...GALICIA_EAST, "UKR/Transcarpathia", "POL/Subcarpathian", { add: ["POL/Lesser Poland"], sub: [LESSER_POLAND_RUSSIAN] }, ...TRENTINO_TRIESTE, SILESIA_AUSTRIAN] } },
+    ],
+  },
+  "イタリア王国": {
+    life: [[1871,1871]],
+    shapes: [
+      { from: 1871, to: 1871, def: { add: ["ITA"], sub: TRENTINO_TRIESTE } },
+    ],
+  },
+  "フランス": {
+    life: [[1871,1914]],
+    shapes: [
+      { from: 1871, to: 1884, def: { add: [FRA, ...CORSICA], sub: ALSACE_LORRAINE } },
+      { from: 1885, to: 1899, def: { add: [FRA, ...CORSICA, ALGERIA_NORTH, "TUN", "SEN", "GAB", "COG", "VNM", "KHM", "NCL", "DJI", "FRA/Guyane française", "FRA/Martinique", "FRA/Guadeloupe", "FRA/La Réunion"], sub: ALSACE_LORRAINE } },
+      { from: 1900, to: 1913, def: { add: [FRA, ...CORSICA, "TUN", "SEN", "GAB", "COG", "VNM", "KHM", "NCL", "DJI", "FRA/Guyane française", "FRA/Martinique", "FRA/Guadeloupe", "FRA/La Réunion", "DZA", "MLI", "GIN", "CIV", "BFA", "BEN", "NER", "MRT", "TCD", "CAF", "MDG", "LAO", "COM", "FRA/Mayotte"], sub: ALSACE_LORRAINE } },
+      { from: 1914, to: 1914, def: { add: [FRA, ...CORSICA, "TUN", "SEN", "GAB", "COG", "VNM", "KHM", "NCL", "DJI", "FRA/Guyane française", "FRA/Martinique", "FRA/Guadeloupe", "FRA/La Réunion", "DZA", "MLI", "GIN", "CIV", "BFA", "BEN", "NER", "MRT", "TCD", "CAF", "MDG", "LAO", "COM", "FRA/Mayotte", "MAR"], sub: [...ALSACE_LORRAINE, ...SPANISH_MOROCCO] } },
+    ],
+  },
+  "オスマン帝国": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1913, def: { add: ["TUR", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...HEJAZ, "SAU/Ash Sharqiyah", "YEM", ...EURO_TURKEY, "TUR/Istanbul", ...GREEK_MACEDONIA_THRACE, "GRC/Ipeiros", "GRC/Kriti", "GRC/Voreio Aigaio", "MKD", "ALB", "KOS", ...SANDZAK, "BGR/Kardzhali", "BGR/Smolyan", "BGR/Blagoevgrad", "LBY"], sub: ["TUR/Kars", "TUR/Ardahan", "TUR/Artvin"] } },
+      { from: 1914, to: 1914, def: { add: ["TUR", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...HEJAZ, "YEM"], sub: ["TUR/Kars", "TUR/Ardahan", "TUR/Artvin"] } },
+    ],
+  },
+  "アメリカ合衆国": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1899, def: { add: ["USA"], sub: ["USA/Hawaii"] } },
+      { from: 1900, to: 1914, def: { add: ["USA", "PRI", "PHL", "GUM", "ASM"] } },
+    ],
+  },
+  "bg:イタリア": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1899, def: { add: ["ITA", p([[38.6, 18.1], [39.3, 16.3], [40.2, 15.4], [41.6, 13.8], [43.2, 12.7], [43.3, 13.6], [39.6, 16.6], [38.6, 18.6]], "ERI")], sub: TRENTINO_TRIESTE } },
+      { from: 1900, to: 1913, def: { add: ["ITA", p([[38.6, 18.1], [39.3, 16.3], [40.2, 15.4], [41.6, 13.8], [43.2, 12.7], [43.3, 13.6], [39.6, 16.6], [38.6, 18.6]], "ERI"), "ERI", "SOM"], sub: TRENTINO_TRIESTE } },
+      { from: 1914, to: 1914, def: { add: ["ITA", p([[38.6, 18.1], [39.3, 16.3], [40.2, 15.4], [41.6, 13.8], [43.2, 12.7], [43.3, 13.6], [39.6, 16.6], [38.6, 18.6]], "ERI"), "ERI", "SOM", "LBY"], sub: TRENTINO_TRIESTE } },
+    ],
+  },
+  "bg:スペイン": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1899, def: { add: [ESP, ESP_CANARY, "ESP/Ceuta", "ESP/Melilla", "CUB", "PRI", "PHL", "SAH", "GNQ"] } },
+      { from: 1900, to: 1913, def: { add: [ESP, ESP_CANARY, "ESP/Ceuta", "ESP/Melilla", "SAH", "GNQ"] } },
+      { from: 1914, to: 1914, def: { add: [ESP, ESP_CANARY, "ESP/Ceuta", "ESP/Melilla", "SAH", "GNQ", ...SPANISH_MOROCCO] } },
+    ],
+  },
+  "bg:ポルトガル": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1914, def: { add: [PRT, "PRT/Madeira", "PRT/Azores", "AGO", "MOZ", "GNB", "CPV", "STP", "TLS", "MAC"] } },
+    ],
+  },
+  "bg:オランダ領東インド": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1914, def: { add: ["IDN"] } },
+    ],
+  },
+  "bg:ペルシア": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1914, def: { add: ["IRN"] } },
+    ],
+  },
+  "bg:アフガニスタン": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1914, def: { add: ["AFG"] } },
+    ],
+  },
+  "bg:エチオピア": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1914, def: { add: ["ETH"] } },
+    ],
+  },
+  "bg:コンゴ自由国": {
+    life: [[1885,1900]],
+    shapes: [
+      { from: 1885, to: 1900, def: { add: ["COD"] } },
+    ],
+  },
+  "bg:セルビア": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1913, def: { add: ["SRB"], sub: [...VOJVODINA, "SRB/Raški"] } },
+      { from: 1914, to: 1914, def: { add: ["SRB", "KOS", "MKD"], sub: VOJVODINA } },
+    ],
+  },
+  "bg:ブルガリア": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1913, def: { add: ["BGR"], sub: ["BGR/Kardzhali", "BGR/Smolyan", "BGR/Blagoevgrad"] } },
+      { from: 1914, to: 1914, def: { add: ["BGR", WESTERN_THRACE], sub: ["BGR/Dobrich", "BGR/Silistra"] } },
+    ],
+  },
+  "bg:ルーマニア": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1913, def: { add: [...WALLACHIA, ...MOLDAVIA, ...DOBRUJA] } },
+      { from: 1914, to: 1914, def: { add: [...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "BGR/Dobrich", "BGR/Silistra"] } },
+    ],
+  },
+  "bg:ギリシア": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1913, def: { add: ["GRC"], sub: [...GREEK_MACEDONIA_THRACE, "GRC/Ipeiros", "GRC/Kriti", "GRC/Voreio Aigaio"] } },
+      { from: 1914, to: 1914, def: { add: ["GRC"], sub: [WESTERN_THRACE] } },
+    ],
+  },
+  "bg:朝鮮": {
+    life: [[1885,1885]],
+    shapes: [
+      { from: 1885, to: 1885, def: { add: KOREA } },
+    ],
+  },
+  "bg:モンテネグロ": {
+    life: [[1885,1914]],
+    shapes: [
+      { from: 1885, to: 1913, def: { add: ["MNE"], sub: SANDZAK } },
+      { from: 1914, to: 1914, def: { add: ["MNE"] } },
+    ],
+  },
+  "bg:大韓帝国": {
+    life: [[1900,1900]],
+    shapes: [
+      { from: 1900, to: 1900, def: { add: KOREA } },
+    ],
+  },
+  "bg:ベルギー領コンゴ": {
+    life: [[1914,1914]],
+    shapes: [
+      { from: 1914, to: 1914, def: { add: ["COD"] } },
+    ],
+  },
+  "bg:アルバニア": {
+    life: [[1914,1914]],
+    shapes: [
+      { from: 1914, to: 1914, def: { add: ["ALB"] } },
+    ],
+  },
 };

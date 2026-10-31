@@ -1,8 +1,10 @@
 import { lonLatToXY } from "./mapProjection.js";
-import { GEO_LAND_PATH, GEO_PATHS, GEO_BBOX } from "./generated/geoPaths.js";
+import { GEO_LAND_PATH, GEO_PATHS, GEO_BBOX, GEO_MEMBERS } from "./generated/geoPaths.js";
+import { MAP_SERIES, seriesYears } from "./atlas/series.js";
+import { PALETTES, BACKGROUND_FILLS, REGION_LABELS, BACKGROUND_LABELS, CITIES } from "./atlas/styles.js";
 import {
   ASIA_ANCIENT_CARDS, ASIA_MEDIEVAL_CARDS, ASIA_RENAISSANCE_CARDS, ASIA_ABSOLUTISM_CARDS, ASIA_REVOLUTION_CARDS, ASIA_IMPERIALISM_CARDS,
-  ASIA_MAP_LAYERS, ASIA_BLURB,
+  ASIA_BLURB,
 } from "./asiaCards.js";
 
 // ---------------------------------------------------------------------------
@@ -552,9 +554,9 @@ export const FRENCH_REVOLUTION_CARDS = [
     front: "ヴァルミーの戦い（1792年）の勝利は、フランスの政体にどのような変化をもたらしたか？",
     back: "",
     cloze: {
-      template: "1792年4月、フランスは{{1}}に宣戦して革命戦争が始まった。9月のヴァルミーの戦いで義勇兵を含むフランス軍がプロイセン軍を退けると、同じ日に開会した国民公会は翌日に王政の廃止を宣言し、{{2}}が成立した。",
+      template: "1792年4月、フランスはオーストリアに宣戦して革命戦争が始まった。9月のヴァルミーの戦いで義勇兵を含むフランス軍がプロイセン軍を退けると、同じ日に開会した{{1}}は翌日に王政の廃止を宣言し、{{2}}が成立した。",
       slots: [
-        { id: 1, answer: "オーストリア", category: "国名" },
+        { id: 1, answer: "国民公会", category: "議会" },
         { id: 2, answer: "第一共和政", category: "政体" },
       ],
       points: [
@@ -576,7 +578,7 @@ export const FRENCH_REVOLUTION_CARDS = [
   },
   {
     id: "c21", year: 1795, difficulty: 4, era: "近代（市民革命と国民国家）", region: "フランス王国", theme: ["通史", "フランス革命"],
-    front: "恐怖政治の終わりから総裁政府の成立までの流れと、総裁政府が不安定だった理由は？",
+    front: "恐怖政治を終わらせた1794年のクーデタと、翌年の新憲法で成立した5人の総裁による政府は？",
     back: "",
     cloze: {
       template: "1794年の{{1}}のクーデタでロベスピエールらジャコバン派が打倒されて恐怖政治は終わり、翌1795年に制定された新憲法のもとで、5人の総裁からなる{{2}}が成立した。",
@@ -609,7 +611,7 @@ export const FRENCH_REVOLUTION_CARDS = [
   },
   {
     id: "c22", year: 1799, difficulty: 2, era: "近代（市民革命と国民国家）", region: "フランス帝国", theme: ["通史", "ナポレオン"],
-    front: "1799年、ナポレオンが総裁政府を倒して権力を握ったクーデタと、その後に就いた地位は？",
+    front: "1799年、ナポレオンが政権を倒して権力を握ったクーデタと、その後に就いた地位は？",
     back: "",
     cloze: {
       template: "1799年、エジプト遠征から帰国したナポレオンは{{1}}で政権を倒して統領政府を樹立し、自ら{{2}}に就任して実権を握った。",
@@ -1596,12 +1598,12 @@ export const ANCIENT_CARDS = [
   },
   {
     id: "c33", year: -218, difficulty: 2, era: "古代（オリエント・地中海・アジア）", region: "カルタゴ", theme: ["通史", "古代ローマ"],
-    front: "ポエニ戦争でローマと戦った北アフリカの国家と、アルプスを越えてイタリアに侵入した名将は？",
+    front: "ローマとポエニ戦争を戦ったカルタゴを建てた人々と、アルプスを越えてイタリアに侵入した名将は？",
     back: "",
     cloze: {
-      template: "西地中海の覇権をめぐり、ローマはフェニキア人の植民市{{1}}と3回にわたるポエニ戦争を戦った。第2回では名将{{2}}がアルプスを越えてイタリアに侵入し、カンネーの戦いでローマ軍に大勝したが、最終的にローマが勝利した。",
+      template: "西地中海の覇権をめぐり、ローマは{{1}}の植民市カルタゴと3回にわたるポエニ戦争を戦った。第2回では名将{{2}}がアルプスを越えてイタリアに侵入し、カンネーの戦いでローマ軍に大勝したが、最終的にローマが勝利した。",
       slots: [
-        { id: 1, answer: "カルタゴ", category: "国家" },
+        { id: 1, answer: "フェニキア人", category: "民族" },
         { id: 2, answer: "ハンニバル", category: "人物" },
       ],
       points: [
@@ -1656,7 +1658,7 @@ export const ANCIENT_CARDS = [
   },
   {
     id: "c35", year: -27, difficulty: 3, era: "古代（オリエント・地中海・アジア）", region: "ローマ", theme: ["通史", "古代ローマ"],
-    front: "オクタウィアヌスが元老院から受けた称号と、彼が始めた政治体制は？",
+    front: "オクタウィアヌスが前27年に受けた称号と、彼が始めた政治体制は？",
     back: "",
     cloze: {
       template: "カエサルの養子オクタウィアヌスは、前31年のアクティウムの海戦でアントニウスとクレオパトラを破り、前27年に{{1}}（尊厳者）の称号を受けた。彼は共和政の形式を尊重しつつ、「市民の中の第一人者」として実権を握る{{2}}（元首政）を始めた。",
@@ -2823,174 +2825,10 @@ export const REGION_BLURB = {
 // =====================================================================
 const lineToPoints = (pts) => pts.map(([lon, lat]) => lonLatToXY(lon, lat).join(",")).join(" ");
 
-const ANCIENT_COLORS = {
-  "メソポタミア": ["#8FBC9C", "#C3E0CC"],
-  "エジプト": ["#E0AD6B", "#F0D2A8"],
-  "ギリシア": ["#7ECBD6", "#B8E5EA"],
-  "アケメネス朝ペルシア": ["#E0C56B", "#F0E2A8"],
-  "マケドニア": ["#9AA8D9", "#C7D0EC"],
-  "ローマ": ["#D9866B", "#F0B8A8"],
-  "カルタゴ": ["#B79FD1", "#DCCCEC"],
-  "西ローマ帝国": ["#D9866B", "#F0B8A8"],
-  "東ローマ帝国": ["#C98E82", "#EAC0B9"],
-};
-
-// label: { at: [経度, 緯度], lines: 表示する行, size: 文字サイズ }。表示名は時代ごとに変えてよい（id は固定）。
-// colors は勢力ID → [塗り色, 輪郭色] の対応表（時代ごとに用意する）
-// 輪郭（dByYear・bbox）は snapshotMapPeriod が geo/regions.mjs から生成したデータ（GEO_PATHS）を割り当てる
-function mapRegion(colors, id, label) {
-  const [fill, strokeColor] = colors[id];
-  const [labelX, labelY] = lonLatToXY(...label.at);
-  return { id, fill, strokeColor, labelX, labelY, labelLines: label.lines, labelSize: label.size, shape: "path" };
-}
-const ancientRegion = (id, label) => mapRegion(ANCIENT_COLORS, id, label);
-// region を持つ都市はタップでその勢力の詳細（該当カード）を開く。dir はラベルの逃がし方向
-function mapCity(name, lon, lat, region, dir) {
-  const [x, y] = lonLatToXY(lon, lat);
-  return { name, x, y, region, ...(dir ? { dir } : {}) };
-}
-function mapBackground(name, labelAt, fill) {
-  const [labelX, labelY] = lonLatToXY(...labelAt);
-  return { name, fill, labelX, labelY };
-}
 
 
-// --- 前3000〜前500年：古代文明の成立と地域世界 ---
-const ANCIENT_CIVILIZATIONS_SNAPSHOTS = {
-  [-2500]: {
-    regions: [
-      ancientRegion("エジプト", { at: [30.0, 27.0], lines: ["エジプト", "（古王国）"], size: 6 }),
-      ancientRegion("メソポタミア", { at: [45.4, 32.3], lines: ["シュメール"], size: 5.5 }),
-    ],
-    cities: [
-      mapCity("メンフィス", 31.25, 29.85, "エジプト", "l"),
-      mapCity("ウル", 46.10, 30.96, "メソポタミア"),
-    ],
-  },
-  [-1750]: {
-    regions: [
-      ancientRegion("エジプト", { at: [30.0, 26.5], lines: ["エジプト", "（中王国）"], size: 6 }),
-      ancientRegion("メソポタミア", { at: [43.6, 34.0], lines: ["バビロン", "第1王朝"], size: 6 }),
-    ],
-    cities: [
-      mapCity("バビロン", 44.42, 32.54, "メソポタミア", "l"),
-      mapCity("テーベ", 32.65, 25.70, "エジプト", "r"),
-    ],
-  },
-  [-600]: {
-    regions: [
-      ancientRegion("エジプト", { at: [30.0, 27.0], lines: ["エジプト"], size: 6 }),
-      ancientRegion("メソポタミア", { at: [41.0, 33.4], lines: ["新バビロニア"], size: 7 }),
-    ],
-    background: [
-      mapBackground("メディア", [48.0, 36.0], "#7A8CA8"),
-      mapBackground("リディア", [30.5, 39.0], "#8C9A7A"),
-    ],
-    cities: [
-      mapCity("バビロン", 44.42, 32.54, "メソポタミア", "l"),
-      mapCity("サイス", 30.77, 30.96, "エジプト", "l"),
-    ],
-  },
-};
 
-// --- 前500〜500年：古代帝国の時代 ---
-const ANCIENT_EMPIRES_SNAPSHOTS = {
-  // ペルシア戦争（サラミスの海戦）のころ
-  [-480]: {
-    regions: [
-      ancientRegion("アケメネス朝ペルシア", { at: [55.0, 33.0], lines: ["アケメネス朝", "ペルシア"], size: 10 }),
-      ancientRegion("ギリシア", { at: [21.7, 39.1], lines: ["ギリシア", "諸ポリス"], size: 5 }),
-      ancientRegion("カルタゴ", { at: [9.6, 34.2], lines: ["カルタゴ"], size: 6 }),
-      ancientRegion("ローマ",
-        { at: [12.7, 42.0], lines: ["ローマ"], size: 4 }),
-    ],
-    cities: [
-      mapCity("ペルセポリス", 52.89, 29.93, "アケメネス朝ペルシア"),
-      mapCity("スサ", 48.25, 32.19, "アケメネス朝ペルシア", "r"),
-      mapCity("バビロン", 44.42, 32.54, "アケメネス朝ペルシア", "l"),
-      mapCity("サルデス", 28.04, 38.48, "アケメネス朝ペルシア", "r"),
-      mapCity("メンフィス", 31.25, 29.85, "アケメネス朝ペルシア", "l"),
-      mapCity("アテネ", 23.73, 37.98, "ギリシア", "r"),
-      mapCity("スパルタ", 22.43, 37.07, "ギリシア", "bl"),
-      mapCity("ローマ", 12.48, 41.89, "ローマ"),
-      mapCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
-    ],
-  },
-  // アレクサンドロス大王の死（前323年）の時点
-  [-323]: {
-    regions: [
-      ancientRegion("マケドニア", { at: [55.0, 33.0], lines: ["マケドニア", "（大王の帝国）"], size: 10 }),
-      ancientRegion("ギリシア", { at: [22.3, 37.6], lines: ["ギリシア"], size: 4.5 }),
-      ancientRegion("カルタゴ", { at: [9.6, 34.2], lines: ["カルタゴ"], size: 6 }),
-      ancientRegion("ローマ", { at: [13.3, 41.9], lines: ["ローマ"], size: 4.5 }),
-    ],
-    cities: [
-      mapCity("ペラ", 22.52, 40.76, "マケドニア", "tl"),
-      mapCity("バビロン", 44.42, 32.54, "マケドニア", "l"),
-      mapCity("アレクサンドリア", 29.92, 31.20, "マケドニア", "tl"),
-      mapCity("ペルセポリス", 52.89, 29.93, "マケドニア"),
-      mapCity("アテネ", 23.73, 37.98, "ギリシア", "r"),
-      mapCity("スパルタ", 22.43, 37.07, "ギリシア", "bl"),
-      mapCity("ローマ", 12.48, 41.89, "ローマ"),
-      mapCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
-    ],
-  },
-  // 第2回ポエニ戦争の開始（前218年）
-  [-218]: {
-    regions: [
-      ancientRegion("ローマ", { at: [14.2, 41.9], lines: ["ローマ", "（共和政）"], size: 6.5 }),
-      ancientRegion("カルタゴ", { at: [9.6, 34.2], lines: ["カルタゴ"], size: 6.5 }),
-    ],
-    cities: [
-      mapCity("ローマ", 12.48, 41.89, "ローマ"),
-      mapCity("カルタゴ", 10.32, 36.85, "カルタゴ"),
-      mapCity("カルタゴ・ノウァ", -0.98, 37.60, "カルタゴ", "l"),
-    ],
-  },
-  // カエサル暗殺（前44年）のころ。エジプトはプトレマイオス朝（キプロス島を含む）
-  [-44]: {
-    regions: [
-      ancientRegion("ローマ", { at: [2.5, 46.5], lines: ["ローマ", "（共和政末期）"], size: 9 }),
-      ancientRegion("エジプト",
-        { at: [30.0, 27.0], lines: ["プトレマイオス朝", "エジプト"], size: 5.5 }),
-    ],
-    cities: [
-      mapCity("ローマ", 12.48, 41.89, "ローマ"),
-      mapCity("アテネ", 23.73, 37.98, "ローマ", "r"),
-      mapCity("アンティオキア", 36.16, 36.20, "ローマ", "r"),
-      mapCity("アレクサンドリア", 29.92, 31.20, "エジプト", "tl"),
-    ],
-  },
-  // トラヤヌス帝のもとで最大版図（117年）
-  [117]: {
-    regions: [
-      ancientRegion("ローマ", { at: [2.5, 46.5], lines: ["ローマ帝国"], size: 11 }),
-    ],
-    cities: [
-      mapCity("ローマ", 12.48, 41.89, "ローマ"),
-      mapCity("ロンディニウム", -0.12, 51.51, "ローマ", "r"),
-      mapCity("カルタゴ", 10.32, 36.85, "ローマ"),
-      mapCity("アテネ", 23.73, 37.98, "ローマ", "r"),
-      mapCity("アンティオキア", 36.16, 36.20, "ローマ", "r"),
-      mapCity("アレクサンドリア", 29.92, 31.20, "ローマ", "tl"),
-    ],
-  },
-  // テオドシウス帝の死による東西分割（395年）
-  [395]: {
-    regions: [
-      ancientRegion("西ローマ帝国", { at: [2.5, 46.5], lines: ["西ローマ帝国"], size: 9 }),
-      ancientRegion("東ローマ帝国", { at: [33.0, 39.0], lines: ["東ローマ帝国"], size: 9 }),
-    ],
-    cities: [
-      mapCity("ローマ", 12.48, 41.89, "西ローマ帝国"),
-      mapCity("ミラノ", 9.19, 45.46, "西ローマ帝国", "t"),
-      mapCity("カルタゴ", 10.32, 36.85, "西ローマ帝国"),
-      mapCity("コンスタンティノープル", 28.98, 41.01, "東ローマ帝国", "t"),
-      mapCity("アンティオキア", 36.16, 36.20, "東ローマ帝国", "r"),
-      mapCity("アレクサンドリア", 29.92, 31.20, "東ローマ帝国", "tl"),
-    ],
-  },
-};
+
 
 const NILE_RIVER = { name: "ナイル川", points: lineToPoints([
   [31.3, 21.8], [32.3, 22.6], [32.9, 24.1], [32.87, 24.98], [32.64, 25.69], [32.72, 26.16], [31.7, 26.55], [31.18, 27.18],
@@ -3022,248 +2860,18 @@ export const ANCIENT_BLURB = {
   "アケメネス朝ペルシア": "前550年ごろに成立し、ダレイオス1世のもとでエジプトからインダス川に至る大帝国となった。各州に知事（サトラップ）を置き、「王の道」と駅伝制で広大な領土を結んだ。",
   "マケドニア": "ギリシア北方の王国。フィリッポス2世がギリシアを制圧し、その子の大王の東方遠征によって、エジプトからインダス川流域に至る大帝国が築かれた。",
   "ローマ": "イタリア半島中部の都市国家から出発し、半島の統一と地中海の制覇を経て、ブリテン島から西アジアに及ぶ大帝国へと成長した。",
-  "カルタゴ": "フェニキア人が北アフリカ（現在のチュニジア）に建てた植民市。地中海交易で繁栄し、シチリア島西部やイベリア半島南部に勢力を広げた。",
+  "カルタゴ": "地中海東岸の都市国家ティルスの人々が北アフリカ（現在のチュニジア）に建てた植民市。地中海交易で繁栄し、シチリア島西部やイベリア半島南部に勢力を広げた。",
   "西ローマ帝国": "395年、テオドシウス帝の死後に帝国が東西に分割されて成立した。ゲルマン人の大移動のなかで弱体化し、476年に滅亡した。",
   "東ローマ帝国": "395年の分割で成立し、コンスタンティノープルを都とした。ビザンツ帝国とも呼ばれ、1453年まで約1000年にわたって続いた。",
 };
 
-// 年代に最も近いスナップショットを選ぶ（市民革命期の revolutionsRegionsByYear と同じ考え方）
-function nearestSnapshot(snapshots, year) {
-  const keys = Object.keys(snapshots).map(Number);
-  const best = keys.reduce((b, k) => (Math.abs(k - year) < Math.abs(b - year) ? k : b), keys[0]);
-  return snapshots[best];
-}
-// 生成済みの輪郭（geo/regions.mjs → node geo/build.mjs → generated/geoPaths.js）を取り出す。
-// キーは「時代略号+年/勢力ID」（背景は「…/bg:名前」）。定義漏れは地図の表示前にエラーにする
-function geoPath(key) {
-  const d = GEO_PATHS[key];
-  if (!d) throw new Error(`地図の輪郭データがありません: ${key}（geo/regions.mjs に定義して node geo/build.mjs を実行）`);
-  return d;
-}
-// 東アジア・南アジアの勢力・都市（asiaCards.js の ASIA_MAP_LAYERS）を、同じ「時代略号+年」のスナップショットに合流させる。
-// 都市には asiaLayer を付け、初期表示の範囲（App.jsx の computeMapFocusBounds）の計算からは外す
-function asiaLayer(key) {
-  const layer = ASIA_MAP_LAYERS[key];
-  if (!layer) return { regions: [], cities: [] };
-  return {
-    regions: layer.regions.map((r) => {
-      const [labelX, labelY] = lonLatToXY(...r.label.at);
-      return { id: r.id, fill: r.colors[0], strokeColor: r.colors[1], labelX, labelY, labelLines: r.label.lines, labelSize: r.label.size, shape: "path" };
-    }),
-    cities: layer.cities.map((c) => ({ ...mapCity(c.name, c.lon, c.lat, c.region, c.dir), asiaLayer: true })),
-  };
-}
-const ASIA_SEA_LABELS = [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["東シナ海", 125.0, 29.0, 5], ["南シナ海", 114.0, 14.0, 6], ["ベンガル湾", 88.0, 15.0, 6], ["アラビア海", 64.0, 17.0, 6]]
-  .map(([name, lon, lat, size]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size }; });
-const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
-// 地図をタップしたときの解説文：その時代のスナップショットに現れる東アジア・南アジアの勢力の分だけ加える
-const asiaBlurbFor = (keys) => Object.fromEntries([...new Set(keys.flatMap((k) => (ASIA_MAP_LAYERS[k]?.regions ?? []).map((r) => r.id)))].map((id) => [id, ASIA_BLURB[id]]));
-// 市民革命と国民国家（App.jsx の自動生成ブロック）向け：1812・1815・1871年のうち最も近い年の東アジア・南アジアの勢力と都市
-export function asiaRevolutionLayer(year) {
-  const snap = [1812, 1815, 1871].reduce((best, y) => (Math.abs(y - year) < Math.abs(best - year) ? y : best), 1812);
-  const key = `rev${snap}`, layer = asiaLayer(key);
-  return { regions: layer.regions.map((r) => { const d = geoPath(`${key}/${r.id}`); return { ...r, dByYear: () => d, bbox: GEO_BBOX[`${key}/${r.id}`] }; }), cities: layer.cities };
-}
-export const ASIA_REVOLUTION_BLURB = asiaBlurbFor(["rev1812", "rev1815", "rev1871"]);
-export { withAsiaSeas };
-function attachGeometry(snapshots, geoPrefix) {
-  return Object.fromEntries(Object.entries(snapshots).map(([year, rawSnap]) => {
-    const layer = asiaLayer(`${geoPrefix}${year}`);
-    return [year, { ...rawSnap, regions: [...rawSnap.regions, ...layer.regions], cities: [...rawSnap.cities, ...layer.cities] }];
-  }).map(([year, snap]) => [year, {
-    ...snap,
-    regions: snap.regions.map((r) => {
-      const key = `${geoPrefix}${year}/${r.id}`;
-      const d = geoPath(key);
-      return { ...r, dByYear: () => d, bbox: GEO_BBOX[key] };
-    }),
-    background: (snap.background ?? []).map((b) => ({ ...b, d: geoPath(`${geoPrefix}${year}/bg:${b.name}`) })),
-  }]));
-}
-// ERA_PERIODS の各時代区分にそのまま展開して使う（keyYears／regionsByYear／capitalsByYear など）
-function snapshotMapPeriod(rawSnapshots, { geoPrefix, rivers, seaLabels: rawSeaLabels, blurb: rawBlurb }) {
-  const snapshots = attachGeometry(rawSnapshots, geoPrefix);
-  const blurb = { ...rawBlurb, ...asiaBlurbFor(Object.keys(rawSnapshots).map((y) => `${geoPrefix}${y}`)) };
-  const seaLabels = withAsiaSeas(rawSeaLabels);
-  return {
-    keyYears: Object.keys(snapshots).map(Number).sort((a, b) => a - b),
-    regionsByYear: (year) => nearestSnapshot(snapshots, year).regions,
-    capitalsByYear: (year) => nearestSnapshot(snapshots, year).cities,
-    backgroundByYear: (year) => nearestSnapshot(snapshots, year).background ?? [],
-    rivers,
-    seaLabels,
-    blurb,
-  };
-}
-export const ANCIENT_CIVILIZATIONS_MAP = snapshotMapPeriod(ANCIENT_CIVILIZATIONS_SNAPSHOTS, { geoPrefix: "anc",
-  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER], seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
-});
-export const ANCIENT_EMPIRES_MAP = snapshotMapPeriod(ANCIENT_EMPIRES_SNAPSHOTS, { geoPrefix: "anc",
-  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER, INDUS_RIVER, ...RIVERS.filter((r) => r.name === "ライン川" || r.name === "ドナウ川")],
-  seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
-});
-
-// =====================================================================
-// 近世（大航海時代・ルネサンス・宗教改革）の地図データ
-// 古代と同じく経度・緯度で定義し、lonLatToXY で投影する（輪郭は陸地で切り抜かれるので、海岸線は海上に大きめに取る）。
-// 1492年は地図の時代区分「中世②」、1517年・1555年は「大航海時代・近世」に属する。後者は1600年以降を
-// 三十年戦争期の勢力図（MAP_REGIONS など）が受け持つため、App.jsx の ERA_PERIODS で年ごとに切り替えている。
-// region の id は RENAISSANCE_CARDS の region と一致させている。輪郭は学習用の模式図。
-// =====================================================================
-const RENAISSANCE_COLORS = {
-  "フィレンツェ": ["#E07A8B", "#F2B8C2"],
-  "ミラノ公国": ["#8FBCC9", "#C3E0E6"],
-  "ローマ教皇領": ["#E8D27A", "#F5E9B8"],
-  "ヴェネツィア共和国": ["#7ECBA8", "#B8E5D2"],
-  "ナポリ王国": ["#C9A0DC", "#E4CFEE"],
-  "神聖ローマ帝国": ["#A8C686", "#D2E3BF"],
-  "ジュネーヴ": ["#F2A65A", "#F8D3AA"],
-  "フランス王国": ["#9AA8D9", "#C7D0EC"],
-  "ポルトガル王国": ["#5FB3A1", "#A9DBD0"],
-  "スペイン王国": ["#D9866B", "#F0B8A8"],
-  "アステカ帝国": ["#C9B458", "#E6DBA6"],
-  "インカ帝国": ["#B98E6E", "#DCC4B2"],
-};
-const renRegion = (id, label) => mapRegion(RENAISSANCE_COLORS, id, label);
 
 
 
-const OTTOMAN_FILL = "#7A8CA8";
 
-const LABELS = {
-  florence: { at: [11.2, 43.65], lines: ["フィレンツェ"], size: 3.2 },
-  milan: { at: [9.0, 45.75], lines: ["ミラノ公国"], size: 3.2 },
-  papal: { at: [12.8, 42.9], lines: ["教皇領"], size: 3.4 },
-  venice: { at: [11.6, 45.65], lines: ["ヴェネツィア"], size: 3.2 },
-  naples: { at: [15.9, 40.6], lines: ["ナポリ王国"], size: 3.6 },
-  hre: { at: [10.5, 50.6], lines: ["神聖ローマ帝国"], size: 7 },
-  geneva: { at: [6.15, 45.95], lines: ["ジュネーヴ"], size: 2.6 },
-  france: { at: [2.3, 46.8], lines: ["フランス王国"], size: 7 },
-  portugal: { at: [-8.2, 39.8], lines: ["ポルトガル", "王国"], size: 3.6 },
-  spain: { at: [-3.0, 40.3], lines: ["スペイン王国"], size: 5 },
-  aztec: { at: [-97.6, 17.6], lines: ["アステカ帝国"], size: 5 },
-  inca: { at: [-73.0, -12.0], lines: ["インカ帝国"], size: 7 },
-};
 
-const RENAISSANCE_SNAPSHOTS_MEDIEVAL = {
-  // コロンブスの航海とグラナダ陥落（1492年）
-  [1492]: {
-    regions: [
-      renRegion("ポルトガル王国", LABELS.portugal),
-      renRegion("スペイン王国", LABELS.spain),
-      renRegion("フランス王国", LABELS.france),
-      renRegion("神聖ローマ帝国", LABELS.hre),
-      renRegion("ミラノ公国", LABELS.milan),
-      renRegion("ヴェネツィア共和国", LABELS.venice),
-      renRegion("フィレンツェ", LABELS.florence),
-      renRegion("ローマ教皇領", LABELS.papal),
-      renRegion("ナポリ王国", LABELS.naples),
-      renRegion("アステカ帝国", LABELS.aztec),
-      renRegion("インカ帝国", LABELS.inca),
-    ],
-    background: [
-      mapBackground("オスマン帝国", [31.0, 39.5], OTTOMAN_FILL),
-      mapBackground("ハンガリー王国", [20.0, 47.2], "#8C9A7A"),
-      mapBackground("スイス", [8.2, 46.85], "#A89A8C"),
-      mapBackground("ナバラ王国", [-1.65, 42.7], "#A89A8C"),
-    ],
-    cities: [
-      mapCity("リスボン", -9.14, 38.72, "ポルトガル王国", "l"),
-      mapCity("グラナダ", -3.60, 37.18, "スペイン王国", "b"),
-      mapCity("セビリャ", -5.98, 37.39, "スペイン王国", "l"),
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("ウィーン", 16.37, 48.21, "神聖ローマ帝国", "r"),
-      mapCity("ミラノ", 9.19, 45.46, "ミラノ公国", "l"),
-      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
-      mapCity("フィレンツェ", 11.25, 43.77, "フィレンツェ", "l"),
-      mapCity("ローマ", 12.48, 41.89, "ローマ教皇領"),
-      mapCity("ナポリ", 14.25, 40.85, "ナポリ王国", "r"),
-      mapCity("テノチティトラン", -99.13, 19.43, "アステカ帝国"),
-      mapCity("クスコ", -71.97, -13.53, "インカ帝国"),
-      mapCity("イスタンブル", 28.98, 41.01, null, "t"),
-    ],
-  },
-};
 
-const RENAISSANCE_SNAPSHOTS_EARLY_MODERN = {
-  // ルターの「九十五箇条の論題」（1517年）。アステカ・インカはまだ健在、ナポリはスペイン王の支配下
-  [1517]: {
-    regions: [
-      renRegion("ポルトガル王国", LABELS.portugal),
-      renRegion("スペイン王国", LABELS.spain),
-      renRegion("フランス王国", LABELS.france),
-      renRegion("神聖ローマ帝国", LABELS.hre),
-      renRegion("ジュネーヴ", LABELS.geneva),
-      renRegion("ミラノ公国", LABELS.milan),
-      renRegion("ヴェネツィア共和国", LABELS.venice),
-      renRegion("フィレンツェ", LABELS.florence),
-      renRegion("ローマ教皇領", LABELS.papal),
-      renRegion("アステカ帝国", LABELS.aztec),
-      renRegion("インカ帝国", LABELS.inca),
-    ],
-    background: [
-      mapBackground("オスマン帝国", [31.0, 39.5], OTTOMAN_FILL),
-      mapBackground("ハンガリー王国", [20.0, 47.2], "#8C9A7A"),
-      mapBackground("スイス", [8.2, 46.85], "#A89A8C"),
-    ],
-    cities: [
-      mapCity("リスボン", -9.14, 38.72, "ポルトガル王国", "l"),
-      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
-      mapCity("セビリャ", -5.98, 37.39, "スペイン王国", "l"),
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("ヴィッテンベルク", 12.65, 51.87, "神聖ローマ帝国", "r"),
-      mapCity("ウィーン", 16.37, 48.21, "神聖ローマ帝国", "r"),
-      mapCity("ジュネーヴ", 6.14, 46.20, "ジュネーヴ", "l"),
-      mapCity("ミラノ", 9.19, 45.46, "ミラノ公国", "l"),
-      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
-      mapCity("フィレンツェ", 11.25, 43.77, "フィレンツェ", "l"),
-      mapCity("ローマ", 12.48, 41.89, "ローマ教皇領"),
-      mapCity("ナポリ", 14.25, 40.85, "スペイン王国", "r"),
-      mapCity("サント・ドミンゴ", -69.90, 18.47, "スペイン王国"),
-      mapCity("テノチティトラン", -99.13, 19.43, "アステカ帝国"),
-      mapCity("クスコ", -71.97, -13.53, "インカ帝国"),
-      mapCity("ゴア", 73.83, 15.49, "ポルトガル王国", "l"),
-      mapCity("イスタンブル", 28.98, 41.01, null, "t"),
-    ],
-  },
-  // アウクスブルクの和議（1555年）。アステカ・インカは滅亡し、ヌエバ・エスパーニャとペルーがスペイン領に
-  [1555]: {
-    regions: [
-      renRegion("ポルトガル王国", LABELS.portugal),
-      renRegion("スペイン王国", LABELS.spain),
-      renRegion("フランス王国", LABELS.france),
-      renRegion("神聖ローマ帝国", LABELS.hre),
-      renRegion("ジュネーヴ", LABELS.geneva),
-      renRegion("ミラノ公国", { ...LABELS.milan, lines: ["ミラノ公国", "（スペイン領）"] }),
-      renRegion("ヴェネツィア共和国", LABELS.venice),
-      renRegion("フィレンツェ", { ...LABELS.florence, lines: ["フィレンツェ公国"] }),
-      renRegion("ローマ教皇領", LABELS.papal),
-    ],
-    background: [
-      mapBackground("オスマン帝国", [31.0, 39.5], OTTOMAN_FILL),
-      mapBackground("スイス", [8.2, 46.85], "#A89A8C"),
-    ],
-    cities: [
-      mapCity("リスボン", -9.14, 38.72, "ポルトガル王国", "l"),
-      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
-      mapCity("セビリャ", -5.98, 37.39, "スペイン王国", "l"),
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("ヴィッテンベルク", 12.65, 51.87, "神聖ローマ帝国", "r"),
-      mapCity("ウィーン", 16.37, 48.21, "神聖ローマ帝国", "r"),
-      mapCity("ジュネーヴ", 6.14, 46.20, "ジュネーヴ", "l"),
-      mapCity("ミラノ", 9.19, 45.46, "ミラノ公国", "l"),
-      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
-      mapCity("フィレンツェ", 11.25, 43.77, "フィレンツェ", "l"),
-      mapCity("ローマ", 12.48, 41.89, "ローマ教皇領"),
-      mapCity("ナポリ", 14.25, 40.85, "スペイン王国", "r"),
-      mapCity("メキシコシティ", -99.13, 19.43, "スペイン王国"),
-      mapCity("リマ", -77.03, -12.05, "スペイン王国", "l"),
-      mapCity("ポトシ", -65.75, -19.58, "スペイン王国"),
-      mapCity("ゴア", 73.83, 15.49, "ポルトガル王国", "l"),
-      mapCity("イスタンブル", 28.98, 41.01, null, "t"),
-    ],
-  },
-};
+
 
 const RENAISSANCE_SEA_LABELS = [
   ...SEA_LABELS,
@@ -3288,204 +2896,15 @@ export const RENAISSANCE_BLURB = {
   "インカ帝国": "アンデス山脈に沿って南北4000kmに及んだ先住民の帝国。都クスコを中心に、「インカ道」と呼ばれる道路網を整備した。",
 };
 
-// 1492年（中世②区分）と、1517年・1555年（大航海時代・近世区分。1600年以降は三十年戦争期の地図に切り替え）
-export const RENAISSANCE_MEDIEVAL_MAP = snapshotMapPeriod(RENAISSANCE_SNAPSHOTS_MEDIEVAL, { geoPrefix: "ren",
-  rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB,
-});
-export const RENAISSANCE_EARLY_MODERN_MAP = snapshotMapPeriod(RENAISSANCE_SNAPSHOTS_EARLY_MODERN, { geoPrefix: "ren",
-  rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB,
-});
-
-// =====================================================================
-// 中世ヨーロッパ（封建社会・十字軍・ビザンツ）の地図データ
-// 550・800・962年は地図の時代区分「中世①」、1095・1204・1360年は「中世②」に属する。中世②の1450年以降は
-// ルネサンス期の勢力図（1492年）が受け持つため、App.jsx の ERA_PERIODS で年ごとに切り替えている。
-// フランス王国・神聖ローマ帝国などの輪郭はルネサンス期のものを流用し、フランドルはフランス王国の上に重ねる小区分として描く。
-// region の id は MEDIEVAL_CARDS の region と一致させている。カードの答えになる地名（クレルモン、カノッサ、アヴィニョン、
-// コンスタンツ、リューベック、カッファ）は、地図上で答えが見えないよう都市として置かない。輪郭は学習用の模式図。
-// =====================================================================
-const MEDIEVAL_COLORS = {
-  "フランク王国": ["#9AA8D9", "#C7D0EC"],
-  "神聖ローマ帝国": ["#A8C686", "#D2E3BF"],
-  "ビザンツ帝国": ["#C98E82", "#EAC0B9"],
-  "フランス王国": ["#8FA3E0", "#C3CFF0"],
-  "イングランド王国": ["#D9866B", "#F0B8A8"],
-  "イスラーム世界": ["#7ECBA8", "#B8E5D2"],
-  "セルジューク朝": ["#E0C56B", "#F0E2A8"],
-  "ヴェネツィア共和国": ["#E07A8B", "#F2B8C2"],
-  "ジェノヴァ共和国": ["#C9A0DC", "#E4CFEE"],
-  "フランドル": ["#F2A65A", "#F8D3AA"],
-};
-const medRegion = (id, label) => mapRegion(MEDIEVAL_COLORS, id, label);
 
 
 
 
 
 
-const MEDIEVAL_LABELS = {
-  franks: { at: [4.0, 48.0], lines: ["フランク王国"], size: 7 },
-  hre: { at: [10.5, 50.6], lines: ["神聖ローマ帝国"], size: 7 },
-  westFrancia: { at: [2.3, 46.8], lines: ["西フランク王国"], size: 6.5 },
-  france: { at: [2.3, 46.8], lines: ["フランス王国"], size: 6.5 },
-  england: { at: [-1.6, 52.6], lines: ["イングランド", "王国"], size: 4.5 },
-  flanders: { at: [3.1, 51.0], lines: ["フランドル"], size: 2.8 },
-  byz: { at: [32.0, 39.0], lines: ["ビザンツ帝国"], size: 7 },
-  islam: { at: [40.0, 30.0], lines: ["イスラーム世界"], size: 9 },
-  seljuk: { at: [50.0, 34.0], lines: ["セルジューク朝"], size: 8 },
-  venice: { at: [12.3, 45.9], lines: ["ヴェネツィア"], size: 3 },
-  genoa: { at: [8.8, 44.75], lines: ["ジェノヴァ"], size: 3 },
-};
 
-const MEDIEVAL_SNAPSHOTS_1 = {
-  // ユスティニアヌス帝の時代（6世紀半ば）
-  [550]: {
-    regions: [
-      medRegion("フランク王国", { ...MEDIEVAL_LABELS.franks, lines: ["フランク王国", "（メロヴィング朝）"] }),
-      medRegion("ビザンツ帝国", MEDIEVAL_LABELS.byz),
-    ],
-    cities: [
-      mapCity("パリ", 2.35, 48.86, "フランク王国"),
-      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
-      mapCity("ラヴェンナ", 12.20, 44.42, "ビザンツ帝国", "r"),
-      mapCity("ローマ", 12.48, 41.89, "ビザンツ帝国"),
-      mapCity("カルタゴ", 10.32, 36.85, "ビザンツ帝国"),
-      mapCity("アレクサンドリア", 29.92, 31.20, "ビザンツ帝国", "tl"),
-      mapCity("アンティオキア", 36.16, 36.20, "ビザンツ帝国", "r"),
-    ],
-  },
-  // カール大帝の戴冠（800年）
-  [800]: {
-    regions: [
-      medRegion("フランク王国", MEDIEVAL_LABELS.franks),
-      medRegion("ビザンツ帝国", MEDIEVAL_LABELS.byz),
-      medRegion("イスラーム世界", MEDIEVAL_LABELS.islam),
-    ],
-    cities: [
-      mapCity("アーヘン", 6.08, 50.78, "フランク王国", "r"),
-      mapCity("パリ", 2.35, 48.86, "フランク王国"),
-      mapCity("ポワティエ", 0.34, 46.58, "フランク王国", "l"),
-      mapCity("ローマ", 12.48, 41.89, "フランク王国"),
-      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
-      mapCity("コルドバ", -4.78, 37.88, "イスラーム世界", "l"),
-      mapCity("バグダード", 44.36, 33.31, "イスラーム世界"),
-    ],
-  },
-  // オットー1世の戴冠（962年）
-  [962]: {
-    regions: [
-      medRegion("フランス王国", MEDIEVAL_LABELS.westFrancia),
-      medRegion("神聖ローマ帝国", MEDIEVAL_LABELS.hre),
-      medRegion("イングランド王国", MEDIEVAL_LABELS.england),
-      medRegion("ビザンツ帝国", MEDIEVAL_LABELS.byz),
-      medRegion("イスラーム世界", MEDIEVAL_LABELS.islam),
-    ],
-    cities: [
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("アーヘン", 6.08, 50.78, "神聖ローマ帝国", "r"),
-      mapCity("マクデブルク", 11.63, 52.13, "神聖ローマ帝国", "r"),
-      mapCity("ローマ", 12.48, 41.89, "神聖ローマ帝国"),
-      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
-      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
-      mapCity("コルドバ", -4.78, 37.88, "イスラーム世界", "l"),
-      mapCity("バグダード", 44.36, 33.31, "イスラーム世界"),
-    ],
-  },
-};
 
-const MEDIEVAL_SNAPSHOTS_2 = {
-  // 第1回十字軍の前夜（1095年）。フランドルはフランス王国の上に重ねて描く（配列の後ろほど上に描画される）
-  [1095]: {
-    regions: [
-      medRegion("神聖ローマ帝国", MEDIEVAL_LABELS.hre),
-      medRegion("フランス王国", MEDIEVAL_LABELS.france),
-      medRegion("イングランド王国", MEDIEVAL_LABELS.england),
-      medRegion("ビザンツ帝国", MEDIEVAL_LABELS.byz),
-      medRegion("セルジューク朝", MEDIEVAL_LABELS.seljuk),
-      medRegion("イスラーム世界", { ...MEDIEVAL_LABELS.islam, at: [10.0, 31.0] }),
-      medRegion("ヴェネツィア共和国", MEDIEVAL_LABELS.venice),
-      medRegion("ジェノヴァ共和国", MEDIEVAL_LABELS.genoa),
-      medRegion("フランドル", MEDIEVAL_LABELS.flanders),
-    ],
-    cities: [
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
-      mapCity("ブルージュ", 3.22, 51.21, "フランドル", "tl"),
-      mapCity("ガン", 3.72, 51.05, "フランドル", "r"),
-      mapCity("アーヘン", 6.08, 50.78, "神聖ローマ帝国", "r"),
-      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
-      mapCity("ジェノヴァ", 8.93, 44.41, "ジェノヴァ共和国", "l"),
-      mapCity("ローマ", 12.48, 41.89, null),
-      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
-      mapCity("イェルサレム", 35.23, 31.78, "セルジューク朝", "r"),
-      mapCity("バグダード", 44.36, 33.31, "セルジューク朝"),
-      mapCity("カイロ", 31.24, 30.04, "イスラーム世界", "l"),
-      mapCity("コルドバ", -4.78, 37.88, "イスラーム世界", "l"),
-    ],
-  },
-  // 第4回十字軍のコンスタンティノープル占領（1204年）。ヴェネツィアはクレタ島・エウボイア島など東地中海の拠点を得る
-  [1204]: {
-    regions: [
-      medRegion("神聖ローマ帝国", MEDIEVAL_LABELS.hre),
-      medRegion("フランス王国", MEDIEVAL_LABELS.france),
-      medRegion("イングランド王国", MEDIEVAL_LABELS.england),
-      medRegion("ビザンツ帝国", { ...MEDIEVAL_LABELS.byz, at: [29.5, 40.0], lines: ["ニケーア帝国", "（ビザンツ亡命政権）"], size: 4 }),
-      medRegion("セルジューク朝", { ...MEDIEVAL_LABELS.seljuk, at: [34.0, 38.7], lines: ["ルーム・", "セルジューク朝"], size: 4.5 }),
-      medRegion("イスラーム世界", MEDIEVAL_LABELS.islam),
-      medRegion("ヴェネツィア共和国", MEDIEVAL_LABELS.venice),
-      medRegion("ジェノヴァ共和国", MEDIEVAL_LABELS.genoa),
-      medRegion("フランドル", MEDIEVAL_LABELS.flanders),
-    ],
-    background: [
-      mapBackground("十字軍の諸国家", [25.5, 41.3], "#8C9A7A"),
-    ],
-    cities: [
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
-      mapCity("ブルージュ", 3.22, 51.21, "フランドル", "tl"),
-      mapCity("ガン", 3.72, 51.05, "フランドル", "r"),
-      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
-      mapCity("ジェノヴァ", 8.93, 44.41, "ジェノヴァ共和国", "l"),
-      mapCity("ローマ", 12.48, 41.89, null),
-      mapCity("コンスタンティノープル", 28.98, 41.01, null, "t"),
-      mapCity("ニケーア", 29.72, 40.43, "ビザンツ帝国", "r"),
-      mapCity("コンヤ", 32.49, 37.87, "セルジューク朝"),
-      mapCity("カイロ", 31.24, 30.04, "イスラーム世界", "l"),
-      mapCity("ダマスクス", 36.29, 33.51, "イスラーム世界", "r"),
-    ],
-  },
-  // 百年戦争中のブレティニー条約と黒死病の大流行後（1360年）。イングランドはアキテーヌとカレーを保持
-  [1360]: {
-    regions: [
-      medRegion("神聖ローマ帝国", MEDIEVAL_LABELS.hre),
-      medRegion("フランス王国", MEDIEVAL_LABELS.france),
-      medRegion("イングランド王国", MEDIEVAL_LABELS.england),
-      medRegion("ビザンツ帝国", { ...MEDIEVAL_LABELS.byz, at: [28.4, 41.9], size: 3.5 }),
-      medRegion("イスラーム世界", { ...MEDIEVAL_LABELS.islam, at: [20.0, 28.5] }),
-      medRegion("ヴェネツィア共和国", MEDIEVAL_LABELS.venice),
-      medRegion("ジェノヴァ共和国", MEDIEVAL_LABELS.genoa),
-      medRegion("フランドル", MEDIEVAL_LABELS.flanders),
-    ],
-    background: [
-      mapBackground("オスマン朝", [29.0, 40.2], "#7A8CA8"),
-    ],
-    cities: [
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("オルレアン", 1.91, 47.90, "フランス王国", "l"),
-      mapCity("ロンドン", -0.12, 51.51, "イングランド王国", "tl"),
-      mapCity("ボルドー", -0.58, 44.84, "イングランド王国", "l"),
-      mapCity("ブルージュ", 3.22, 51.21, "フランドル", "tl"),
-      mapCity("ガン", 3.72, 51.05, "フランドル", "r"),
-      mapCity("プラハ", 14.42, 50.09, "神聖ローマ帝国", "r"),
-      mapCity("ヴェネツィア", 12.34, 45.44, "ヴェネツィア共和国", "r"),
-      mapCity("ジェノヴァ", 8.93, 44.41, "ジェノヴァ共和国", "l"),
-      mapCity("ローマ", 12.48, 41.89, null),
-      mapCity("コンスタンティノープル", 28.98, 41.01, "ビザンツ帝国", "t"),
-      mapCity("カイロ", 31.24, 30.04, "イスラーム世界", "l"),
-      mapCity("グラナダ", -3.60, 37.18, "イスラーム世界", "b"),
-    ],
-  },
-};
+
 
 // 「シチリア島」は c65 の答えなので、中世の地図では出さない
 const MEDIEVAL_SEA_LABELS = SEA_LABELS.filter((s) => s.name !== "ドーバー海峡" && s.name !== "シチリア島").concat(
@@ -3508,150 +2927,12 @@ export const MEDIEVAL_BLURB = {
   "フランドル": "現在のベルギー西部を中心とする伯領。イギリスから羊毛を輸入して毛織物業が栄え、ブルージュやガンなどの都市が自治を獲得した。英仏の対立の焦点にもなった。",
 };
 
-// 550・800・962年（中世①区分）と、1095・1204・1360年（中世②区分。1450年以降はルネサンス期の地図に切り替え）
-export const MEDIEVAL_1_MAP = snapshotMapPeriod(MEDIEVAL_SNAPSHOTS_1, { geoPrefix: "med", rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
-export const MEDIEVAL_2_MAP = snapshotMapPeriod(MEDIEVAL_SNAPSHOTS_2, { geoPrefix: "med", rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
-
-// =====================================================================
-// 近世（絶対王政・主権国家体制）の地図データ
-// 1648・1715・1772年の3時点。地図の時代区分「大航海時代・近世」の1600年以降を受け持つ（1600年より前はルネサンス期の地図）。
-// フランス・神聖ローマ帝国・スペインなどの輪郭はルネサンス期のものを流用し、オーストリア・プロイセン・オランダなどは
-// 神聖ローマ帝国の上に重ねて描く（配列の後ろほど上に描画される）。
-// region の id は ABSOLUTISM_CARDS の region と一致させている。カードの答えになる地名（ユトレヒト、カルロヴィッツ、
-// バタヴィア、ナント）は都市として置かず、勢力ラベルにも「ハンガリー」「スイス」は出さない。輪郭は学習用の模式図。
-// =====================================================================
-const ABSOLUTISM_COLORS = {
-  "スペイン王国": ["#D9866B", "#F0B8A8"],
-  "オランダ": ["#F2A65A", "#F8D3AA"],
-  "神聖ローマ帝国": ["#A8C686", "#D2E3BF"],
-  "イギリス": ["#E07A8B", "#F2B8C2"],
-  "フランス王国": ["#8FA3E0", "#C3CFF0"],
-  "オーストリア": ["#E8D27A", "#F5E9B8"],
-  "プロイセン王国": ["#8FBCC9", "#C3E0E6"],
-  "ロシア帝国": ["#B79FD1", "#DCCCEC"],
-};
-const absRegion = (id, label) => mapRegion(ABSOLUTISM_COLORS, id, label);
 
 
 
-const BG = { ottoman: "#7A8CA8", sweden: "#8C9A7A", poland: "#A89A8C", portugal: "#7FA6A0" };
 
-const ABSOLUTISM_LABELS = {
-  spain: { at: [-3.0, 40.3], lines: ["スペイン王国"], size: 5 },
-  netherlands: { at: [5.4, 52.4], lines: ["オランダ"], size: 3 },
-  hre: { at: [9.6, 50.2], lines: ["神聖ローマ帝国"], size: 4.5 },
-  britain: { at: [-1.8, 52.9], lines: ["イギリス"], size: 4.5 },
-  france: { at: [2.3, 46.8], lines: ["フランス王国"], size: 6 },
-  austria: { at: [15.2, 47.4], lines: ["オーストリア"], size: 4 },
-  brandenburg: { at: [13.3, 52.6], lines: ["ブランデンブルク", "＝プロイセン"], size: 3 },
-  prussia: { at: [13.3, 52.6], lines: ["プロイセン王国"], size: 3.6 },
-  russia: { at: [42.0, 57.0], lines: ["ロシア帝国"], size: 8 },
-};
 
-const ABSOLUTISM_SNAPSHOTS = {
-  // ウェストファリア条約（1648年）。ブランデンブルク選帝侯はプロイセン公国を兼ね、オーストリアはベーメン・シュレジエンを保持
-  [1648]: {
-    regions: [
-      absRegion("神聖ローマ帝国", ABSOLUTISM_LABELS.hre),
-      absRegion("フランス王国", ABSOLUTISM_LABELS.france),
-      absRegion("スペイン王国", ABSOLUTISM_LABELS.spain),
-      absRegion("オーストリア", ABSOLUTISM_LABELS.austria),
-      absRegion("プロイセン王国", ABSOLUTISM_LABELS.brandenburg),
-      absRegion("オランダ", ABSOLUTISM_LABELS.netherlands),
-      absRegion("イギリス", ABSOLUTISM_LABELS.britain),
-      absRegion("ロシア帝国", { ...ABSOLUTISM_LABELS.russia, lines: ["ロシア"] }),
-    ],
-    background: [
-      mapBackground("スウェーデン", [16.0, 62.0], BG.sweden),
-      mapBackground("ポーランド＝リトアニア", [26.5, 53.0], BG.poland),
-      mapBackground("オスマン帝国", [31.0, 39.5], BG.ottoman),
-      mapBackground("ポルトガル王国", [-8.2, 39.8], BG.portugal),
-    ],
-    cities: [
-      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
-      mapCity("ブリュッセル", 4.35, 50.85, "スペイン王国", "l"),
-      mapCity("ミラノ", 9.19, 45.46, "スペイン王国", "l"),
-      mapCity("アムステルダム", 4.90, 52.37, "オランダ", "tl"),
-      mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
-      mapCity("パリ", 2.35, 48.86, "フランス王国"),
-      mapCity("ミュンスター", 7.63, 51.96, "神聖ローマ帝国", "r"),
-      mapCity("ウィーン", 16.37, 48.21, "オーストリア", "r"),
-      mapCity("プラハ", 14.42, 50.09, "オーストリア", "r"),
-      mapCity("ベルリン", 13.40, 52.52, "プロイセン王国", "r"),
-      mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
-    ],
-  },
-  // ユトレヒト条約（1713年）の直後。スペインはブルボン朝に、南ネーデルラント・ミラノ・ナポリはオーストリア領に。ロシアはバルト海に進出
-  [1715]: {
-    regions: [
-      absRegion("神聖ローマ帝国", ABSOLUTISM_LABELS.hre),
-      absRegion("フランス王国", ABSOLUTISM_LABELS.france),
-      absRegion("スペイン王国", ABSOLUTISM_LABELS.spain),
-      absRegion("オーストリア", ABSOLUTISM_LABELS.austria),
-      absRegion("プロイセン王国", ABSOLUTISM_LABELS.prussia),
-      absRegion("オランダ", ABSOLUTISM_LABELS.netherlands),
-      absRegion("イギリス", ABSOLUTISM_LABELS.britain),
-      absRegion("ロシア帝国", { ...ABSOLUTISM_LABELS.russia, lines: ["ロシア"] }),
-    ],
-    background: [
-      mapBackground("スウェーデン", [16.0, 62.0], BG.sweden),
-      mapBackground("ポーランド＝リトアニア", [26.5, 53.0], BG.poland),
-      mapBackground("オスマン帝国", [31.0, 39.5], BG.ottoman),
-      mapBackground("ポルトガル王国", [-8.2, 39.8], BG.portugal),
-    ],
-    cities: [
-      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
-      mapCity("アムステルダム", 4.90, 52.37, "オランダ", "tl"),
-      mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
-      mapCity("パリ", 2.35, 48.86, "フランス王国", "tl"),
-      mapCity("ヴェルサイユ", 2.12, 48.80, "フランス王国", "bl"),
-      mapCity("フランクフルト", 8.68, 50.11, "神聖ローマ帝国", "r"),
-      mapCity("ウィーン", 16.37, 48.21, "オーストリア", "r"),
-      mapCity("プラハ", 14.42, 50.09, "オーストリア", "r"),
-      mapCity("ブリュッセル", 4.35, 50.85, "オーストリア", "l"),
-      mapCity("ベルリン", 13.40, 52.52, "プロイセン王国", "r"),
-      mapCity("ケーニヒスベルク", 20.51, 54.71, "プロイセン王国", "r"),
-      mapCity("サンクトペテルブルク", 30.32, 59.94, "ロシア帝国", "r"),
-      mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
-    ],
-  },
-  // 第1回ポーランド分割（1772年）。プロイセンはシュレジエンと西プロイセンを、オーストリアはガリツィアを領有
-  [1772]: {
-    regions: [
-      absRegion("神聖ローマ帝国", ABSOLUTISM_LABELS.hre),
-      absRegion("フランス王国", ABSOLUTISM_LABELS.france),
-      absRegion("スペイン王国", ABSOLUTISM_LABELS.spain),
-      absRegion("オーストリア", ABSOLUTISM_LABELS.austria),
-      absRegion("プロイセン王国", ABSOLUTISM_LABELS.prussia),
-      absRegion("オランダ", ABSOLUTISM_LABELS.netherlands),
-      absRegion("イギリス", ABSOLUTISM_LABELS.britain),
-      absRegion("ロシア帝国", ABSOLUTISM_LABELS.russia),
-    ],
-    background: [
-      mapBackground("スウェーデン", [16.0, 62.0], BG.sweden),
-      mapBackground("ポーランド＝リトアニア", [26.0, 53.0], BG.poland),
-      mapBackground("オスマン帝国", [31.0, 39.5], BG.ottoman),
-      mapBackground("ポルトガル王国", [-8.2, 39.8], BG.portugal),
-    ],
-    cities: [
-      mapCity("マドリード", -3.70, 40.42, "スペイン王国"),
-      mapCity("アムステルダム", 4.90, 52.37, "オランダ", "tl"),
-      mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
-      mapCity("ボストン", -71.06, 42.36, "イギリス", "r"),
-      mapCity("パリ", 2.35, 48.86, "フランス王国", "tl"),
-      mapCity("ヴェルサイユ", 2.12, 48.80, "フランス王国", "bl"),
-      mapCity("フランクフルト", 8.68, 50.11, "神聖ローマ帝国", "r"),
-      mapCity("ウィーン", 16.37, 48.21, "オーストリア", "r"),
-      mapCity("プラハ", 14.42, 50.09, "オーストリア", "r"),
-      mapCity("ベルリン", 13.40, 52.52, "プロイセン王国", "r"),
-      mapCity("ポツダム", 13.06, 52.39, "プロイセン王国", "bl"),
-      mapCity("ブレスラウ", 17.04, 51.11, "プロイセン王国", "r"),
-      mapCity("サンクトペテルブルク", 30.32, 59.94, "ロシア帝国", "r"),
-      mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
-      mapCity("ワルシャワ", 21.01, 52.23, null, "r"),
-    ],
-  },
-};
+
 
 export const ABSOLUTISM_BLURB = {
   "スペイン王国": "16世紀には新大陸の銀で栄えた大帝国。17世紀以降は相次ぐ戦争と財政難で衰え、18世紀初めにはフランス系のブルボン家が王位を継いだ。",
@@ -3664,30 +2945,6 @@ export const ABSOLUTISM_BLURB = {
   "ロシア帝国": "モスクワを中心に成長し、17世紀にはシベリアを経て太平洋岸に達した。18世紀に西欧化を進めてヨーロッパの大国となり、バルト海・黒海方面へ領土を広げた。",
 };
 
-// 1648・1715・1772年（大航海時代・近世区分の1600年以降）
-export const ABSOLUTISM_MAP = snapshotMapPeriod(ABSOLUTISM_SNAPSHOTS, { geoPrefix: "abs",
-  rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: ABSOLUTISM_BLURB,
-});
-
-// =====================================================================
-// 近代（帝国主義と世界大戦）の地図データ
-// 1885・1900・1914年の3時点。地図の時代区分「帝国主義と二つの大戦」のうち1918年までを受け持つ。
-// 列強の植民地は本国と同じ勢力として描く（英領インド・カナダ・アフリカ、仏領アフリカ・インドシナ、独領アフリカ、米領太平洋など）。
-// region の id は IMPERIALISM_CARDS の region と一致させている。カードの答えになる地名（ファショダ、モロッコ、キール、
-// ポーツマス、下関、膠州、フィリピン、ボスニア・ヘルツェゴヴィナなど）は、ラベル・都市名として出さない。輪郭は学習用の模式図。
-// =====================================================================
-const IMPERIALISM_COLORS = {
-  "イギリス": ["#E07A8B", "#F2B8C2"],
-  "フランス": ["#8FA3E0", "#C3CFF0"],
-  "ドイツ帝国": ["#A8A8A8", "#D8D8D8"],
-  "ロシア帝国": ["#B79FD1", "#DCCCEC"],
-  "アメリカ合衆国": ["#7ECBA8", "#B8E5D2"],
-  "オーストリア＝ハンガリー帝国": ["#E8D27A", "#F5E9B8"],
-  "オスマン帝国": ["#7FB8C9", "#BFDCE6"],
-  "日本": ["#F2A65A", "#F8D3AA"],
-  "清": ["#D9866B", "#F0B8A8"],
-};
-const impRegion = (id, label) => mapRegion(IMPERIALISM_COLORS, id, label);
 
 
 
@@ -3697,145 +2954,10 @@ const impRegion = (id, label) => mapRegion(IMPERIALISM_COLORS, id, label);
 
 
 
-const IMP_BG = { neutral: "#8C9A7A", iberia: "#A89A8C", balkan: "#9A8CA8", persia: "#7A8CA8", korea: "#A8A07A" };
 
-const IMPERIALISM_LABELS = {
-  britain: { at: [-2.0, 53.0], lines: ["イギリス"], size: 4.5 },
-  france: { at: [2.3, 46.8], lines: ["フランス"], size: 5.5 },
-  germany: { at: [10.3, 51.3], lines: ["ドイツ帝国"], size: 5 },
-  russia: { at: [50.0, 58.0], lines: ["ロシア帝国"], size: 9 },
-  usa: { at: [-99.0, 39.0], lines: ["アメリカ合衆国"], size: 7 },
-  austria: { at: [16.8, 47.8], lines: ["オーストリア＝", "ハンガリー帝国"], size: 3.6 },
-  ottoman: { at: [35.0, 38.8], lines: ["オスマン帝国"], size: 5.5 },
-  japan: { at: [137.5, 37.0], lines: ["日本"], size: 5 },
-  qing: { at: [104.0, 34.0], lines: ["清"], size: 9 },
-};
 
-// 3時点で共通の背景（バルカン諸国・朝鮮は時点ごとに追加）
-const impCommonBackground = () => [
-  mapBackground("イタリア", [12.5, 42.8], IMP_BG.neutral),
-  mapBackground("スペイン", [-3.8, 40.0], IMP_BG.iberia),
-  mapBackground("ポルトガル", [-8.2, 39.8], IMP_BG.iberia),
-  mapBackground("オランダ領東インド", [113.0, -2.0], IMP_BG.neutral),
-  mapBackground("ペルシア", [53.0, 32.5], IMP_BG.persia),
-  mapBackground("スイス", [8.2, 46.85], IMP_BG.neutral),
-  mapBackground("アフガニスタン", [66.0, 33.8], IMP_BG.persia),
-  mapBackground("エチオピア", [39.5, 8.8], IMP_BG.neutral),
-];
-const IMP_COMMON_CITIES = [
-  mapCity("ロンドン", -0.12, 51.51, "イギリス", "tl"),
-  mapCity("パリ", 2.35, 48.86, "フランス"),
-  mapCity("ベルリン", 13.40, 52.52, "ドイツ帝国", "r"),
-  mapCity("サンクトペテルブルク", 30.32, 59.94, "ロシア帝国", "r"),
-  mapCity("モスクワ", 37.62, 55.76, "ロシア帝国", "r"),
-  mapCity("ウラジオストク", 131.89, 43.12, "ロシア帝国", "r"),
-  mapCity("ワシントンD.C.", -77.04, 38.90, "アメリカ合衆国", "r"),
-  mapCity("ウィーン", 16.37, 48.21, "オーストリア＝ハンガリー帝国", "r"),
-  mapCity("サラエボ", 18.41, 43.86, "オーストリア＝ハンガリー帝国", "bl"),
-  mapCity("イスタンブール", 28.98, 41.01, "オスマン帝国", "r"),
-  mapCity("バグダード", 44.36, 33.31, "オスマン帝国"),
-  mapCity("東京", 139.69, 35.69, "日本", "r"),
-  mapCity("北京", 116.40, 39.90, "清", "l"),
-  mapCity("カイロ", 31.24, 30.04, "イギリス", "l"),
-  mapCity("カルカッタ", 88.36, 22.57, "イギリス", "r"),
-  mapCity("ケープタウン", 18.42, -33.92, "イギリス", "l"),
-  mapCity("アルジェ", 3.06, 36.75, "フランス", "r"),
-  mapCity("ハノイ", 105.85, 21.03, "フランス", "l"),
-];
 
-const IMPERIALISM_SNAPSHOTS = {
-  // ベルリン会議（1884〜85年）でアフリカ分割の原則が定まったころ。朝鮮は独立国
-  [1885]: {
-    regions: [
-      impRegion("清", IMPERIALISM_LABELS.qing),
-      impRegion("ロシア帝国", IMPERIALISM_LABELS.russia),
-      impRegion("オスマン帝国", IMPERIALISM_LABELS.ottoman),
-      impRegion("オーストリア＝ハンガリー帝国", IMPERIALISM_LABELS.austria),
-      impRegion("ドイツ帝国", IMPERIALISM_LABELS.germany),
-      impRegion("フランス", IMPERIALISM_LABELS.france),
-      impRegion("イギリス", IMPERIALISM_LABELS.britain),
-      impRegion("アメリカ合衆国", IMPERIALISM_LABELS.usa),
-      impRegion("日本", IMPERIALISM_LABELS.japan),
-    ],
-    background: [
-      ...impCommonBackground(),
-      mapBackground("コンゴ自由国", [23.5, -3.0], IMP_BG.neutral),
-      mapBackground("セルビア", [21.0, 43.9], IMP_BG.balkan),
-      mapBackground("ブルガリア", [25.0, 42.9], IMP_BG.balkan),
-      mapBackground("ルーマニア", [25.5, 44.9], IMP_BG.balkan),
-      mapBackground("ギリシア", [22.0, 38.9], IMP_BG.balkan),
-      mapBackground("モンテネグロ", [19.25, 42.75], IMP_BG.balkan),
-      mapBackground("朝鮮", [127.5, 38.5], IMP_BG.korea),
-    ],
-    cities: [...IMP_COMMON_CITIES],
-  },
-  // 中国分割と義和団の乱（1900年）。ロシアは旅順・大連を租借、アメリカは太平洋の島々とハワイを獲得
-  [1900]: {
-    regions: [
-      impRegion("清", IMPERIALISM_LABELS.qing),
-      impRegion("ロシア帝国", IMPERIALISM_LABELS.russia),
-      impRegion("オスマン帝国", IMPERIALISM_LABELS.ottoman),
-      impRegion("オーストリア＝ハンガリー帝国", IMPERIALISM_LABELS.austria),
-      impRegion("ドイツ帝国", IMPERIALISM_LABELS.germany),
-      impRegion("フランス", IMPERIALISM_LABELS.france),
-      impRegion("イギリス", IMPERIALISM_LABELS.britain),
-      impRegion("アメリカ合衆国", IMPERIALISM_LABELS.usa),
-      impRegion("日本", IMPERIALISM_LABELS.japan),
-    ],
-    background: [
-      ...impCommonBackground(),
-      mapBackground("コンゴ自由国", [23.5, -3.0], IMP_BG.neutral),
-      mapBackground("セルビア", [21.0, 43.9], IMP_BG.balkan),
-      mapBackground("ブルガリア", [25.0, 42.9], IMP_BG.balkan),
-      mapBackground("ルーマニア", [25.5, 44.9], IMP_BG.balkan),
-      mapBackground("ギリシア", [22.0, 38.9], IMP_BG.balkan),
-      mapBackground("モンテネグロ", [19.25, 42.75], IMP_BG.balkan),
-      mapBackground("大韓帝国", [127.5, 38.5], IMP_BG.korea),
-    ],
-    cities: [
-      ...IMP_COMMON_CITIES,
-      mapCity("旅順", 121.25, 38.80, "ロシア帝国", "l"),
-      mapCity("青島", 120.38, 36.07, "ドイツ帝国", "r"),
-      mapCity("マニラ", 120.98, 14.60, "アメリカ合衆国", "l"),
-      mapCity("ホノルル", -157.86, 21.31, "アメリカ合衆国", "r"),
-      mapCity("台北", 121.56, 25.04, "日本", "r"),
-    ],
-  },
-  // 第一次世界大戦の開戦（1914年）。日本は朝鮮・南樺太・関東州を領有、オスマン帝国はバルカン戦争でヨーロッパ側の大半を失った
-  [1914]: {
-    regions: [
-      impRegion("清", { ...IMPERIALISM_LABELS.qing, lines: ["中華民国"], size: 8 }),
-      impRegion("ロシア帝国", IMPERIALISM_LABELS.russia),
-      impRegion("オスマン帝国", IMPERIALISM_LABELS.ottoman),
-      impRegion("オーストリア＝ハンガリー帝国", IMPERIALISM_LABELS.austria),
-      impRegion("ドイツ帝国", IMPERIALISM_LABELS.germany),
-      impRegion("フランス", IMPERIALISM_LABELS.france),
-      impRegion("イギリス", IMPERIALISM_LABELS.britain),
-      impRegion("アメリカ合衆国", IMPERIALISM_LABELS.usa),
-      impRegion("日本", IMPERIALISM_LABELS.japan),
-    ],
-    background: [
-      ...impCommonBackground(),
-      mapBackground("ベルギー領コンゴ", [23.5, -3.0], IMP_BG.neutral),
-      mapBackground("セルビア", [21.2, 43.4], IMP_BG.balkan),
-      mapBackground("ブルガリア", [25.3, 42.7], IMP_BG.balkan),
-      mapBackground("ルーマニア", [25.5, 44.9], IMP_BG.balkan),
-      mapBackground("ギリシア", [22.0, 39.3], IMP_BG.balkan),
-      mapBackground("モンテネグロ", [19.25, 42.75], IMP_BG.balkan),
-      mapBackground("アルバニア", [20.05, 41.0], IMP_BG.balkan),
-    ],
-    cities: [
-      ...IMP_COMMON_CITIES,
-      mapCity("旅順", 121.25, 38.80, "日本", "l"),
-      mapCity("京城（ソウル）", 126.98, 37.57, "日本", "l"),
-      mapCity("台北", 121.56, 25.04, "日本", "r"),
-      mapCity("青島", 120.38, 36.07, "ドイツ帝国", "r"),
-      mapCity("マニラ", 120.98, 14.60, "アメリカ合衆国", "l"),
-      mapCity("ホノルル", -157.86, 21.31, "アメリカ合衆国", "r"),
-      mapCity("ベオグラード", 20.46, 44.79, null, "r"),
-    ],
-  },
-};
+
 
 export const IMPERIALISM_BLURB = {
   "イギリス": "「世界の工場」として繁栄し、インド・カナダ・オーストラリア・アフリカ各地に植民地を持つ世界最大の帝国となった。「日の沈まぬ帝国」と呼ばれ、海軍力で世界の海を支配した。",
@@ -3856,10 +2978,120 @@ const IMPERIALISM_SEA_LABELS = RENAISSANCE_SEA_LABELS.filter((s) => s.name !== "
   }),
 );
 
-// 1885・1900・1914年（帝国主義と二つの大戦の区分のうち1918年まで）
-export const IMPERIALISM_MAP = snapshotMapPeriod(IMPERIALISM_SNAPSHOTS, { geoPrefix: "imp",
-  rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: IMPERIALISM_BLURB,
+// =====================================================================
+// 年代ごとの地図の組み立て（存続期間ベース）
+// 地図の年代（atlas/series.js）ごとに、その年に存続する勢力（geo/regions.mjs の ENTITIES → GEO_MEMBERS）を並べ、
+// 色・ラベル・背景・都市（atlas/styles.js）を有効期間から選んで、地図タブ（App.jsx の ERA_PERIODS）に渡す形にする。
+// =====================================================================
+// 有効期間 [{ from, to, ... }] から、年に当てはまるもの（なければ直前、それもなければ最初）を選ぶ
+function periodAt(list, year) {
+  if (!list?.length) return null;
+  return list.find((p) => p.from <= year && year <= p.to) ?? [...list].reverse().find((p) => p.from <= year) ?? list[0];
+}
+const DEFAULT_FILL = ["#8C9A7A", "#C2CCB4"];
+const toXY = (at) => lonLatToXY(at[0], at[1]);
+function assembleSnapshot(prefix, year) {
+  const key = `${prefix}${year}`;
+  const members = GEO_MEMBERS[key];
+  if (!members) throw new Error(`地図の年代 ${key} の輪郭データがありません（node geo/build.mjs を実行してください）`);
+  const regions = [], background = [];
+  for (const id of members) {
+    const d = GEO_PATHS[`${key}/${id}`];
+    if (id.startsWith("bg:")) {
+      const name = id.slice(3);
+      const [labelX, labelY] = toXY(periodAt(BACKGROUND_LABELS[name], year)?.at ?? [0, 0]);
+      background.push({ name, fill: BACKGROUND_FILLS[prefix]?.[name] ?? DEFAULT_FILL[0], labelX, labelY, d });
+      continue;
+    }
+    const [fill, strokeColor] = PALETTES[prefix]?.[id] ?? DEFAULT_FILL;
+    const label = periodAt(REGION_LABELS[id], year) ?? { at: [0, 0], lines: [id], size: 5 };
+    const [labelX, labelY] = toXY(label.at);
+    const region = { id, fill, strokeColor, labelX, labelY, labelLines: label.lines, labelSize: label.size, shape: "path", dByYear: () => d, bbox: GEO_BBOX[`${key}/${id}`] };
+    if (label.subLabels) region.subLabels = label.subLabels.map((s) => ({ text: s.text, at: toXY(s.at), size: s.size }));
+    regions.push(region);
+  }
+  const cities = CITIES.filter((c) => c.from <= year && year <= c.to).map((c) => {
+    const [x, y] = toXY(c.at);
+    return { name: c.name, x, y, region: c.region, ...(c.dir ? { dir: c.dir } : {}), ...(c.asiaLayer ? { asiaLayer: true } : {}) };
+  });
+  return { regions, background, cities };
+}
+// 東アジアの海の名前（どの時代の地図にも加える）
+const ASIA_SEA_LABELS = [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["東シナ海", 125.0, 29.0, 5], ["南シナ海", 114.0, 14.0, 6], ["ベンガル湾", 88.0, 15.0, 6], ["アラビア海", 64.0, 17.0, 6]]
+  .map(([name, lon, lat, size]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size }; });
+const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
+// 地図の時代区分ひとつ分（ERA_PERIODS にそのまま展開する）。years はシリーズのうちこの区分が受け持つ年代。
+// 解説文は時代ごとの blurb に、東アジア・南アジアの勢力（asiaCards.js の ASIA_BLURB）でまだ書かれていないものを加える
+export function buildMapPeriod(prefix, years, { rivers, seaLabels, blurb }) {
+  const snaps = Object.fromEntries(years.map((y) => [y, assembleSnapshot(prefix, y)]));
+  const nearest = (year) => snaps[years.reduce((best, k) => (Math.abs(k - year) < Math.abs(best - year) ? k : best), years[0])];
+  const ids = [...new Set(years.flatMap((y) => snaps[y].regions.map((r) => r.id)))];
+  const fullBlurb = { ...blurb, ...Object.fromEntries(ids.filter((id) => !(id in blurb) && ASIA_BLURB[id]).map((id) => [id, ASIA_BLURB[id]])) };
+  return {
+    keyYears: [...years],
+    regionsByYear: (year) => nearest(year).regions,
+    capitalsByYear: (year) => nearest(year).cities,
+    backgroundByYear: (year) => nearest(year).background,
+    rivers,
+    seaLabels: withAsiaSeas(seaLabels),
+    blurb: fullBlurb,
+  };
+}
+
+// 市民革命と国民国家（1812・1815・1871年）の解説文と河川
+export const REVOLUTIONS_BLURB = {
+  "フランス帝国": "革命戦争・ナポレオン戦争を通じて西欧の広範な地域を直接併合。1810年にはオランダ王国も帝国に編入された。",
+  "ライン同盟": "神聖ローマ帝国解体（1806年）後、フランスの影響下でバイエルンなど西・南ドイツ諸邦が結成した同盟。",
+  "プロイセン王国（1812）": "イエナ・アウエルシュタットの戦いでフランスに大敗し、エルベ川以西とポーランド領を喪失した。",
+  "オーストリア帝国（1812）": "ナポレオンとの度重なる戦争に敗れ、アドリア海沿岸などを失った。皇女マリー・ルイーズがナポレオンに嫁ぐ。",
+  "ワルシャワ大公国": "ティルジット条約でプロイセン領ポーランドから再建されたナポレオンの衛星国。1812年のロシア遠征の拠点となった。",
+  "フランス王国": "ナポレオン退位後にルイ18世が即位。国境はおおむね1792年時点まで後退した。",
+  "ネーデルラント連合王国": "フランスに対する北方の防波堤として、オランダと旧オーストリア領ネーデルラント（現ベルギー）を統合し王国に格上げ。",
+  "ドイツ連邦": "神聖ローマ帝国に代わる緩やかな国家連合。オーストリアが議長国となるが統一国家ではない。",
+  "プロイセン王国": "本国から離れたラインラント地方（西）と、ブランデンブルク〜ポーゼン〜東プロイセンの中核部（東）の2つの領域からなる。ウィーン議定書で獲得したラインラントはフランス牽制の防波堤、東部はドイツ統一運動の中心地となっていく。",
+  "オーストリア帝国": "ウィーン周辺の中核部と、新たに獲得した北イタリア（ロンバルド＝ヴェネト王国）の2つの領域からなる。ウィーン会議を主催し、革命前の秩序の回復と勢力均衡に基づく国際秩序の中心となった。",
+  "ロシア帝国": "ワルシャワ大公国の大部分がロシア皇帝を国王とする「会議王国ポーランド」としてロシア領に編入された。",
+  "ドイツ帝国": "普仏戦争の勝利を経て、ヴェルサイユ宮殿でドイツ帝国の成立が宣言された（小ドイツ主義による統一）。",
+  "オーストリア＝ハンガリー帝国": "普墺戦争敗北後、ハンガリーに大幅な自治を認める同君連合（二重帝国）へ移行。北イタリアは既に喪失。",
+  "イタリア王国": "サルデーニャ王国を中心とする統一運動（リソルジメント）が、普仏戦争の隙にローマを占領し完成させた。",
+  "フランス": "普仏戦争に敗れナポレオン3世が退位。第三共和政が成立し、アルザス・ロレーヌをドイツ帝国に割譲した。",
+};
+const REVOLUTIONS_RIVERS = [...RIVERS, ...[
+  {
+    "name": "ヴィスワ川",
+    "points": "536.6,181.2 540.1,188.4 543.3,191.7 540.1,202.0",
+    "labelX": 555.3,
+    "labelY": 188
+  }
+]];
+
+// 各時代区分の地図。受け持つ年代は atlas/series.js から年の範囲で選ぶ（年代を足すと自動でこの区分に入る）
+export const ANCIENT_CIVILIZATIONS_MAP = buildMapPeriod("anc", seriesYears("anc", -Infinity, -500), {
+  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER], seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
 });
+export const ANCIENT_EMPIRES_MAP = buildMapPeriod("anc", seriesYears("anc", -500), {
+  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER, INDUS_RIVER, ...RIVERS.filter((r) => r.name === "ライン川" || r.name === "ドナウ川")],
+  seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
+});
+export const MEDIEVAL_1_MAP = buildMapPeriod("med", seriesYears("med", -Infinity, 1000), { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
+export const MEDIEVAL_2_MAP = buildMapPeriod("med", seriesYears("med", 1000), { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
+export const RENAISSANCE_MEDIEVAL_MAP = buildMapPeriod("ren", seriesYears("ren", -Infinity, 1500), { rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB });
+export const RENAISSANCE_EARLY_MODERN_MAP = buildMapPeriod("ren", seriesYears("ren", 1500), { rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB });
+export const ABSOLUTISM_MAP = buildMapPeriod("abs", MAP_SERIES.abs, { rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: ABSOLUTISM_BLURB });
+export const REVOLUTIONS_MAP = buildMapPeriod("rev", MAP_SERIES.rev, { rivers: REVOLUTIONS_RIVERS, seaLabels: SEA_LABELS, blurb: REVOLUTIONS_BLURB });
+export const IMPERIALISM_MAP = buildMapPeriod("imp", MAP_SERIES.imp, { rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: IMPERIALISM_BLURB });
+// 地図タブの時代区分ID（App.jsx の ERA_PERIODS・ERAS_DATA の mapPeriodId）→ その区分で使う地図。npm run check が時代ごとの地図を選ぶのに使う
+export const MAP_PERIODS_BY_ID = {
+  "ancient-civilizations": [ANCIENT_CIVILIZATIONS_MAP],
+  "ancient-empires": [ANCIENT_EMPIRES_MAP],
+  "medieval-1": [MEDIEVAL_1_MAP],
+  "medieval-2": [MEDIEVAL_2_MAP, RENAISSANCE_MEDIEVAL_MAP],
+  "early-modern": [RENAISSANCE_EARLY_MODERN_MAP, ABSOLUTISM_MAP],
+  "revolutions": [REVOLUTIONS_MAP],
+  "imperialism-wars": [IMPERIALISM_MAP],
+};
+
+
 
 // 各時代のカード：ヨーロッパ・中東などのカードと、東アジア・南アジアのカード（asiaCards.js）を年代順に並べる
 const byYear = (...lists) => lists.flat().map((c, i) => [c, i]).sort((a, b) => a[0].year - b[0].year || a[1] - b[1]).map(([c]) => c);
