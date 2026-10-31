@@ -12,6 +12,7 @@ import {
   ABSOLUTISM_MAP,
   IMPERIALISM_MAP,
 } from './data/historyData';
+import { MAP_VIEWBOX_W, MAP_VIEWBOX_H } from './data/mapProjection';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
 
@@ -1082,6 +1083,7 @@ function FontStyles() {
       /* デュアルスライダーのつまみ：横長カプセル形（iOS設定のスライダー風）＋控えめな輪郭の本物のガラス質感 */
       .glass-thumb {
         width: 34px; height: 20px;
+        touch-action: none; /* ドラッグ中のスクロールを抑止（onTouchStartはpassiveでpreventDefaultできない） */
         border-radius: 999px;
         background: linear-gradient(150deg, rgba(255,255,255,0.32) 0%, rgba(210,236,253,0.22) 45%, rgba(56,189,248,0.24) 100%);
         backdrop-filter: blur(6px) saturate(180%);
@@ -1095,6 +1097,7 @@ function FontStyles() {
       }
       .glass-thumb-gold {
         width: 34px; height: 20px;
+        touch-action: none; /* ドラッグ中のスクロールを抑止（onTouchStartはpassiveでpreventDefaultできない） */
         border-radius: 999px;
         background: linear-gradient(150deg, rgba(255,255,255,0.32) 0%, rgba(245,232,190,0.26) 45%, rgba(201,162,39,0.32) 100%);
         backdrop-filter: blur(6px) saturate(180%);
@@ -1621,7 +1624,8 @@ function DualRangeSlider({ min, max, lo, hi, onChangeLo, onChangeHi }) {
   };
 
   const startDrag = (which) => (e) => {
-    e.preventDefault();
+    // ReactのonTouchStartはpassiveでpreventDefaultできない。タッチ時のスクロールは touch-action: none で抑止済み
+    if (!e.touches) e.preventDefault();
     lastX.current = e.touches ? e.touches[0].clientX : e.clientX;
     setDrag(which);
   };
@@ -2830,6 +2834,8 @@ const RENAISSANCE_MAP_UNTIL = 1600; // 大航海時代・近世の区分で、�
 //   hasContent   … 実際に勢力ポリゴン等のデータが存在するか
 //   contentRange … hasContentがtrueの場合、実データが用意されている年代の内側の範囲
 //                  （yearRangeより狭くてよい。範囲外は「準備中」表示にする）
+//   focusBounds / focusBoundsByYear(year) … 地図の初期表示範囲（任意）。lonLatBounds([[西経, 南緯], [東経, 北緯]])
+//                  で指定する。省略時はタップできる都市が最も密集する範囲を自動で使う（computeMapFocusBounds）
 // ============================================================
 /* GEO_FRAMEWORK_DATA_START:revolutions */
 // ============================================================
@@ -3167,7 +3173,8 @@ function EraScrubber({ value, onChange, keyYears }) {
   const valueFromClientX = (clientX) => valueFromPct(pctFromClientX(clientX));
 
   const startDrag = (e) => {
-    e.preventDefault();
+    // ReactのonTouchStartはpassiveでpreventDefaultできない。タッチ時のスクロールは touch-action: none で抑止済み
+    if (!e.touches) e.preventDefault();
     lastX.current = e.touches ? e.touches[0].clientX : e.clientX;
     setDragging(true);
   };
@@ -3532,122 +3539,236 @@ function RegionDetailSheet({
   );
 }
 
-// ステップ②〜⑥：ピンチズーム（1.0x〜4.0x）＋ドラッグパン＋慣性スクロール＋水平ワールドラップ。
-// 垂直方向はこれまで通りラッパーdivへのCSS transform（translateY + scale）。
-// 水平方向は「viewBoxのmin-xを直接動かして0〜VIEWBOX_Wでラップする」方式に変更し、
-// 横スワイプで地図をぐるっと一周できる無限ループを実現する（WORLD_LAND_PATHをx=+VIEWBOX_Wの位置にもう1枚重ねて描画することで、
-// ラップの継ぎ目でも地図が途切れない）。
-const MAP_ZOOM_MIN = 1;
-const MAP_ZOOM_MAX = 4;
-const VIEWBOX_W = 1024; // 世界地図1周分の幅（viewBox単位）。WORLD_LAND_PATHの投影スケールと一致させている
-const VIEWBOX_H = 620;
+// 地図カメラ：ピンチズーム＋ドラッグパン＋慣性スクロール＋水平ワールドラップ。
+// 状態は「カメラ（viewBox座標系の中心 cx, cy と倍率 zoom）」だけで持ち、描画時に viewBox を毎回計算する。
+// zoom=1 は「世界の全高（または全幅）が地図領域を埋める倍率」。座標系は WORLD_LAND_PATH と同じ
+// メルカトル投影の 1024×620（mapProjection.js の lonLatToXY）で、勢力・都市・河川などは時代やエリアを問わず
+// この座標系にそのまま載る。東アジアや米州のデータを足しても、カメラ側の変更は不要。
+// 横方向は cx を 0〜VIEWBOX_W でラップし、視野に入る分だけ地図タイルを x=0, VIEWBOX_W, 2*VIEWBOX_W … に重ねて
+// 描画することで、継ぎ目なく一周できる（広い画面で全世界まで引いたときも途切れない）。
+const MAP_ZOOM_FLOOR = 0.3; // 引きの下限（全世界の横幅が収まる倍率がこれより大きければそちら）
+const MAP_ZOOM_MAX = 8;
+// 初期表示（各時代のフォーカス）の倍率の範囲。下限は都市マーカーが完全に表示される倍率（1.6からフェードイン、1.9で不透明）
+const FOCUS_ZOOM_MIN = 2;
+const FOCUS_ZOOM_MAX = 4.5;
+const VIEWBOX_W = MAP_VIEWBOX_W; // 世界地図1周分の幅（viewBox単位）。座標系は mapProjection.js で一元管理
+const VIEWBOX_H = MAP_VIEWBOX_H;
 
-function useMapPanZoom(containerRef) {
-  const [zoom, setZoom] = useState(1);
-  const [panY, setPanY] = useState(0); // 垂直方向：CSS transform（screen px）
-  const [worldX, setWorldX] = useState(0); // 水平方向：viewBoxのmin-x（viewBox単位、0〜VIEWBOX_Wでラップ）
+const wrapWorldX = (x) => ((x % VIEWBOX_W) + VIEWBOX_W) % VIEWBOX_W;
+// 画面px → viewBox単位の基準倍率（zoom=1のとき）
+const mapBaseScale = ({ w, h }) => Math.max(w / VIEWBOX_W, h / VIEWBOX_H);
+const mapMinZoom = (size) => Math.min(1, Math.max(MAP_ZOOM_FLOOR, size.w / (VIEWBOX_W * mapBaseScale(size))));
+
+// 各時代の初期表示範囲（viewBox座標の矩形）を、タップできる都市の分布から自動で決める。
+// 植民地や新大陸の都市が遠くに散らばる時代でも引きすぎないよう、都市が最も密集する地点を中心に、
+// その周辺の都市だけを囲む。都市がない時代は勢力ラベルの位置を使う
+const FOCUS_CLUSTER_RADIUS = 70;
+function computeMapFocusBounds(capitals, regions) {
+  let pts = capitals.filter((c) => c.region).map((c) => [c.x, c.y]);
+  if (pts.length === 0) pts = capitals.map((c) => [c.x, c.y]);
+  if (pts.length === 0) pts = regions.map((r) => [r.labelX, r.labelY]);
+  if (pts.length === 0) return null;
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  let pivot = pts[0], best = -1, bestSpread = Infinity;
+  for (const p of pts) {
+    const count = pts.filter((q) => dist(p, q) <= FOCUS_CLUSTER_RADIUS).length;
+    const spread = pts.reduce((sum, q) => sum + dist(p, q), 0);
+    if (count > best || (count === best && spread < bestSpread)) { pivot = p; best = count; bestSpread = spread; }
+  }
+  const cluster = pts.filter((q) => dist(pivot, q) <= FOCUS_CLUSTER_RADIUS * 2);
+  const PAD = 14, MIN_SPAN = 60;
+  let x0 = Math.min(...cluster.map((q) => q[0])) - PAD, x1 = Math.max(...cluster.map((q) => q[0])) + PAD;
+  let y0 = Math.min(...cluster.map((q) => q[1])) - PAD, y1 = Math.max(...cluster.map((q) => q[1])) + PAD;
+  if (x1 - x0 < MIN_SPAN) { const c = (x0 + x1) / 2; x0 = c - MIN_SPAN / 2; x1 = c + MIN_SPAN / 2; }
+  if (y1 - y0 < MIN_SPAN) { const c = (y0 + y1) / 2; y0 = c - MIN_SPAN / 2; y1 = c + MIN_SPAN / 2; }
+  return { x0, y0, x1, y1 };
+}
+
+function useMapPanZoom(containerRef, enabled) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const [cam, setCam] = useState({ cx: VIEWBOX_W / 2, cy: VIEWBOX_H / 2, zoom: 1 });
   const [interacting, setInteracting] = useState(false);
-  const gestureRef = useRef({ mode: null, moved: false, startX: 0, startY: 0, startWorldX: 0, startPanY: 0, startDist: 0, startZoom: 1 });
+  // イベントハンドラーやアニメーションからは常に最新値を読むため、カメラと領域サイズはrefにも持つ
+  const camRef = useRef(cam);
+  const sizeRef = useRef(size);
+  const homeRef = useRef(null); // 現在の時代の初期表示範囲（リセットボタン・ダブルタップで戻る先）
+  const atHomeRef = useRef(false); // 初期表示のまま（ユーザーがまだパン・ズームしていない）か
+  const gestureRef = useRef({ mode: null, moved: false, startX: 0, startY: 0, startCam: null, startDist: 0, anchor: null });
   // 慣性スクロール（モーメンタム）用：直近の移動速度を追跡し、指を離した後も減速しながらパンを継続する
   const velocityRef = useRef({ vx: 0, vy: 0, lastX: 0, lastY: 0, lastT: 0 });
-  const momentumIdRef = useRef(null);
+  const animIdRef = useRef(null); // 慣性スクロール・ズームアニメーション共通のrequestAnimationFrame ID
 
-  const wrapWorldX = (x) => ((x % VIEWBOX_W) + VIEWBOX_W) % VIEWBOX_W;
-
-  // 画面px量をviewBox単位量に変換するための比率（水平方向）。ズーム倍率が上がるほど、同じpx移動でも
-  // viewBox上の移動量は小さくなる（拡大して見ているぶん、指の動きに対する地図上の移動が細かくなるため）。
-  // HORIZONTAL_PAN_DAMPINGは体感速度の調整用（1.0だと指の動きに対して速すぎたため、控えめな値に抑えている）
-  const HORIZONTAL_PAN_DAMPING = 0.55;
-  const pxToViewboxUnits = (z) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    const containerW = rect?.width || 1;
-    return (VIEWBOX_W / (containerW * z)) * HORIZONTAL_PAN_DAMPING;
+  const clampCam = ({ cx, cy, zoom }) => {
+    const sz = sizeRef.current;
+    if (!sz.w || !sz.h) return { cx, cy, zoom };
+    const z = Math.min(MAP_ZOOM_MAX, Math.max(mapMinZoom(sz), zoom));
+    const vh = sz.h / (mapBaseScale(sz) * z);
+    // 縦は世界の上下端より外へは出さない（引きすぎて全高が収まるときは中央に固定）。横は無限ループのためラップのみ
+    const ny = vh >= VIEWBOX_H ? VIEWBOX_H / 2 : Math.min(VIEWBOX_H - vh / 2, Math.max(vh / 2, cy));
+    return { cx: wrapWorldX(cx), cy: ny, zoom: z };
+  };
+  const commit = (next) => {
+    const c = clampCam(next);
+    camRef.current = c;
+    setCam(c);
+    return c;
   };
 
-  const clampPanY = (nextY, z) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return nextY;
-    // ズーム倍率に応じて、地図が画面外へ大きくはみ出しすぎないよう垂直パン可能範囲を制限する（簡易版）。
-    // 水平方向は無限ループのためクランプしない
-    const maxY = (rect.height * (z - 1)) / 2;
-    return Math.min(maxY, Math.max(-maxY, nextY));
+  const unitsPerPx = (z) => 1 / (mapBaseScale(sizeRef.current) * z);
+  // 画面上の点（地図領域左上からのpx）を固定したまま倍率を変えたときのカメラ
+  const zoomAround = (base, sx, sy, nz) => {
+    const { w, h } = sizeRef.current;
+    const px = base.cx + (sx - w / 2) * unitsPerPx(base.zoom);
+    const py = base.cy + (sy - h / 2) * unitsPerPx(base.zoom);
+    const z = Math.min(MAP_ZOOM_MAX, Math.max(mapMinZoom(sizeRef.current), nz));
+    return { cx: px - (sx - w / 2) * unitsPerPx(z), cy: py - (sy - h / 2) * unitsPerPx(z), zoom: z };
+  };
+  const localPoint = (clientX, clientY) => {
+    const r = containerRef.current?.getBoundingClientRect();
+    return r ? [clientX - r.left, clientY - r.top] : [sizeRef.current.w / 2, sizeRef.current.h / 2];
   };
 
-  const cancelMomentum = () => {
-    if (momentumIdRef.current != null) {
-      cancelAnimationFrame(momentumIdRef.current);
-      momentumIdRef.current = null;
+  const cancelAnimation = () => {
+    atHomeRef.current = false; // パン・ズームの操作はすべてここを通る（初期表示へ移す処理はこの後で true に戻す）
+    if (animIdRef.current != null) {
+      cancelAnimationFrame(animIdRef.current);
+      animIdRef.current = null;
     }
   };
 
-  // 指を離した瞬間の速度(px/ms)を初速として、摩擦係数で毎フレーム減衰させながらpanを更新し続ける。
-  // アニメーション中は interacting=true を維持し、CSSのtransform transitionと競合してカクつかないようにする
-  const startMomentum = (vx0, vy0, z) => {
-    cancelMomentum();
+  // カメラを目標までなめらかに動かす（横は近い方の向きに回り込む。倍率は対数で補間して寄り・引きの速さをそろえる）
+  const animateTo = (target, duration = 380) => {
+    cancelAnimation();
+    const from = camRef.current;
+    const to = clampCam(target);
+    let dx = to.cx - from.cx;
+    if (dx > VIEWBOX_W / 2) dx -= VIEWBOX_W;
+    if (dx < -VIEWBOX_W / 2) dx += VIEWBOX_W;
+    const t0 = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / duration);
+      const e = 1 - Math.pow(1 - t, 3);
+      commit({
+        cx: from.cx + dx * e,
+        cy: from.cy + (to.cy - from.cy) * e,
+        zoom: Math.exp(Math.log(from.zoom) + (Math.log(to.zoom) - Math.log(from.zoom)) * e),
+      });
+      animIdRef.current = t < 1 ? requestAnimationFrame(step) : null;
+    };
+    animIdRef.current = requestAnimationFrame(step);
+  };
+
+  // viewBox座標の矩形が地図領域に収まるカメラ（初期表示用。倍率は FOCUS_ZOOM_MIN〜MAX に収める）
+  // 地図領域は画面の下端より先まで続くことがあるため、実際に画面に見えている縦の範囲に収めて中央に置く
+  const camForBounds = (b) => {
+    const sz = sizeRef.current;
+    const s0 = mapBaseScale(sz);
+    const r = containerRef.current?.getBoundingClientRect();
+    const visTop = r ? Math.max(0, -r.top) : 0;
+    const visBottom = r ? Math.max(visTop + 1, Math.min(sz.h, window.innerHeight - r.top)) : sz.h;
+    const fit = Math.min(sz.w / ((b.x1 - b.x0) * s0), (visBottom - visTop) / ((b.y1 - b.y0) * s0));
+    const zoom = Math.min(FOCUS_ZOOM_MAX, Math.max(FOCUS_ZOOM_MIN, fit));
+    const cy = (b.y0 + b.y1) / 2 - ((visTop + visBottom) / 2 - sz.h / 2) * unitsPerPx(zoom);
+    return { cx: (b.x0 + b.x1) / 2, cy, zoom };
+  };
+  // 地図領域の実寸を追跡する（地図領域は「準備中」表示との切替で付け外しされるので enabled ごとに再登録）
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!enabled || !el) return;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      if (r.width === sizeRef.current.w && r.height === sizeRef.current.h) return;
+      sizeRef.current = { w: r.width, h: r.height };
+      setSize(sizeRef.current);
+      // 初期表示のままなら、新しい領域サイズで初期表示を計算し直す（地図領域の高さは描画後に確定するため）
+      commit(atHomeRef.current && homeRef.current ? camForBounds(homeRef.current) : camRef.current);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [containerRef, enabled]); // eslint-disable-line
+
+  // 時代の初期表示範囲を設定し、そこへカメラを移す（初回は即座に、時代の切替時はアニメーションで）。
+  // move: "ifAtHome" のときは、ユーザーがまだパン・ズームしていない場合だけ移す
+  const focusOn = (bounds, { animate = true, move = true } = {}) => {
+    const shouldMove = move === "ifAtHome" ? atHomeRef.current : move;
+    homeRef.current = bounds;
+    if (!shouldMove || !bounds || !sizeRef.current.w) return;
+    const target = camForBounds(bounds);
+    if (animate) animateTo(target); else { cancelAnimation(); commit(target); }
+    atHomeRef.current = true;
+  };
+  const resetView = () => {
+    if (!homeRef.current || !sizeRef.current.w) return;
+    animateTo(camForBounds(homeRef.current));
+    atHomeRef.current = true;
+  };
+
+  // 指を離した瞬間の速度(px/ms)を初速として、摩擦係数で毎フレーム減衰させながらパンを続ける。
+  // アニメーション中は interacting=true を維持する
+  const startMomentum = (vx0, vy0) => {
+    cancelAnimation();
     setInteracting(true);
     let vx = vx0 * 16.67; // px/ms → 1フレーム(約16.67ms)あたりの移動量に変換（画面px単位）
     let vy = vy0 * 16.67;
-    const unitsPerPx = pxToViewboxUnits(z);
-    const FRICTION = 0.965;
+    const FRICTION = 0.94;
     const STOP_THRESHOLD = 0.04;
     const step = () => {
       vx *= FRICTION;
       vy *= FRICTION;
       if (Math.abs(vx) < STOP_THRESHOLD && Math.abs(vy) < STOP_THRESHOLD) {
-        momentumIdRef.current = null;
+        animIdRef.current = null;
         setInteracting(false);
         return;
       }
-      setWorldX((x) => wrapWorldX(x - vx * unitsPerPx));
-      let hitBoundY = false;
-      setPanY((y) => {
-        const next = clampPanY(y + vy, z);
-        if (next === y && vy !== 0) hitBoundY = true;
-        return next;
-      });
-      if (hitBoundY) vy = 0; // 垂直方向が端に達したら縦成分だけ打ち切り、横方向の慣性は続行する
-      momentumIdRef.current = requestAnimationFrame(step);
+      const c = camRef.current;
+      const u = unitsPerPx(c.zoom);
+      const next = commit({ cx: c.cx - vx * u, cy: c.cy - vy * u, zoom: c.zoom });
+      if (next.cy === c.cy) vy = 0; // 縦が端に達したら縦成分だけ打ち切り、横方向の慣性は続行する
+      animIdRef.current = requestAnimationFrame(step);
     };
-    momentumIdRef.current = requestAnimationFrame(step);
+    animIdRef.current = requestAnimationFrame(step);
   };
 
-  const resetView = () => { cancelMomentum(); setZoom(1); setPanY(0); setWorldX(0); };
-
   const zoomBy = (factor) => {
-    cancelMomentum();
-    setZoom((z) => {
-      const nz = Math.min(MAP_ZOOM_MAX, Math.max(MAP_ZOOM_MIN, +(z * factor).toFixed(3)));
-      setPanY((y) => clampPanY(y, nz));
-      return nz;
-    });
+    const c = camRef.current;
+    const { w, h } = sizeRef.current;
+    animateTo(zoomAround(c, w / 2, h / 2, c.zoom * factor), 260);
+  };
+
+  const beginPan = (clientX, clientY) => {
+    const g = gestureRef.current;
+    g.mode = "pan";
+    g.startX = clientX; g.startY = clientY;
+    g.startCam = camRef.current;
+    velocityRef.current = { vx: 0, vy: 0, lastX: clientX, lastY: clientY, lastT: performance.now() };
   };
 
   const onMouseDown = (e) => {
     if (e.button !== 0) return;
-    cancelMomentum();
-    const g = gestureRef.current;
-    g.mode = "pan"; g.moved = false;
-    g.startX = e.clientX; g.startY = e.clientY;
-    g.startWorldX = worldX; g.startPanY = panY;
-    velocityRef.current = { vx: 0, vy: 0, lastX: e.clientX, lastY: e.clientY, lastT: performance.now() };
+    cancelAnimation();
+    gestureRef.current.moved = false;
+    beginPan(e.clientX, e.clientY);
     setInteracting(true);
   };
 
-  const onTouchStart = (e) => {
-    cancelMomentum();
+  const beginPinch = (touches) => {
     const g = gestureRef.current;
-    g.moved = false;
+    g.mode = "pinch";
+    g.startDist = Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+    g.startCam = camRef.current;
+    g.anchor = localPoint((touches[0].clientX + touches[1].clientX) / 2, (touches[0].clientY + touches[1].clientY) / 2);
+  };
+
+  const onTouchStart = (e) => {
+    cancelAnimation();
+    gestureRef.current.moved = false;
     if (e.touches.length === 2) {
-      g.mode = "pinch";
-      g.startDist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
-      g.startZoom = zoom;
+      beginPinch(e.touches);
       setInteracting(true);
     } else if (e.touches.length === 1) {
-      g.mode = "pan";
-      g.startX = e.touches[0].clientX;
-      g.startY = e.touches[0].clientY;
-      g.startWorldX = worldX; g.startPanY = panY;
-      velocityRef.current = { vx: 0, vy: 0, lastX: e.touches[0].clientX, lastY: e.touches[0].clientY, lastT: performance.now() };
+      beginPan(e.touches[0].clientX, e.touches[0].clientY);
       setInteracting(true);
     }
   };
@@ -3662,18 +3783,17 @@ function useMapPanZoom(containerRef) {
       const now = performance.now();
       const dt = now - v.lastT;
       if (dt > 0) {
-        const instVx = (clientX - v.lastX) / dt;
-        const instVy = (clientY - v.lastY) / dt;
-        v.vx = v.vx * 0.7 + instVx * 0.3;
-        v.vy = v.vy * 0.7 + instVy * 0.3;
+        v.vx = v.vx * 0.7 + ((clientX - v.lastX) / dt) * 0.3;
+        v.vy = v.vy * 0.7 + ((clientY - v.lastY) / dt) * 0.3;
       }
       v.lastX = clientX; v.lastY = clientY; v.lastT = now;
     };
 
-    const applyPan = (dx, dy, z) => {
-      const unitsPerPx = pxToViewboxUnits(z);
-      setWorldX(wrapWorldX(g.startWorldX - dx * unitsPerPx));
-      setPanY(clampPanY(g.startPanY + dy, z));
+    // 指（マウス）の移動量だけ地図を動かす。地図上の同じ点が常に指の下にある（1:1追従）
+    const applyPan = (dx, dy) => {
+      const s = g.startCam;
+      const u = unitsPerPx(s.zoom);
+      commit({ cx: s.cx - dx * u, cy: s.cy - dy * u, zoom: s.zoom });
     };
 
     const onMouseMove = (e) => {
@@ -3682,27 +3802,33 @@ function useMapPanZoom(containerRef) {
       const dy = e.clientY - g.startY;
       if (Math.abs(dx) > 4 || Math.abs(dy) > 4) g.moved = true;
       trackVelocity(e.clientX, e.clientY);
-      applyPan(dx, dy, zoom);
+      applyPan(dx, dy);
     };
 
     const onTouchMove = (e) => {
-      if (g.mode === "pinch" && e.touches.length === 2) {
+      if (e.touches.length === 2) {
+        if (g.mode !== "pinch") beginPinch(e.touches); // 1本指のパン中にもう1本が触れたらピンチへ切り替える
         e.preventDefault();
-        const d = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
-        const nz = Math.min(MAP_ZOOM_MAX, Math.max(MAP_ZOOM_MIN, g.startZoom * (d / g.startDist)));
+        const t = e.touches;
+        const d = Math.hypot(t[1].clientX - t[0].clientX, t[1].clientY - t[0].clientY);
+        const [mx, my] = localPoint((t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2);
+        // 指の間の点を基準に拡大縮小し、2本指の移動ぶんだけパンもする
+        const zoomed = zoomAround(g.startCam, g.anchor[0], g.anchor[1], g.startCam.zoom * (d / g.startDist));
+        const u = unitsPerPx(zoomed.zoom);
         g.moved = true;
-        setZoom(nz);
-        setPanY((y) => clampPanY(y, nz));
+        commit({ cx: zoomed.cx - (mx - g.anchor[0]) * u, cy: zoomed.cy - (my - g.anchor[1]) * u, zoom: zoomed.zoom });
       } else if (g.mode === "pan" && e.touches.length === 1) {
         const dx = e.touches[0].clientX - g.startX;
         const dy = e.touches[0].clientY - g.startY;
         if (Math.abs(dx) > 4 || Math.abs(dy) > 4) g.moved = true;
-        // 横方向は常にワールドラップとして消費（ズーム倍率に関係なく地図を一周探索できる）。
-        // 縦方向はズーム時のみパンとして消費し、zoom=1のときはページの縦スクロールを奪わない
-        if (Math.abs(dx) > Math.abs(dy) || zoom > 1) {
+        // 横方向は常に地図のパンとして消費する。縦方向は地図を縦に動かせる倍率のときだけ消費し、
+        // 全高が見えているときはページの縦スクロールを奪わない
+        const sz = sizeRef.current;
+        const canPanY = sz.h / (mapBaseScale(sz) * g.startCam.zoom) < VIEWBOX_H;
+        if (Math.abs(dx) > Math.abs(dy) || canPanY) {
           e.preventDefault();
           trackVelocity(e.touches[0].clientX, e.touches[0].clientY);
-          applyPan(dx, zoom > 1 ? dy : 0, zoom);
+          applyPan(dx, canPanY ? dy : 0);
         }
       }
     };
@@ -3710,23 +3836,18 @@ function useMapPanZoom(containerRef) {
     const onEnd = (e) => {
       if (e.touches && e.touches.length === 1) {
         // ピンチ→残り1本指はそのままパン操作へ引き継ぐ
-        g.mode = "pan"; g.moved = true;
-        g.startX = e.touches[0].clientX;
-        g.startY = e.touches[0].clientY;
-        g.startWorldX = worldX; g.startPanY = panY;
-        velocityRef.current = { vx: 0, vy: 0, lastX: e.touches[0].clientX, lastY: e.touches[0].clientY, lastT: performance.now() };
+        g.moved = true;
+        beginPan(e.touches[0].clientX, e.touches[0].clientY);
         return;
       }
       // パン操作の指/マウスを離した瞬間：直近速度が一定以上あれば慣性スクロールを開始する
       let momentumStarted = false;
       if (g.mode === "pan") {
         const { vx, vy } = velocityRef.current;
-        if (Math.hypot(vx, vy) > 0.012) { startMomentum(vx, vy, zoom); momentumStarted = true; }
+        if (Math.hypot(vx, vy) > 0.012 && performance.now() - velocityRef.current.lastT < 80) { startMomentum(vx, vy); momentumStarted = true; }
       }
       g.mode = null;
-      // 慣性スクロールを開始した場合、あるいは既に別の慣性が進行中の場合は、
-      // そちらがinteracting状態の終了を管理するのでここでは触らない（重複したupイベント対策）
-      if (!momentumStarted && momentumIdRef.current == null) setInteracting(false);
+      if (!momentumStarted && animIdRef.current == null) setInteracting(false);
     };
 
     window.addEventListener("mousemove", onMouseMove);
@@ -3741,22 +3862,48 @@ function useMapPanZoom(containerRef) {
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [interacting, zoom, worldX, panY]); // eslint-disable-line
+  }, [interacting]); // eslint-disable-line
 
-  useEffect(() => () => cancelMomentum(), []);
+  useEffect(() => () => cancelAnimation(), []);
 
-  // デスクトップ：トラックパッドのピンチ操作はwheelイベント + ctrlKey/metaKeyとして発火する
-  const onWheel = (e) => {
-    if (!e.ctrlKey && !e.metaKey) return;
-    e.preventDefault();
-    zoomBy(Math.exp(-e.deltaY * 0.012));
+  // デスクトップ：トラックパッドのピンチ操作はwheelイベント + ctrlKey/metaKeyとして発火する（カーソル位置を基準に拡大縮小）。
+  // ReactのonWheelはpassiveリスナーでpreventDefaultできない（ブラウザ全体のズームを止められず警告も出る）ため、
+  // { passive: false } のネイティブリスナーで登録する。地図領域は「準備中」表示との切替で付け外しされるので enabled ごとに再登録
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!enabled || !el) return;
+    const onWheel = (e) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      cancelAnimation();
+      const c = camRef.current;
+      const [sx, sy] = localPoint(e.clientX, e.clientY);
+      commit(zoomAround(c, sx, sy, c.zoom * Math.exp(-e.deltaY * 0.012)));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [containerRef, enabled]); // eslint-disable-line
+
+  // ダブルタップ/ダブルクリック：その点を中心に2倍へ寄る。十分寄っているときは初期表示へ戻る
+  const onDoubleClick = (e) => {
+    const c = camRef.current;
+    const home = homeRef.current && sizeRef.current.w ? camForBounds(homeRef.current) : null;
+    if (home && c.zoom >= Math.min(MAP_ZOOM_MAX, home.zoom * 1.9)) { resetView(); return; }
+    const [sx, sy] = localPoint(e.clientX, e.clientY);
+    animateTo(zoomAround(c, sx, sy, c.zoom * 2), 300);
   };
 
-  const onDoubleClick = () => {
-    if (zoom > 1.4) resetView(); else zoomBy(2.5 / zoom);
-  };
+  // 描画用：現在のカメラから viewBox と、視野に入る地図タイル（横方向の繰り返し）を求める
+  const s0 = size.w ? mapBaseScale(size) : 1;
+  const vw = size.w ? size.w / (s0 * cam.zoom) : VIEWBOX_W;
+  const vh = size.h ? size.h / (s0 * cam.zoom) : VIEWBOX_H;
+  const viewLeft = wrapWorldX(cam.cx - vw / 2);
+  const viewTop = size.h ? cam.cy - vh / 2 : 0;
+  const tiles = [];
+  for (let k = 0; k * VIEWBOX_W < viewLeft + vw; k++) tiles.push(k * VIEWBOX_W);
+  const view = { left: viewLeft, top: viewTop, width: vw, height: vh, tiles, viewBox: `${viewLeft} ${viewTop} ${vw} ${vh}` };
 
-  return { zoom, panY, worldX, interacting, gestureRef, onMouseDown, onTouchStart, onWheel, onDoubleClick, zoomBy, resetView };
+  return { zoom: cam.zoom, view, ready: !!size.w, interacting, gestureRef, onMouseDown, onTouchStart, onDoubleClick, zoomBy, resetView, focusOn };
 }
 
 function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyTheme, onJumpToCard }) {
@@ -3818,7 +3965,25 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   };
 
   const mapContainerRef = useRef(null);
-  const panZoom = useMapPanZoom(mapContainerRef);
+  const panZoom = useMapPanZoom(mapContainerRef, inCoveredEra);
+
+  // 初期表示：時代区分ごとに、主要な都市・勢力が手動で拡大しなくてもタップできる範囲へカメラを合わせる。
+  // 範囲は時代区分の focusBoundsByYear / focusBounds（明示指定）か、都市の分布から自動で決める。
+  // 時代区分が変わったときはカメラを動かす（初回は即座に、以降はアニメーション）。同じ区分の中で年代を動かしたときは、
+  // 初期表示のままならその年の初期表示へ移り、ユーザーがパン・ズームした後ならリセットの戻り先だけを更新する
+  const focusBounds = !inCoveredEra ? null
+    : activePeriod.focusBoundsByYear ? activePeriod.focusBoundsByYear(year)
+    : activePeriod.focusBounds ?? computeMapFocusBounds(periodCapitals, periodRegions);
+  const focusKey = inCoveredEra ? activePeriod.id : null;
+  const focusBoundsKey = focusBounds ? [focusBounds.x0, focusBounds.y0, focusBounds.x1, focusBounds.y1].map((v) => v.toFixed(1)).join(",") : "";
+  const focusedKeyRef = useRef(null);
+  useLayoutEffect(() => {
+    if (!focusKey) { focusedKeyRef.current = null; return; }
+    if (!panZoom.ready) return;
+    const isNewPeriod = focusedKeyRef.current !== focusKey;
+    panZoom.focusOn(focusBounds, { move: isNewPeriod || "ifAtHome", animate: focusedKeyRef.current !== null });
+    focusedKeyRef.current = focusKey;
+  }, [focusKey, focusBoundsKey, panZoom.ready]); // eslint-disable-line
 
   // 地図描画領域の最大化：上部固定ヘッダーの実測高さを引いた「画面最下部までの残り全高」を
   // 地図キャンバスの高さとして与える。ヘッダー内容（EraScrubber）の実際のレンダリング高さに追従するため、
@@ -3840,6 +4005,28 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
       window.removeEventListener("orientationchange", updateHeight);
     };
   }, [inCoveredEra]);
+
+  // 地図領域は画面の下端より先まで続くことがあるため、右下のズームボタンは「画面に見えている地図の右下」に置く
+  const [controlsBottom, setControlsBottom] = useState(16);
+  useEffect(() => {
+    const el = mapContainerRef.current;
+    if (!inCoveredEra || !el) return;
+    let raf = null;
+    const update = () => {
+      raf = null;
+      const r = el.getBoundingClientRect();
+      setControlsBottom(Math.max(16, Math.min(r.height - 120, r.bottom - window.innerHeight + 16)));
+    };
+    const schedule = () => { if (raf == null) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (raf != null) cancelAnimationFrame(raf);
+    };
+  }, [inCoveredEra, mapAreaHeight]);
 
   return (
     <>
@@ -3898,7 +4085,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
               </button>
             </div>
 
-            {/* ピンチズーム（1.0x〜4.0x）＋ドラッグパン対応のキャンバス。ドラッグとみなされた操作では
+            {/* ピンチズーム＋ドラッグパン対応のキャンバス。ドラッグとみなされた操作では
                 勢力タップ（openRegion）が誤発火しないよう、キャプチャ段階でclickを止める。
                 地図描画領域の最大化：画面最下部まで（デッドスペースなく）フルに広げる */}
             <div
@@ -3906,7 +4093,6 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
               className="relative overflow-hidden"
               onMouseDown={panZoom.onMouseDown}
               onTouchStart={panZoom.onTouchStart}
-              onWheel={panZoom.onWheel}
               onDoubleClick={panZoom.onDoubleClick}
               onClickCapture={(e) => { if (panZoom.gestureRef.current.moved) e.stopPropagation(); }}
               style={{
@@ -3915,24 +4101,18 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                 height: "100%",
               }}
             >
-              <div
-                style={{
-                  width: "100%", height: "100%",
-                  transform: `translateY(${panZoom.panY}px) scale(${panZoom.zoom})`,
-                  transformOrigin: "center center",
-                  transition: panZoom.interacting ? "none" : "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
-              >
+              <div style={{ width: "100%", height: "100%" }}>
+                {/* viewBoxはカメラ（useMapPanZoom）から毎フレーム計算され、地図領域と同じ縦横比になる */}
                 <svg
-                  viewBox={`${panZoom.worldX} 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
-                  preserveAspectRatio="xMidYMid slice"
+                  viewBox={panZoom.view.viewBox}
+                  preserveAspectRatio="xMidYMid meet"
                   className="w-full h-full block"
                 >
                   {/* ベースマップ（陸地シルエットとしての大陸形状）。ダークネイビー基調の配色仕様：
                       海洋 #131924〜#1B2430／陸地 #232E3F／海岸線・境界線 #334155。
                       world-atlas（land-50m、topojson-simplifyで最適化）の実地理データをd3-geoでMercator投影し、事前計算したSVGパスをそのまま使用。
-                      横スワイプによるワールドラップ（無限ループ）のため、地図と勢力を x=0 と x=VIEWBOX_W の2枚重ねで描画し、
-                      viewBoxのmin-x（worldX）を0〜VIEWBOX_Wでラップさせることで継ぎ目なく一周できるようにしている */}
+                      横スワイプによるワールドラップ（無限ループ）のため、地図と勢力を x=0, VIEWBOX_W, … のタイルとして
+                      視野に入る枚数だけ重ねて描画し、viewBoxの左端を0〜VIEWBOX_Wでラップさせることで継ぎ目なく一周できるようにしている */}
                   <defs>
                     <linearGradient id="mapOceanGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#131924" />
@@ -3944,9 +4124,9 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       <path d={WORLD_LAND_PATH} />
                     </clipPath>
                   </defs>
-                  <rect x={panZoom.worldX} y="0" width={VIEWBOX_W} height={VIEWBOX_H} fill="url(#mapOceanGrad)" />
+                  <rect x={panZoom.view.left} y={panZoom.view.top} width={panZoom.view.width} height={panZoom.view.height} fill="url(#mapOceanGrad)" />
 
-                  {[0, VIEWBOX_W].map((tileOffset) => (
+                  {panZoom.view.tiles.map((tileOffset) => (
                     <g key={tileOffset} transform={`translate(${tileOffset},0)`}>
                       <path
                         d={WORLD_LAND_PATH}
@@ -4170,7 +4350,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
 
               {/* ズームコントロール（デスクトップのマウスユーザー向けフォールバック。ピンチ/ダブルタップと併用可）。
                   地図の「外」に枠を設けず、フル化した地図の上に浮かせるオーバーレイ配置 */}
-              <div className="absolute bottom-4 right-3 z-10 flex flex-col gap-1.5" style={{ pointerEvents: "auto" }}>
+              <div className="absolute right-3 z-10 flex flex-col gap-1.5" style={{ bottom: controlsBottom, pointerEvents: "auto" }}>
                 <button
                   onClick={() => panZoom.zoomBy(1.4)}
                   aria-label="拡大"

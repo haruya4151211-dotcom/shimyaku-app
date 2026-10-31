@@ -1,3 +1,5 @@
+import { lonLatToXY } from "./mapProjection.js";
+
 // ---------------------------------------------------------------------------
 // カード画像（image）の選定方針
 // - 学校の世界史資料集に載っているような、ひと目で場面や人物が分かる「象徴的資料」を優先する
@@ -2809,20 +2811,13 @@ export const REGION_BLURB = {
 
 // =====================================================================
 // 古代（オリエント・ギリシャ・ローマ）の地図データ
-// 勢力の輪郭・都市・河川を経度・緯度で定義し、WORLD_LAND_PATH と同じメルカトル投影で viewBox 座標へ変換する。
-// 投影式は陸地パスの海岸線（ジブラルタル海峡・ボスポラス海峡・ペルシア湾奥など）との照合で求めた：
-//   x = 483.535 + 2.8448 × 経度、 y = 368.391 − (1024 / 2π) × ln(tan(π/4 + 緯度/2))
+// 勢力の輪郭・都市・河川を経度・緯度で定義し、WORLD_LAND_PATH と同じメルカトル投影（mapProjection.js の lonLatToXY）で
+// viewBox 座標へ変換する。以降の時代の地図データも同じ変換を使う。
 // 勢力の塗りは陸地の形（landClip）で切り抜かれるため、海岸線は海上に大きめに取ってよい。ただし狭い海峡・内海
 // （アドリア海、エーゲ海、紅海など）では、対岸の陸地まで含めないよう海の中央を通すこと。
 // region の id は ANCIENT_CARDS の region と一致させ、勢力・都市のタップで該当カードが引けるようにしている。
 // 輪郭は学習用の模式図であり、実際の国境を厳密に再現したものではない。
 // =====================================================================
-const MERCATOR_K = 1024 / (2 * Math.PI);
-function lonLatToXY(lon, lat) {
-  const x = 483.535 + 2.8448 * lon;
-  const y = 368.391 - MERCATOR_K * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360));
-  return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
-}
 const ringsToPath = (rings) =>
   rings.map((ring) => "M" + ring.map(([lon, lat]) => lonLatToXY(lon, lat).join(",")).join("L") + "Z").join(" ");
 const lineToPoints = (pts) => pts.map(([lon, lat]) => lonLatToXY(lon, lat).join(",")).join(" ");
