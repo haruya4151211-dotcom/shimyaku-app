@@ -87,6 +87,40 @@ const STORAGE_PROGRESS_KEY = "shimyaku:progress";
 const STORAGE_FAVORITES_KEY = "shimyaku:favorites";
 const STORAGE_PRESETS_KEY = "shimyaku:presets";
 
+// 保存先のアダプター。Claude のアーティファクト環境では window.storage（非同期の get/set）を、
+// 通常のブラウザでは localStorage を使う。どちらも使えない環境（プライベートモード、Cookie・サイトデータのブロックなど）では
+// メモリ上に保持し、画面の操作は止めない（その場合、再読み込みで記録は消える）
+const memoryStore = new Map();
+const appStorage = {
+  async get(key) {
+    const ext = typeof window !== "undefined" ? window.storage : undefined;
+    if (ext && typeof ext.get === "function") {
+      const res = await ext.get(key, false);
+      return res?.value ?? null;
+    }
+    try {
+      const v = window.localStorage.getItem(key);
+      if (v != null) return v;
+    } catch {
+      // localStorage が使えない環境ではメモリ上の値を使う
+    }
+    return memoryStore.get(key) ?? null;
+  },
+  async set(key, value) {
+    memoryStore.set(key, value);
+    const ext = typeof window !== "undefined" ? window.storage : undefined;
+    if (ext && typeof ext.set === "function") {
+      await ext.set(key, value, false);
+      return;
+    }
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // 容量超過や保存禁止の環境ではメモリ上の値だけを更新する
+    }
+  },
+};
+
 function useStorageState(key, fallback) {
   const [value, setValue] = useState(fallback);
   const [loaded, setLoaded] = useState(false);
@@ -95,10 +129,10 @@ function useStorageState(key, fallback) {
     let cancelled = false;
     (async () => {
       try {
-        const res = await window.storage.get(key, false);
-        if (!cancelled && res && res.value) setValue(JSON.parse(res.value));
-      } catch (e) {
-        // キーが存在しない場合はフォールバックのまま
+        const raw = await appStorage.get(key);
+        if (!cancelled && raw) setValue(JSON.parse(raw));
+      } catch {
+        // キーが存在しない・読めない・壊れている場合はフォールバックのまま
       } finally {
         if (!cancelled) setLoaded(true);
       }
@@ -109,7 +143,7 @@ function useStorageState(key, fallback) {
   const persist = useCallback(async (next) => {
     setValue(next);
     try {
-      await window.storage.set(key, JSON.stringify(next), false);
+      await appStorage.set(key, JSON.stringify(next));
     } catch (e) {
       console.error("storage save failed", e);
     }
@@ -443,9 +477,9 @@ export default function App() {
     setFavorites([]);
     setPresets([]);
     try {
-      await window.storage.set(STORAGE_PROGRESS_KEY, JSON.stringify({}), false);
-      await window.storage.set(STORAGE_FAVORITES_KEY, JSON.stringify([]), false);
-      await window.storage.set(STORAGE_PRESETS_KEY, JSON.stringify([]), false);
+      await appStorage.set(STORAGE_PROGRESS_KEY, JSON.stringify({}));
+      await appStorage.set(STORAGE_FAVORITES_KEY, JSON.stringify([]));
+      await appStorage.set(STORAGE_PRESETS_KEY, JSON.stringify([]));
     } catch (e) { console.error(e); }
   };
 
