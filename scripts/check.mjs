@@ -2,6 +2,7 @@
 //   1. データ構造   … 勢力の存続期間と形の期間、生成済みの輪郭データ（geo/build.mjs の出力）が最新か、色・ラベルの定義漏れ
 //   2. 答えの漏れ   … カードの答えが、自分の問題文・同じ時代のほかのカードの本文や画像の説明・その時代の地図の文字に出ていないか
 //   3. 地図とカード … 全カードがその時代の地図の勢力から引けるか、地図の勢力にカードがあるか、都市の勢力・解説文があるか
+//                    （輪郭が未作成でもラベルを定義済みの勢力は「地図への配置待ち」の注意。その勢力のラベル・都市・解説文も答えの漏れを検査する）
 //   4. 位置         … 勢力名のラベルと都市が、その勢力の輪郭の内側にあるか
 // エラーがあれば終了コード1で終わる（注意は表示のみ）。
 import { ERAS_DATA, MAP_PERIODS_BY_ID } from "../src/data/historyData.js";
@@ -9,12 +10,18 @@ import { GEO_MEMBERS, GEO_PATHS } from "../src/data/generated/geoPaths.js";
 import { ALL_SNAPSHOTS } from "../src/data/atlas/series.js";
 import { PALETTES, BACKGROUND_FILLS, REGION_LABELS, BACKGROUND_LABELS, CITIES } from "../src/data/atlas/styles.js";
 import { ENTITIES } from "../geo/regions.mjs";
+import { WORLD_BLURB } from "../src/data/worldCards.js";
 
 // 許可リスト：答えの語が、別の語の一部として含まれるだけのもの（伏せる必要がない）
 const ALLOWED_CONTAINING_WORDS = [
   { answer: "民会", word: "平民会", reason: "ローマの平民会（c32）は、アテネの民会（c29 の答え）とは別の語" },
 ];
 // 位置の許容範囲（viewBox 単位。1 ≒ 経度0.35°）
+// 時代（ERAS_DATA）→ 地図のシリーズ（時代略号）。輪郭が未作成の勢力の解説文（WORLD_BLURB）を選ぶのに使う
+const ERA_SERIES = {
+  "ancient-mediterranean": ["anc"], "medieval-europe": ["med"], "renaissance-discovery": ["ren"], "absolutism": ["abs"],
+  "french-revolution": ["rev"], "imperialism": ["imp"], "world-wars": ["ww"], "cold-war": ["cw"],
+};
 const COAST_TOLERANCE = 1.5; // 都市の点が海岸線のすぐ外（地図の縮尺で海上）に落ちる場合
 const TINY_REGION_AREA = 40; // これより小さい勢力（外枠の面積）は、ラベルを輪郭の外に引き出して置いてよい
 const CALLOUT_DISTANCE = 12;
@@ -89,7 +96,7 @@ const inside = (d, [px, py]) => { let c = false; for (const r of rings(d)) for (
 
 for (const [eraId, era] of Object.entries(ERAS_DATA)) {
   const snaps = eraSnapshots(era);
-  if (!snaps.length) { warn("地図", `${eraId}: 地図の年代がない`); continue; }
+  if (!snaps.length) warn("地図", `${eraId}: 地図の年代がまだない（カードの検査のみ行う）`);
   const cards = era.cards;
   const answers = cards.flatMap((c) => (c.cloze?.slots ?? []).map((s) => ({ id: c.id, answer: s.answer })));
   // -------------------------------------------------------------------------
@@ -148,7 +155,24 @@ for (const [eraId, era] of Object.entries(ERAS_DATA)) {
     for (const t of texts) for (const { id, answer } of answers) if (answer.length >= 2 && containsAnswer(t, answer)) err("答え", `${label}: 地図の文字「${t.slice(0, 20)}${t.length > 20 ? "…" : ""}」に ${id} の答え「${answer}」`);
     for (const c of cards) if (ids.includes(c.region)) reachable.add(c.id);
   }
-  for (const c of cards) if (!reachable.has(c.id)) err("地図", `${eraId}: ${c.id}（勢力「${c.region}」）がこの時代の地図から引けない`);
+  // 輪郭が未作成の勢力（ステップ2で地図に置く）：ラベルがあれば注意にとどめ、そのラベル・都市・解説文に答えが出ていないかを先に検査する
+  const span = era.yearRange ?? [Math.min(...cards.map((c) => c.year)), Math.max(...cards.map((c) => c.year))];
+  const overlaps = (a, b) => a <= span[1] && b >= span[0];
+  const onMap = new Set(snaps.flatMap((s) => s.regions.map((r) => r.id)));
+  const planned = [...new Set(cards.filter((c) => !reachable.has(c.id)).map((c) => c.region))];
+  for (const id of planned) {
+    const n = cards.filter((c) => c.region === id).length;
+    if (!REGION_LABELS[id]) { for (const c of cards) if (c.region === id) err("地図", `${eraId}: ${c.id}（勢力「${id}」）がこの時代の地図から引けず、ラベルの定義もない`); continue; }
+    warn("地図への配置待ち（ステップ2）", `${eraId}: 勢力「${id}」（カード${n}問）の輪郭がまだない`);
+    if (onMap.has(id)) continue;
+    const texts = [
+      ...REGION_LABELS[id].filter((l) => overlaps(l.from, l.to)).flatMap((l) => [...l.lines, ...(l.subLabels ?? []).map((x) => x.text)]),
+      ...CITIES.filter((c) => c.region === id && overlaps(c.from, c.to)).map((c) => c.name),
+      ...(ERA_SERIES[eraId] ?? []).map((p) => WORLD_BLURB[p]?.[id]).filter(Boolean),
+    ];
+    if (!(ERA_SERIES[eraId] ?? []).some((p) => WORLD_BLURB[p]?.[id])) warn("地図", `${eraId}: 勢力「${id}」の解説文（WORLD_BLURB）がない`);
+    for (const t of texts) for (const { id: cid, answer } of answers) if (answer.length >= 2 && containsAnswer(t, answer)) err("答え", `${eraId}: 配置待ちの勢力「${id}」の地図の文字「${t.slice(0, 20)}${t.length > 20 ? "…" : ""}」に ${cid} の答え「${answer}」`);
+  }
   console.log(`${era.title}：カード ${cards.length}問（地図から引ける ${reachable.size}問）・地図 ${snaps.length}年代`);
 }
 

@@ -444,9 +444,9 @@ export const ASIA_IMAGES = {
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Bataille_entre_mongols_%26_chinois_%281211%29.jpeg/960px-Bataille_entre_mongols_%26_chinois_%281211%29.jpeg",
-      "caption": "モンゴル軍と金軍の戦い（1211年、ラシード＝アッディーン『集史』の写本）",
+      "caption": "モンゴル軍と金軍の戦い（1211年、イル＝ハン国で編まれた歴史書の写本）",
       "alt": "騎馬の兵士たちが入り乱れて戦う様子を描いたペルシアの細密画",
-      "credit": "Bataille entre mongols et chinois（『集史』写本）, Wikimedia Commons・Public domain"
+      "credit": "Bataille entre mongols et chinois（イル＝ハン国の歴史書の写本）, Wikimedia Commons・Public domain"
     }
   ],
   "c129": [
@@ -458,9 +458,9 @@ export const ASIA_IMAGES = {
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Batu_Khan_on_the_Throne_by_Rashid_al-Din.jpg/960px-Batu_Khan_on_the_Throne_by_Rashid_al-Din.jpg",
-      "caption": "玉座のバトゥ（ラシード＝アッディーン『集史』の写本）",
+      "caption": "玉座のバトゥ（イル＝ハン国で編まれた歴史書の写本）",
       "alt": "玉座に座る君主と、それを囲む人々を描いた細密画",
-      "credit": "Batu Khan on the Throne（『集史』写本）, Wikimedia Commons・Public domain"
+      "credit": "Batu Khan on the Throne（イル＝ハン国の歴史書の写本）, Wikimedia Commons・Public domain"
     }
   ],
   "c130": [

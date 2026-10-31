@@ -6,6 +6,10 @@ import {
   ASIA_ANCIENT_CARDS, ASIA_MEDIEVAL_CARDS, ASIA_RENAISSANCE_CARDS, ASIA_ABSOLUTISM_CARDS, ASIA_REVOLUTION_CARDS, ASIA_IMPERIALISM_CARDS,
   ASIA_BLURB,
 } from "./asiaCards.js";
+import {
+  WORLD_ANCIENT_CARDS, WORLD_MEDIEVAL_CARDS, WORLD_RENAISSANCE_CARDS, WORLD_ABSOLUTISM_CARDS, WORLD_REVOLUTION_CARDS, WORLD_IMPERIALISM_CARDS,
+  WORLD_WAR_CARDS, WORLD_COLD_WAR_CARDS, WORLD_BLURB, WW_ERA_LABEL, CW_ERA_LABEL,
+} from "./worldCards.js";
 
 // ---------------------------------------------------------------------------
 // カード画像（image）の選定方針
@@ -528,7 +532,7 @@ export const FRENCH_REVOLUTION_CARDS = [
       ],
       points: [
         { label: "原因", text: "テニスコートの誓いで憲法制定まで解散しないと誓った国民議会が、新しい国家の基本原理を示す必要があった" },
-        { label: "経過", text: "アメリカ独立宣言や啓蒙思想（ロック、ルソーら）の影響を受けて起草され、のちの1791年憲法の前文となった" },
+        { label: "経過", text: "アメリカ独立革命の理念や啓蒙思想（ロック、ルソーら）の影響を受けて起草され、のちの1791年憲法の前文となった" },
         { label: "意義", text: "身分制社会を否定し、近代市民社会の基本原理を示した文書として、各国の憲法や人権思想に大きな影響を与えた" },
       ],
     },
@@ -546,7 +550,7 @@ export const FRENCH_REVOLUTION_CARDS = [
         credit: "Le Serment du Jeu de paume／Jacques-Louis David（1791年）, Wikimedia Commons・Public domain",
       },
     ],
-    anecdote: "逸話：ラファイエットはアメリカ独立戦争に義勇兵として参加し、ワシントンと親交を結んだ「両世界の英雄」。宣言の草案作成では駐仏アメリカ公使ジェファソンの助言も受けた。",
+    anecdote: "逸話：ラファイエットはアメリカ独立戦争に義勇兵として参加し、植民地軍の総司令官と親交を結んだ「両世界の英雄」。宣言の草案作成では駐仏アメリカ公使ジェファソンの助言も受けた。",
     anecdoteLink: "https://ja.wikipedia.org/wiki/人間と市民の権利の宣言",
   },
   {
@@ -2102,13 +2106,13 @@ export const MEDIEVAL_CARDS = [
   },
   {
     id: "c57", year: 732, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "イスラーム世界", theme: ["通史", "中世ヨーロッパ"],
-    front: "732年、イスラーム勢力の侵入をトゥール・ポワティエ間の戦いで撃退したフランク王国の宮宰と、侵入した王朝は？",
+    front: "732年、イスラーム勢力の侵入をトゥール・ポワティエ間の戦いで撃退したフランク王国の宮宰と、侵入軍が越えてきた山脈は？",
     back: "",
     cloze: {
-      template: "732年、フランク王国の宮宰{{1}}は、イベリア半島からピレネー山脈を越えて侵入した{{2}}の軍を、トゥール・ポワティエ間の戦いで撃退した。",
+      template: "732年、フランク王国の宮宰{{1}}は、イベリア半島から{{2}}山脈を越えて侵入したウマイヤ朝の軍を、トゥール・ポワティエ間の戦いで撃退した。",
       slots: [
         { id: 1, answer: "カール・マルテル", category: "人物" },
-        { id: 2, answer: "ウマイヤ朝", category: "王朝" },
+        { id: 2, answer: "ピレネー", category: "地名" },
       ],
       points: [
         { label: "原因", text: "7世紀に成立したイスラーム勢力は急速に拡大し、711年には西ゴート王国を滅ぼしてイベリア半島をほぼ支配した" },
@@ -3010,7 +3014,8 @@ function assembleSnapshot(prefix, year) {
     if (label.subLabels) region.subLabels = label.subLabels.map((s) => ({ text: s.text, at: toXY(s.at), size: s.size }));
     regions.push(region);
   }
-  const cities = CITIES.filter((c) => c.from <= year && year <= c.to).map((c) => {
+  // 勢力を持つ都市は、その勢力がこの年代の地図にあるときだけ置く（輪郭が未作成の勢力の都市は表示しない）
+  const cities = CITIES.filter((c) => c.from <= year && year <= c.to && (!c.region || members.includes(c.region))).map((c) => {
     const [x, y] = toXY(c.at);
     return { name: c.name, x, y, region: c.region, ...(c.dir ? { dir: c.dir } : {}), ...(c.asiaLayer ? { asiaLayer: true } : {}) };
   });
@@ -3021,12 +3026,14 @@ const ASIA_SEA_LABELS = [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 
   .map(([name, lon, lat, size]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size }; });
 const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
 // 地図の時代区分ひとつ分（ERA_PERIODS にそのまま展開する）。years はシリーズのうちこの区分が受け持つ年代。
-// 解説文は時代ごとの blurb に、東アジア・南アジアの勢力（asiaCards.js の ASIA_BLURB）でまだ書かれていないものを加える
+// 解説文は時代ごとの blurb に、全世界化で加えた勢力（worldCards.js の WORLD_BLURB のこのシリーズ分）と
+// 東アジア・南アジアの勢力（asiaCards.js の ASIA_BLURB）でまだ書かれていないものを、この順で加える
 export function buildMapPeriod(prefix, years, { rivers, seaLabels, blurb }) {
   const snaps = Object.fromEntries(years.map((y) => [y, assembleSnapshot(prefix, y)]));
   const nearest = (year) => snaps[years.reduce((best, k) => (Math.abs(k - year) < Math.abs(best - year) ? k : best), years[0])];
   const ids = [...new Set(years.flatMap((y) => snaps[y].regions.map((r) => r.id)))];
-  const fullBlurb = { ...blurb, ...Object.fromEntries(ids.filter((id) => !(id in blurb) && ASIA_BLURB[id]).map((id) => [id, ASIA_BLURB[id]])) };
+  const extra = (id) => WORLD_BLURB[prefix]?.[id] ?? ASIA_BLURB[id];
+  const fullBlurb = { ...blurb, ...Object.fromEntries(ids.filter((id) => !(id in blurb) && extra(id)).map((id) => [id, extra(id)])) };
   return {
     keyYears: [...years],
     regionsByYear: (year) => nearest(year).regions,
@@ -3089,11 +3096,13 @@ export const MAP_PERIODS_BY_ID = {
   "early-modern": [RENAISSANCE_EARLY_MODERN_MAP, ABSOLUTISM_MAP],
   "revolutions": [REVOLUTIONS_MAP],
   "imperialism-wars": [IMPERIALISM_MAP],
+  "cold-war-modern": [],
 };
 
 
 
-// 各時代のカード：ヨーロッパ・中東などのカードと、東アジア・南アジアのカード（asiaCards.js）を年代順に並べる
+// 各時代のカード：ヨーロッパ・中東などのカード、東アジア・南アジアのカード（asiaCards.js）、
+// 全世界化で加えた各地域のカード（worldCards.js）を年代順に並べる
 const byYear = (...lists) => lists.flat().map((c, i) => [c, i]).sort((a, b) => a[0].year - b[0].year || a[1] - b[1]).map(([c]) => c);
 
 export const ERAS_DATA = {
@@ -3105,7 +3114,7 @@ export const ERAS_DATA = {
     // 2つの時代区分にまたがるため、配列で両方に紐づける
     mapPeriodId: ["ancient-civilizations", "ancient-empires"],
     defaultMapYear: -490,
-    cards: byYear(ANCIENT_CARDS, ASIA_ANCIENT_CARDS),
+    cards: byYear(ANCIENT_CARDS, ASIA_ANCIENT_CARDS, WORLD_ANCIENT_CARDS),
     // 古代の時代区分の勢力ポリゴン・都市データは未作成（地図タブでは「準備中」表示）。
     // 作成する際は ANCIENT_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3122,7 +3131,7 @@ export const ERAS_DATA = {
     mapPeriodId: ["medieval-1", "medieval-2"],
     yearRange: [500, 1449],
     defaultMapYear: 1095,
-    cards: byYear(MEDIEVAL_CARDS, ASIA_MEDIEVAL_CARDS),
+    cards: byYear(MEDIEVAL_CARDS, ASIA_MEDIEVAL_CARDS, WORLD_MEDIEVAL_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は MEDIEVAL_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3140,7 +3149,7 @@ export const ERAS_DATA = {
     mapPeriodId: ["medieval-2", "early-modern"],
     yearRange: [1450, 1599],
     defaultMapYear: 1517,
-    cards: byYear(RENAISSANCE_CARDS, ASIA_RENAISSANCE_CARDS),
+    cards: byYear(RENAISSANCE_CARDS, ASIA_RENAISSANCE_CARDS, WORLD_RENAISSANCE_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は RENAISSANCE_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3155,7 +3164,7 @@ export const ERAS_DATA = {
     mapPeriodId: "early-modern", // 地図タブの時代区分（ERA_PERIODS）との対応キー
     yearRange: [1600, 1789], // 同じ時代区分を「大航海時代・ルネサンス・宗教改革」と分け合うため、受け持つ年の範囲
     defaultMapYear: 1648, // 地図タブを開いたときの初期年代
-    cards: byYear(ABSOLUTISM_CARDS, ASIA_ABSOLUTISM_CARDS),
+    cards: byYear(ABSOLUTISM_CARDS, ASIA_ABSOLUTISM_CARDS, WORLD_ABSOLUTISM_CARDS),
     // 勢力図は ABSOLUTISM_MAP（1648・1715・1772年）。App.jsx の ERA_PERIODS で大航海時代・近世区分の1600年以降に割り当てている
     mapData: {
       years: [1648, 1715, 1772],
@@ -3168,7 +3177,7 @@ export const ERAS_DATA = {
     period: "近代（市民革命と国民国家）",
     mapPeriodId: "revolutions",
     defaultMapYear: 1815,
-    cards: byYear(FRENCH_REVOLUTION_CARDS, ASIA_REVOLUTION_CARDS),
+    cards: byYear(FRENCH_REVOLUTION_CARDS, ASIA_REVOLUTION_CARDS, WORLD_REVOLUTION_CARDS),
     // 勢力ポリゴン・首都・河川・解説は、geo-frameworkが App.jsx の GEO_FRAMEWORK_DATA:revolutions ブロックへ
     // 自動生成し、地図の時代区分 "revolutions"（mapPeriodId）として保持している。ここには年代とベースマップのみ持つ
     mapData: {
@@ -3185,7 +3194,7 @@ export const ERAS_DATA = {
     mapPeriodId: "imperialism-wars",
     yearRange: [1870, 1918],
     defaultMapYear: 1914,
-    cards: byYear(IMPERIALISM_CARDS, ASIA_IMPERIALISM_CARDS),
+    cards: byYear(IMPERIALISM_CARDS, ASIA_IMPERIALISM_CARDS, WORLD_IMPERIALISM_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は IMPERIALISM_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3193,5 +3202,34 @@ export const ERAS_DATA = {
       landPath: WORLD_LAND_PATH,
     }
   },
-
+  "world-wars": {
+    id: "world-wars",
+    title: "戦間期と第二次世界大戦",
+    period: WW_ERA_LABEL,
+    // 地図の時代区分「帝国主義と二つの大戦」（1870〜1945年）のうち1919年以降を受け持つ。
+    // 勢力図（シリーズ ww）は未作成のため、地図タブではこの範囲は「準備中」表示になる
+    mapPeriodId: "imperialism-wars",
+    yearRange: [1919, 1945],
+    defaultMapYear: 1939,
+    cards: byYear(WORLD_WAR_CARDS),
+    mapData: {
+      years: [1922, 1939, 1942],
+      landPath: WORLD_LAND_PATH,
+    }
+  },
+  "cold-war": {
+    id: "cold-war",
+    title: "冷戦と現代世界",
+    period: CW_ERA_LABEL,
+    // 地図の時代区分「冷戦と現代世界」（1945〜2025年）。1945年は前の区分が先に一致するため、実質1946年から。
+    // 勢力図（シリーズ cw）は未作成のため、地図タブでは「準備中」表示になる
+    mapPeriodId: "cold-war-modern",
+    yearRange: [1946, 2025],
+    defaultMapYear: 1962,
+    cards: byYear(WORLD_COLD_WAR_CARDS),
+    mapData: {
+      years: [1950, 1962, 1975, 1991],
+      landPath: WORLD_LAND_PATH,
+    }
+  },
 };
