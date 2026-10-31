@@ -11,6 +11,9 @@ import {
   MEDIEVAL_2_MAP,
   ABSOLUTISM_MAP,
   IMPERIALISM_MAP,
+  asiaRevolutionLayer,
+  ASIA_REVOLUTION_BLURB,
+  withAsiaSeas,
 } from './data/historyData';
 import { MAP_VIEWBOX_W, MAP_VIEWBOX_H } from './data/mapProjection';
 import { GEO_PATHS } from './data/generated/geoPaths.js';
@@ -3085,9 +3088,11 @@ const ERA_PERIODS = [
     id: "revolutions", label: "市民革命と国民国家", yearRange: [1789,1871],
     hasContent: true, contentRange: [1812,1871],
     keyYears: [1812,1815,1871],
-    regionsByYear: revolutionsRegionsByYear,
-    background: REVOLUTIONS_BACKGROUND, capitals: REVOLUTIONS_CAPITALS, rivers: REVOLUTIONS_RIVERS, seaLabels: REVOLUTIONS_SEA_LABELS,
-    blurb: REVOLUTIONS_BLURB,
+    // ヨーロッパの勢力（自動生成ブロック）に、東アジア・南アジアの勢力と都市（historyData.js の asiaRevolutionLayer）を合流させる
+    regionsByYear: (y) => [...revolutionsRegionsByYear(y), ...asiaRevolutionLayer(y).regions],
+    capitalsByYear: (y) => [...REVOLUTIONS_CAPITALS, ...asiaRevolutionLayer(y).cities],
+    background: REVOLUTIONS_BACKGROUND, rivers: REVOLUTIONS_RIVERS, seaLabels: withAsiaSeas(REVOLUTIONS_SEA_LABELS),
+    blurb: { ...REVOLUTIONS_BLURB, ...ASIA_REVOLUTION_BLURB },
   },
   // 1918年までは帝国主義と第一次世界大戦期（1885・1900・1914年）の勢力図。1919年以降は準備中
   {
@@ -3581,9 +3586,11 @@ const mapMinZoom = (size) => Math.min(1, Math.max(MAP_ZOOM_FLOOR, size.w / (VIEW
 
 // 各時代の初期表示範囲（viewBox座標の矩形）を、タップできる都市の分布から自動で決める。
 // 植民地や新大陸の都市が遠くに散らばる時代でも引きすぎないよう、都市が最も密集する地点を中心に、
-// その周辺の都市だけを囲む。都市がない時代は勢力ラベルの位置を使う
+// その周辺の都市だけを囲む。都市がない時代は勢力ラベルの位置を使う。
+// 東アジア・南アジアの都市（asiaLayer）は、各時代の主な舞台（ヨーロッパ・地中海）の初期表示を保つため計算から外す
 const FOCUS_CLUSTER_RADIUS = 70;
-function computeMapFocusBounds(capitals, regions) {
+function computeMapFocusBounds(allCapitals, regions) {
+  const capitals = allCapitals.some((c) => !c.asiaLayer) ? allCapitals.filter((c) => !c.asiaLayer) : allCapitals;
   let pts = capitals.filter((c) => c.region).map((c) => [c.x, c.y]);
   if (pts.length === 0) pts = capitals.map((c) => [c.x, c.y]);
   if (pts.length === 0) pts = regions.map((r) => [r.labelX, r.labelY]);

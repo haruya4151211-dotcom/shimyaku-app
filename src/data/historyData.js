@@ -2,6 +2,7 @@ import { lonLatToXY } from "./mapProjection.js";
 import { GEO_LAND_PATH, GEO_PATHS, GEO_BBOX } from "./generated/geoPaths.js";
 import {
   ASIA_ANCIENT_CARDS, ASIA_MEDIEVAL_CARDS, ASIA_RENAISSANCE_CARDS, ASIA_ABSOLUTISM_CARDS, ASIA_REVOLUTION_CARDS, ASIA_IMPERIALISM_CARDS,
+  ASIA_MAP_LAYERS, ASIA_BLURB,
 } from "./asiaCards.js";
 
 // ---------------------------------------------------------------------------
@@ -3039,8 +3040,37 @@ function geoPath(key) {
   if (!d) throw new Error(`地図の輪郭データがありません: ${key}（geo/regions.mjs に定義して node geo/build.mjs を実行）`);
   return d;
 }
+// 東アジア・南アジアの勢力・都市（asiaCards.js の ASIA_MAP_LAYERS）を、同じ「時代略号+年」のスナップショットに合流させる。
+// 都市には asiaLayer を付け、初期表示の範囲（App.jsx の computeMapFocusBounds）の計算からは外す
+function asiaLayer(key) {
+  const layer = ASIA_MAP_LAYERS[key];
+  if (!layer) return { regions: [], cities: [] };
+  return {
+    regions: layer.regions.map((r) => {
+      const [labelX, labelY] = lonLatToXY(...r.label.at);
+      return { id: r.id, fill: r.colors[0], strokeColor: r.colors[1], labelX, labelY, labelLines: r.label.lines, labelSize: r.label.size, shape: "path" };
+    }),
+    cities: layer.cities.map((c) => ({ ...mapCity(c.name, c.lon, c.lat, c.region, c.dir), asiaLayer: true })),
+  };
+}
+const ASIA_SEA_LABELS = [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["東シナ海", 125.0, 29.0, 5], ["南シナ海", 114.0, 14.0, 6], ["ベンガル湾", 88.0, 15.0, 6], ["アラビア海", 64.0, 17.0, 6]]
+  .map(([name, lon, lat, size]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size }; });
+const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
+// 地図をタップしたときの解説文：その時代のスナップショットに現れる東アジア・南アジアの勢力の分だけ加える
+const asiaBlurbFor = (keys) => Object.fromEntries([...new Set(keys.flatMap((k) => (ASIA_MAP_LAYERS[k]?.regions ?? []).map((r) => r.id)))].map((id) => [id, ASIA_BLURB[id]]));
+// 市民革命と国民国家（App.jsx の自動生成ブロック）向け：1812・1815・1871年のうち最も近い年の東アジア・南アジアの勢力と都市
+export function asiaRevolutionLayer(year) {
+  const snap = [1812, 1815, 1871].reduce((best, y) => (Math.abs(y - year) < Math.abs(best - year) ? y : best), 1812);
+  const key = `rev${snap}`, layer = asiaLayer(key);
+  return { regions: layer.regions.map((r) => { const d = geoPath(`${key}/${r.id}`); return { ...r, dByYear: () => d, bbox: GEO_BBOX[`${key}/${r.id}`] }; }), cities: layer.cities };
+}
+export const ASIA_REVOLUTION_BLURB = asiaBlurbFor(["rev1812", "rev1815", "rev1871"]);
+export { withAsiaSeas };
 function attachGeometry(snapshots, geoPrefix) {
-  return Object.fromEntries(Object.entries(snapshots).map(([year, snap]) => [year, {
+  return Object.fromEntries(Object.entries(snapshots).map(([year, rawSnap]) => {
+    const layer = asiaLayer(`${geoPrefix}${year}`);
+    return [year, { ...rawSnap, regions: [...rawSnap.regions, ...layer.regions], cities: [...rawSnap.cities, ...layer.cities] }];
+  }).map(([year, snap]) => [year, {
     ...snap,
     regions: snap.regions.map((r) => {
       const key = `${geoPrefix}${year}/${r.id}`;
@@ -3051,8 +3081,10 @@ function attachGeometry(snapshots, geoPrefix) {
   }]));
 }
 // ERA_PERIODS の各時代区分にそのまま展開して使う（keyYears／regionsByYear／capitalsByYear など）
-function snapshotMapPeriod(rawSnapshots, { geoPrefix, rivers, seaLabels, blurb }) {
+function snapshotMapPeriod(rawSnapshots, { geoPrefix, rivers, seaLabels: rawSeaLabels, blurb: rawBlurb }) {
   const snapshots = attachGeometry(rawSnapshots, geoPrefix);
+  const blurb = { ...rawBlurb, ...asiaBlurbFor(Object.keys(rawSnapshots).map((y) => `${geoPrefix}${y}`)) };
+  const seaLabels = withAsiaSeas(rawSeaLabels);
   return {
     keyYears: Object.keys(snapshots).map(Number).sort((a, b) => a - b),
     regionsByYear: (year) => nearestSnapshot(snapshots, year).regions,

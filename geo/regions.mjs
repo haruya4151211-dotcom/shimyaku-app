@@ -191,6 +191,80 @@ const ROME_117_EUROPE = [
 ];
 
 // ---------------------------------------------------------------------------
+// 東アジア・南アジアの部品（フェーズ2）
+// ---------------------------------------------------------------------------
+const cn = (...names) => names.map((n) => `CHN/${n}`);
+const ind = (...names) => names.map((n) => `IND/${n}`);
+const jp = (...names) => names.map((n) => `JPN/${n}`);
+const prk = (...names) => names.map((n) => `PRK/${n}`);
+const af = (...names) => names.map((n) => `AFG/${n}`);
+// 中国本土（華北・華中・華南）
+const NORTH_CHINA = cn("Henan", "Hebei", "Beijing", "Tianjin", "Shandong", "Shanxi", "Shaanxi");
+const CENTRAL_SOUTH_CHINA = cn("Hubei", "Hunan", "Jiangxi", "Anhui", "Jiangsu", "Shanghai", "Zhejiang", "Fujian", "Guangdong", "Guangxi", "Sichuan", "Chongqing");
+const CHINA_PROPER = [...NORTH_CHINA, ...CENTRAL_SOUTH_CHINA, "CHN/Ningxia", "CHN/Guizhou", "CHN/Hainan"];
+// ベトナム北部（紅河デルタ〜ゲアン付近。漢・唐の交州／安南）：省の境界をそのまま使う
+const VIETNAM_NORTH = "VNM[102,18.3,109,24]";
+// 淮河〜秦嶺の線：これより南が南宋、北が金（1142年の紹興の和議）
+const HUAI_SOUTH = [[104.0, 33.0], [106.5, 33.2], [108.5, 33.0], [110.5, 33.3], [112.0, 32.7], [113.5, 32.4], [114.8, 32.2], [116.0, 32.5], [117.5, 33.0], [118.6, 33.3], [119.5, 33.7], [121.5, 33.7], [123.0, 25.0], [104.0, 25.0]];
+const SOUTHERN_SONG = [p(HUAI_SOUTH, "CHN/Henan", "CHN/Anhui", "CHN/Jiangsu", "CHN/Shaanxi", "CHN/Gansu"), ...cn("Hubei", "Hunan", "Jiangxi", "Shanghai", "Zhejiang", "Fujian", "Guangdong", "Guangxi", "Sichuan", "Chongqing", "Hainan")];
+// 燕雲十六州（現在の北京・天津・河北北部・山西北部）は遼の領土
+const YANYUN_LINE = [[110.5, 39.4], [111.8, 39.2], [113.0, 39.0], [114.3, 38.9], [115.5, 38.85], [116.6, 38.7], [117.8, 38.9], [119.5, 39.4], [120.0, 42.5], [110.5, 42.5]];
+const SONG_NORTH = { add: [...cn("Henan", "Hebei", "Shandong", "Shanxi", "Shaanxi")], sub: [p(YANYUN_LINE, "CHN/Hebei", "CHN/Shanxi")] };
+const NORTHERN_SONG = [SONG_NORTH, ...cn("Hubei", "Hunan", "Jiangxi", "Anhui", "Jiangsu", "Shanghai", "Zhejiang", "Fujian", "Guangdong", "Guangxi", "Sichuan", "Chongqing", "Hainan")];
+// 朝鮮半島：北朝鮮の道の境界で国境を表す（統一新羅は大同江以南＝黄海道・江原道まで、高麗は清川江以南＝平安南道まで、
+// 14世紀には鴨緑江中流・咸鏡南道まで）
+const KOREA_SOUTH_PRK = prk("Hwanghae-namdo", "Hwanghae-bukto", "Kangwŏn-do");
+const UNIFIED_SILLA = ["KOR", ...KOREA_SOUTH_PRK];
+const GORYEO = ["KOR", ...KOREA_SOUTH_PRK, ...prk("P'yŏngyang", "P'yŏngan-namdo")];
+const GORYEO_1360 = [...GORYEO, ...prk("P'yŏngan-bukto", "Hamgyŏng-namdo")];
+const KOREA_ALL = ["KOR", "PRK"];
+// 日本列島：蝦夷地（北海道）と琉球（沖縄）を除く本州・四国・九州。東北北部の扱いで時代を分ける
+const JAPAN_HONSHU_SOUTH = { add: ["JPN"], sub: jp("Hokkaidō", "Okinawa", "Aomori", "Iwate", "Akita") };
+const JAPAN_MAIN = { add: ["JPN"], sub: jp("Hokkaidō", "Okinawa") };
+const JAPAN_EDO = JAPAN_MAIN; // 蝦夷地（松前藩は渡島半島南端のみ）と琉球王国は含めない
+const JAPAN_MODERN = { add: ["JPN"], sub: jp("Okinawa") };
+// インダス文明の遺跡が分布する範囲を、州の境界で表す（シンド・パンジャーブ、インドのグジャラート・ハリヤーナーなど）
+const INDUS = ["PAK/Sind", "PAK/Punjab", "PAK/F.C.T.", ...ind("Punjab", "Haryana", "Chandigarh", "Delhi", "Gujarat")];
+// 殷の勢力範囲：黄河中・下流域（河南・河北・山東）
+const SHANG = cn("Henan", "Hebei", "Shandong");
+// 春秋時代の周王朝と諸侯の国々（黄河・長江下流域）
+const ZHOU_STATES = [...NORTH_CHINA, ...cn("Hubei", "Anhui", "Jiangsu")];
+// 秦の統一領域（前221年、南越の征服を含む）と漢（河西回廊・遼東・朝鮮北部・ベトナム北部を加える）
+const QIN = [...NORTH_CHINA, ...CENTRAL_SOUTH_CHINA, "CHN/Ningxia", "CHN/Liaoning"];
+const HAN = [...CHINA_PROPER, "CHN/Gansu", "CHN/Liaoning", "CHN/Yunnan", ...prk("P'yŏngan-namdo", "P'yŏngyang", "Hwanghae-namdo", "Hwanghae-bukto"), VIETNAM_NORTH];
+// 唐（8世紀末）：安史の乱後、河西回廊は吐蕃に、雲南は南詔に、遼東は渤海などに失っている
+const TANG_800 = [...CHINA_PROPER, VIETNAM_NORTH];
+// 南アジア
+const NORTHEAST_INDIA = ind("Assam", "Arunachal Pradesh", "Nagaland", "Manipur", "Mizoram", "Tripura", "Meghalaya", "Sikkim");
+const SOUTH_INDIA_TIP = ind("Kerala", "Tamil Nadu", "Puducherry", "Lakshadweep");
+const AFG_EAST = af("Kabul", "Kandahar", "Nangarhar", "Laghman", "Kunar", "Logar", "Ghazni", "Zabul", "Paktya", "Paktika", "Khost", "Kapisa", "Parwan", "Wardak", "Uruzgan", "Hilmand");
+const MAURYA = [{ add: ["IND"], sub: [...SOUTH_INDIA_TIP, ...NORTHEAST_INDIA, "IND/Ladakh", "IND/Andaman and Nicobar"] }, { add: ["PAK"], sub: ["PAK/Northern Areas"] }, "BGD", ...AFG_EAST];
+const KUSHAN = ["PAK", "AFG", "TJK", "KAS", ...ind("Punjab", "Haryana", "Delhi", "Chandigarh", "Himachal Pradesh", "Jammu and Kashmir", "Ladakh", "Uttarakhand", "Uttar Pradesh"), "UZB/Surkhandarya"];
+const GUPTA = [...ind("Uttar Pradesh", "Bihar", "Jharkhand", "West Bengal", "Madhya Pradesh", "Delhi", "Haryana", "Chandigarh", "Punjab", "Uttarakhand", "Himachal Pradesh", "Rajasthan", "Gujarat", "Chhattisgarh", "Odisha"), "BGD/Rajshahi", "BGD/Rangpur", "BGD/Khulna", "BGD/Dhaka"];
+const GOGURYEO_395 = [...prk("P'yŏngan-bukto", "P'yŏngan-namdo", "P'yŏngyang", "Chagang-do", "Ryanggang", "Hamgyŏng-namdo", "Hamgyŏng-bukto", "Rasŏn", "Hwanghae-bukto", "Kangwŏn-do"), "CHN/Jilin"]; // 4世紀末：朝鮮半島北部と中国東北部の南部
+const DELHI_1204 = ["PAK/Punjab", "PAK/Sind", "PAK/F.C.T.", ...ind("Punjab", "Haryana", "Delhi", "Chandigarh", "Uttar Pradesh", "Bihar", "West Bengal"), "BGD/Rajshahi", "BGD/Rangpur"];
+const DELHI_1360 = ["PAK/Punjab", "PAK/Sind", "PAK/F.C.T.", ...ind("Punjab", "Haryana", "Delhi", "Chandigarh", "Uttar Pradesh", "Bihar", "Rajasthan", "Gujarat", "Madhya Pradesh", "Uttarakhand")];
+const MUGHAL_1555 = [...AFG_EAST.filter((s) => !s.includes("Kandahar") && !s.includes("Hilmand") && !s.includes("Zabul") && !s.includes("Uruzgan")), "PAK/Punjab", "PAK/K.P.", "PAK/F.C.T.", "PAK/F.A.T.A.", ...ind("Punjab", "Haryana", "Delhi", "Chandigarh", "Uttar Pradesh")];
+const MUGHAL_1648 = [...AFG_EAST, { add: ["PAK"], sub: ["PAK/Northern Areas"] }, "KAS", "BGD", { add: ["IND"], sub: [...SOUTH_INDIA_TIP, ...NORTHEAST_INDIA, ...ind("Karnataka", "Andhra Pradesh", "Telangana", "Goa", "Andaman and Nicobar", "Ladakh")] }];
+const MUGHAL_1715 = [...AFG_EAST, { add: ["PAK"], sub: ["PAK/Northern Areas"] }, "KAS", "BGD", { add: ["IND"], sub: [...ind("Kerala", "Lakshadweep", "Goa", "Andaman and Nicobar", "Ladakh"), ...NORTHEAST_INDIA] }];
+const MUGHAL_1772 = ind("Delhi", "Haryana"); // 衰退してデリー周辺のみ
+// 清：中国本土＋満州＋モンゴル。1648年は南部・西部の平定前、18世紀に新疆・チベット・台湾を加える。アムール川以北・沿海州は1858・60年にロシアへ
+const QING_1648 = [...CHINA_PROPER.filter((s) => !s.includes("Guizhou") && !s.includes("Guangxi")), ...cn("Liaoning", "Jilin", "Heilongjiang", "Inner Mongol", "Gansu")];
+const QING_AMUR = ru("Amur", "Yevrey", "Primor'ye");
+const QING_1715 = ["CHN", "MNG", "TWN", ...QING_AMUR];
+const QING_1715_SUB = cn("Xinjiang", "Xizang");
+const QING_1772 = ["CHN", "MNG", "TWN", ...QING_AMUR, "RUS/Tuva"];
+const QING_1871 = ["CHN", "MNG", "TWN", "RUS/Tuva"];
+// 元（14世紀半ば）：中国・モンゴル高原・チベット・南シベリア。新疆はチャガタイ＝ハン国
+const YUAN = [{ add: ["CHN"], sub: ["CHN/Xinjiang"] }, "MNG", ...ru("Tuva", "Buryat", "Chita")];
+const MONGOL_1206 = ["MNG"];
+// 明（15〜16世紀）：長城以南の中国本土に遼東・雲南・河西回廊東部を加える
+const MING = [...CHINA_PROPER, "CHN/Liaoning", "CHN/Yunnan", "CHN/Gansu"];
+// イギリス東インド会社が支配したインド（1812・1815年はマラーター・シク王国などを除く、1871年はパキスタン・ビルマ南部を含む）
+const BRITISH_INDIA_1815 = [{ add: ["IND"], sub: [...ind("Punjab", "Himachal Pradesh", "Jammu and Kashmir", "Ladakh", "Rajasthan", "Madhya Pradesh", "Gujarat", "Maharashtra", "Chhattisgarh", "Andaman and Nicobar", "Dadra and Nagar Haveli and Daman and Diu", "Goa", "Chandigarh"), ...NORTHEAST_INDIA] }, "BGD"];
+const BRITISH_INDIA_1871 = [{ add: ["IND"], sub: ["IND/Goa", "IND/Puducherry", "IND/Dadra and Nagar Haveli and Daman and Diu"] }, "PAK", "KAS", "BGD", "MMR/Rakhine", "MMR/Tanintharyi", "MMR/Yangon", "MMR/Ayeyarwady", "MMR/Bago", "MMR/Mon", "MMR/Kayin"];
+
+// ---------------------------------------------------------------------------
 // 定義本体
 // ---------------------------------------------------------------------------
 export const REGIONS = {
@@ -509,4 +583,64 @@ export const REGIONS = {
       "imp1914/bg:アルバニア": { add: ["ALB"] },
     };
   })(),
+  // ===== 東アジア・南アジア（フェーズ2） =====
+  "anc-2500/インダス文明": { add: INDUS },
+  "anc-1750/インダス文明": { add: INDUS },
+  "anc-1750/殷": { add: SHANG },
+  "anc-600/周": { add: ZHOU_STATES },
+  "anc-218/秦": { add: QIN },
+  "anc-218/マウリヤ朝": { add: MAURYA },
+  "anc-44/漢": { add: HAN },
+  "anc117/漢": { add: HAN },
+  "anc117/クシャーナ朝": { add: KUSHAN },
+  "anc117/倭国": JAPAN_HONSHU_SOUTH,
+  "anc395/グプタ朝": { add: GUPTA },
+  "anc395/高句麗": { add: GOGURYEO_395 },
+  "med800/唐": { add: TANG_800 },
+  "med800/日本": JAPAN_HONSHU_SOUTH,
+  "med800/新羅": { add: UNIFIED_SILLA },
+  "med962/宋": { add: NORTHERN_SONG },
+  "med962/高麗": { add: GORYEO },
+  "med962/日本": JAPAN_MAIN,
+  "med1095/宋": { add: NORTHERN_SONG },
+  "med1095/高麗": { add: GORYEO },
+  "med1095/日本": JAPAN_MAIN,
+  "med1204/宋": { add: SOUTHERN_SONG },
+  "med1204/高麗": { add: GORYEO },
+  "med1204/日本": JAPAN_MAIN,
+  "med1204/モンゴル帝国": { add: MONGOL_1206 },
+  "med1204/デリー＝スルタン朝": { add: DELHI_1204 },
+  "med1360/元": { add: YUAN },
+  "med1360/高麗": { add: GORYEO_1360 },
+  "med1360/日本": JAPAN_MAIN,
+  "med1360/デリー＝スルタン朝": { add: DELHI_1360 },
+  "ren1492/明": { add: MING },
+  "ren1492/朝鮮": { add: KOREA_ALL },
+  "ren1492/日本": JAPAN_MAIN,
+  "ren1517/明": { add: MING },
+  "ren1517/朝鮮": { add: KOREA_ALL },
+  "ren1517/日本": JAPAN_MAIN,
+  "ren1555/明": { add: MING },
+  "ren1555/朝鮮": { add: KOREA_ALL },
+  "ren1555/日本": JAPAN_MAIN,
+  "ren1555/ムガル帝国": { add: MUGHAL_1555 },
+  "abs1648/清": { add: QING_1648 },
+  "abs1648/日本": JAPAN_EDO,
+  "abs1648/ムガル帝国": { add: MUGHAL_1648 },
+  "abs1715/清": { add: QING_1715, sub: QING_1715_SUB },
+  "abs1715/日本": JAPAN_EDO,
+  "abs1715/ムガル帝国": { add: MUGHAL_1715 },
+  "abs1772/清": { add: QING_1772 },
+  "abs1772/日本": JAPAN_EDO,
+  "abs1772/ムガル帝国": { add: MUGHAL_1772 },
+  "rev1812/清": { add: QING_1772 },
+  "rev1812/日本": JAPAN_MODERN,
+  "rev1812/インド": { add: BRITISH_INDIA_1815 },
+  "rev1815/清": { add: QING_1772 },
+  "rev1815/日本": JAPAN_MODERN,
+  "rev1815/インド": { add: BRITISH_INDIA_1815 },
+  "rev1871/清": { add: QING_1871 },
+  "rev1871/日本": JAPAN_MODERN,
+  "rev1871/インド": { add: BRITISH_INDIA_1871 },
+
 };
