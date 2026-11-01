@@ -3087,6 +3087,9 @@ export const RENAISSANCE_EARLY_MODERN_MAP = buildMapPeriod("ren", seriesYears("r
 export const ABSOLUTISM_MAP = buildMapPeriod("abs", MAP_SERIES.abs, { rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: ABSOLUTISM_BLURB });
 export const REVOLUTIONS_MAP = buildMapPeriod("rev", MAP_SERIES.rev, { rivers: REVOLUTIONS_RIVERS, seaLabels: SEA_LABELS, blurb: REVOLUTIONS_BLURB });
 export const IMPERIALISM_MAP = buildMapPeriod("imp", MAP_SERIES.imp, { rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: IMPERIALISM_BLURB });
+// 戦間期と第二次世界大戦（1922・1939・1942年）、冷戦と現代世界（1950・1962・1975・1991年）。解説文は worldCards.js の WORLD_BLURB
+export const WORLD_WARS_MAP = buildMapPeriod("ww", MAP_SERIES.ww, { rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: {} });
+export const COLD_WAR_MAP = buildMapPeriod("cw", MAP_SERIES.cw, { rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: {} });
 // 地図タブの時代区分ID（App.jsx の ERA_PERIODS・ERAS_DATA の mapPeriodId）→ その区分で使う地図。npm run check が時代ごとの地図を選ぶのに使う
 export const MAP_PERIODS_BY_ID = {
   "ancient-civilizations": [ANCIENT_CIVILIZATIONS_MAP],
@@ -3095,8 +3098,8 @@ export const MAP_PERIODS_BY_ID = {
   "medieval-2": [MEDIEVAL_2_MAP, RENAISSANCE_MEDIEVAL_MAP],
   "early-modern": [RENAISSANCE_EARLY_MODERN_MAP, ABSOLUTISM_MAP],
   "revolutions": [REVOLUTIONS_MAP],
-  "imperialism-wars": [IMPERIALISM_MAP],
-  "cold-war-modern": [],
+  "imperialism-wars": [IMPERIALISM_MAP, WORLD_WARS_MAP],
+  "cold-war-modern": [COLD_WAR_MAP],
 };
 
 
@@ -3206,8 +3209,7 @@ export const ERAS_DATA = {
     id: "world-wars",
     title: "戦間期と第二次世界大戦",
     period: WW_ERA_LABEL,
-    // 地図の時代区分「帝国主義と二つの大戦」（1870〜1945年）のうち1919年以降を受け持つ。
-    // 勢力図（シリーズ ww）は未作成のため、地図タブではこの範囲は「準備中」表示になる
+    // 地図の時代区分「帝国主義と二つの大戦」（1870〜1945年）のうち1919年以降を受け持つ。勢力図は WORLD_WARS_MAP（1922・1939・1942年）
     mapPeriodId: "imperialism-wars",
     yearRange: [1919, 1945],
     defaultMapYear: 1939,
@@ -3222,7 +3224,7 @@ export const ERAS_DATA = {
     title: "冷戦と現代世界",
     period: CW_ERA_LABEL,
     // 地図の時代区分「冷戦と現代世界」（1945〜2025年）。1945年は前の区分が先に一致するため、実質1946年から。
-    // 勢力図（シリーズ cw）は未作成のため、地図タブでは「準備中」表示になる
+    // 勢力図は COLD_WAR_MAP（1950・1962・1975・1991年）
     mapPeriodId: "cold-war-modern",
     yearRange: [1946, 2025],
     defaultMapYear: 1962,

@@ -10,6 +10,8 @@ import {
   MEDIEVAL_2_MAP,
   ABSOLUTISM_MAP,
   IMPERIALISM_MAP,
+  WORLD_WARS_MAP,
+  COLD_WAR_MAP,
   REVOLUTIONS_MAP,
 } from './data/historyData';
 import { MAP_VIEWBOX_W, MAP_VIEWBOX_H, lonLatBounds } from './data/mapProjection';
@@ -2871,6 +2873,7 @@ function regionStatus(id, year) {
 const COVERED_ERA = [1500, 1789]; // 大航海時代・近世のうち実際にコンテンツが存在する範囲（1500〜1599年はルネサンス期、1600年以降は絶対王政期の勢力図）
 const MEDIEVAL_MAP_UNTIL = 1450; // 中世②の区分で、これより前は中世ヨーロッパの勢力図、以降はルネサンス期（1492年）の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
 const RENAISSANCE_MAP_UNTIL = 1600; // 大航海時代・近世の区分で、これより前はルネサンス期、以降は絶対王政期の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
+const WORLD_WARS_MAP_FROM = 1919; // 帝国主義と二つの大戦の区分で、これ以降は戦間期と第二次世界大戦の勢力図（ERAS_DATA の yearRange の境目と一致）
 
 // ============================================================
 // 時代区分（ERA_PERIODS）
@@ -2931,12 +2934,22 @@ const ERA_PERIODS = [
     hasContent: true, contentRange: [1812,1871], ...REVOLUTIONS_MAP,
   },
 
-  // 1918年までは帝国主義と第一次世界大戦期（1885・1900・1914年）の勢力図。1919年以降は準備中
+  // 1918年までは帝国主義と第一次世界大戦期（1885・1900・1914年）、1919年以降は戦間期と第二次世界大戦（1922・1939・1942年）の勢力図
   {
     id: "imperialism-wars", label: "帝国主義と二つの大戦", yearRange: [1870, 1945],
-    hasContent: true, contentRange: [1870, 1918], ...IMPERIALISM_MAP,
+    hasContent: true, contentRange: [1870, 1945],
+    keyYears: [...IMPERIALISM_MAP.keyYears, ...WORLD_WARS_MAP.keyYears],
+    regionsByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).regionsByYear(y),
+    backgroundByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).backgroundByYear(y),
+    capitalsByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).capitalsByYear(y),
+    seaLabelsByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).seaLabels,
+    blurbByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).blurb,
+    rivers: RIVERS,
   },
-  { id: "cold-war-modern", label: "冷戦と現代世界", yearRange: [1945, 2025], hasContent: false },
+  {
+    id: "cold-war-modern", label: "冷戦と現代世界", yearRange: [1945, 2025],
+    hasContent: true, contentRange: [1946, 2025], ...COLD_WAR_MAP,
+  },
 ];
 
 // 現在の年代に対応する時代区分を返す（範囲外はnull）
