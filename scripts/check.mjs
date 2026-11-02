@@ -4,9 +4,13 @@
 //   3. 地図とカード … 全カードがその時代の地図の勢力から引けるか、地図の勢力にカードがあるか、都市の勢力・解説文があるか
 //                    （輪郭が未作成でもラベルを定義済みの勢力は「地図への配置待ち」の注意。その勢力のラベル・都市・解説文も答えの漏れを検査する）
 //   4. 位置         … 勢力名のラベルと都市が、その勢力の輪郭の内側にあるか
+//   5. 地理         … 地理の名前（atlas/geography.js）の置き場所：海の名前は海上、陸の地名は陸上、河川名は流路の近くか
 // エラーがあれば終了コード1で終わる（注意は表示のみ）。
 import { ERAS_DATA, MAP_PERIODS_BY_ID } from "../src/data/historyData.js";
-import { GEO_MEMBERS, GEO_PATHS } from "../src/data/generated/geoPaths.js";
+import { GEO_MEMBERS, GEO_PATHS, GEO_LAND_PATH } from "../src/data/generated/geoPaths.js";
+import { RIVER_PATHS } from "../src/data/generated/riverPaths.js";
+import { GEO_RIVERS, GEO_LABELS, WATER_KINDS } from "../src/data/atlas/geography.js";
+import { lonLatToXY } from "../src/data/mapProjection.js";
 import { ALL_SNAPSHOTS } from "../src/data/atlas/series.js";
 import { PALETTES, BACKGROUND_FILLS, REGION_LABELS, BACKGROUND_LABELS, CITIES } from "../src/data/atlas/styles.js";
 import { ENTITIES } from "../geo/regions.mjs";
@@ -132,7 +136,9 @@ for (const [eraId, era] of Object.entries(ERAS_DATA)) {
     if (new Set(ids).size !== ids.length) err("地図", `${label}: 勢力IDが重複`);
     const names = cities.map((c) => c.name);
     if (new Set(names).size !== names.length) err("地図", `${label}: 都市名が重複`);
-    const texts = [...regions.flatMap((r) => [...r.labelLines, ...(r.subLabels ?? []).map((s) => s.text)]), ...background.map((b) => b.name), ...cities.map((c) => c.name), ...map.seaLabels.map((s) => s.name)];
+    // 地図の文字：勢力名・背景・都市・河川・地理の名前（歴史的地域名などはその年代に出るものだけ）
+    const geoNames = map.seaLabels.filter((s) => (s.from ?? -Infinity) <= year && year <= (s.to ?? Infinity)).map((s) => s.name);
+    const texts = [...regions.flatMap((r) => [...r.labelLines, ...(r.subLabels ?? []).map((s) => s.text)]), ...background.map((b) => b.name), ...cities.map((c) => c.name), ...(map.rivers ?? []).map((r) => r.name), ...geoNames];
     for (const r of regions) {
       const n = cards.filter((c) => c.region === r.id).length;
       if (n === 0) warn("地図", `${label}: 勢力「${r.id}」から引けるカードがまだない`);
@@ -176,6 +182,40 @@ for (const [eraId, era] of Object.entries(ERAS_DATA)) {
     for (const t of texts) for (const { id: cid, answer } of answers) if (answer.length >= 2 && containsAnswer(t, answer)) err("答え", `${eraId}: 配置待ちの勢力「${id}」の地図の文字「${t.slice(0, 20)}${t.length > 20 ? "…" : ""}」に ${cid} の答え「${answer}」`);
   }
   console.log(`${era.title}：カード ${cards.length}問（地図から引ける ${reachable.size}問）・地図 ${snaps.length}年代`);
+}
+
+// ---------------------------------------------------------------------------
+// 5. 地理の名前の置き場所（陸地は GEO_LAND_PATH。小さな島は陸地に含まれないため、島・岬・海峡は海岸からの距離で許容する）
+// ---------------------------------------------------------------------------
+{
+  const landRings = rings(GEO_LAND_PATH);
+  const onLand = (p) => inside(GEO_LAND_PATH, p);
+  const coastDist = (p) => distToEdge(GEO_LAND_PATH, p);
+  void landRings;
+  const TOL = { strait: 3, island: 2.5, cape: 2.5, site: 1.5, oasis: 1.5, region: 1.5 };
+  for (const g of GEO_LABELS) {
+    const p = lonLatToXY(g.at[0], g.at[1]);
+    const water = WATER_KINDS.includes(g.kind);
+    const land = onLand(p);
+    // 湖：陸地データから切り抜かれた大きな湖（穴）のほか、切り抜かれていない内陸の湖もあるため、陸上は可。外洋に置かれたものだけ誤り
+    if (g.kind === "lake") { if (!land && coastDist(p) > 8) err("地理", `「${g.name}」（lake）が外洋にある（海岸から ${coastDist(p).toFixed(1)}）`); continue; }
+    if (water && land && coastDist(p) > (TOL[g.kind] ?? 0)) err("地理", `「${g.name}」（${g.kind}）が陸上にある（海岸から ${coastDist(p).toFixed(1)}）`);
+    if (!water && !land && coastDist(p) > (TOL[g.kind] ?? 1)) err("地理", `「${g.name}」（${g.kind}）が海上にある（海岸から ${coastDist(p).toFixed(1)}）`);
+  }
+  // 河川：流路があり、ラベルが流路の近く（2.5単位以内）にあるか
+  const openSegments = (d) => d.split("M").filter(Boolean).map((seg) => {
+    const pts = []; let x = 0, y = 0, first = true;
+    for (const m of ("M" + seg).matchAll(/([Ml])(-?[\d.]+) ?(-?[\d.]+)/g)) { const a = +m[2], b = +m[3]; if (m[1] === "M" || first) { x = a; y = b; first = false; } else { x += a; y += b; } pts.push([x, y]); }
+    return pts;
+  });
+  for (const r of GEO_RIVERS) {
+    const d = RIVER_PATHS[r.name];
+    if (!d) { err("地理", `河川「${r.name}」の流路がない（npm run geo を実行）`); continue; }
+    const p = lonLatToXY(r.at[0], r.at[1]);
+    let m = Infinity;
+    for (const pts of openSegments(d)) for (let i = 1; i < pts.length; i++) m = Math.min(m, segDist(p, pts[i - 1], pts[i]));
+    if (m > 2.5) err("地理", `河川「${r.name}」のラベルが流路から離れている（${m.toFixed(1)}）`);
+  }
 }
 
 const uniq = (a) => [...new Set(a)];

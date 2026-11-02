@@ -1,7 +1,6 @@
 import {
   ERAS_DATA,
   WORLD_LAND_PATH,
-  RIVERS,
   ANCIENT_CIVILIZATIONS_MAP,
   ANCIENT_EMPIRES_MAP,
   RENAISSANCE_MEDIEVAL_MAP,
@@ -15,6 +14,7 @@ import {
   REVOLUTIONS_MAP,
 } from './data/historyData';
 import { MAP_VIEWBOX_W, MAP_VIEWBOX_H, lonLatBounds } from './data/mapProjection';
+import { WATER_KINDS } from './data/atlas/geography';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
 
@@ -2929,7 +2929,7 @@ const ERA_PERIODS = [
     capitalsByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).capitalsByYear(y),
     seaLabelsByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).seaLabels,
     blurbByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).blurb,
-    rivers: RIVERS,
+    riversByYear: (y) => (y < MEDIEVAL_MAP_UNTIL ? MEDIEVAL_2_MAP : RENAISSANCE_MEDIEVAL_MAP).rivers,
   },
   {
     id: "early-modern", label: "大航海時代・近世", yearRange: [1500, 1789],
@@ -2941,7 +2941,7 @@ const ERA_PERIODS = [
     capitalsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).capitalsByYear(y),
     seaLabelsByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).seaLabels,
     blurbByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).blurb,
-    rivers: RIVERS,
+    riversByYear: (y) => (y < RENAISSANCE_MAP_UNTIL ? RENAISSANCE_EARLY_MODERN_MAP : ABSOLUTISM_MAP).rivers,
   },
   {
     id: "revolutions", label: "市民革命と国民国家", yearRange: [1789,1871],
@@ -2958,7 +2958,7 @@ const ERA_PERIODS = [
     capitalsByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).capitalsByYear(y),
     seaLabelsByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).seaLabels,
     blurbByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).blurb,
-    rivers: RIVERS,
+    riversByYear: (y) => (y < WORLD_WARS_MAP_FROM ? IMPERIALISM_MAP : WORLD_WARS_MAP).rivers,
   },
   {
     id: "cold-war-modern", label: "冷戦と現代世界", yearRange: [1945, 2025],
@@ -3847,7 +3847,9 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   const periodBackground = activePeriod?.backgroundByYear ? activePeriod.backgroundByYear(year) : activePeriod?.background ?? [];
   const periodCapitals = activePeriod?.capitalsByYear ? activePeriod.capitalsByYear(year) : activePeriod?.capitals ?? [];
   const periodRivers = activePeriod?.riversByYear ? activePeriod.riversByYear(year) : activePeriod?.rivers ?? [];
-  const periodSeaLabels = activePeriod?.seaLabelsByYear ? activePeriod.seaLabelsByYear(year) : activePeriod?.seaLabels ?? [];
+  // 地理の名前（海・地形・歴史的地域名・遺跡）。歴史的地域名など from〜to のあるものは、その年代だけ出す
+  const periodSeaLabels = (activePeriod?.seaLabelsByYear ? activePeriod.seaLabelsByYear(year) : activePeriod?.seaLabels ?? [])
+    .filter((s) => (s.from ?? -Infinity) <= year && year <= (s.to ?? Infinity));
   const periodBlurb = activePeriod?.blurbByYear ? activePeriod.blurbByYear(year) : activePeriod?.blurb ?? {};
   const periodKeyYears = activePeriod?.hasContent && activePeriod.keyYears?.length ? activePeriod.keyYears : ERA_BOUNDARY_YEARS;
 
@@ -3965,10 +3967,11 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     }
     if (fade(1.05) > 0) for (const t of periodBackground) boxes.push(textBox(`b:${t.name}`, t.labelX, t.labelY, 6, textScale(6, 10), t.name.length, 1, "middle", "baseline"));
     for (const terrainPass of [false, true]) for (const sl of periodSeaLabels) {
-      if ((sl.kind === "terrain") !== terrainPass || fade(sl.minZoom ?? 1.15) <= 0) continue;
+      const isTerrain = !!sl.kind && !WATER_KINDS.includes(sl.kind) && sl.kind !== "island";
+      if (isTerrain !== terrainPass || fade(sl.minZoom ?? 1.15) <= 0) continue;
       boxes.push(textBox(`s:${sl.name}`, sl.x, sl.y, sl.size, textScale(sl.size, terrainPass ? 9.5 : 10), sl.name.length * (terrainPass ? 1.18 : 1), 1, "middle", "baseline"));
     }
-    if (fade(1.4) > 0) for (const rv of periodRivers) boxes.push(textBox(`v:${rv.name}`, rv.labelX, rv.labelY, 5.5, textScale(5.5, 9.5), rv.name.length, 1, "start", "baseline"));
+    for (const rv of periodRivers) if (fade(rv.minZoom ?? 1.4) > 0) boxes.push(textBox(`v:${rv.name}`, rv.labelX, rv.labelY, rv.size ?? 5.5, textScale(rv.size ?? 5.5, 9.5), rv.name.length, 1, "middle", "baseline"));
     return hideOverlappingLabels(boxes);
   })();
   const stopMapGesture = panZoom.onControlPointerDown;
@@ -4300,29 +4303,30 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       {/* 主要河川：極細のブルーグレーのラインで流路を描き、名称を小さく添える（装飾・タップ不可）。
                           都市マーカーと同じLODでフェードインし、文字サイズはズーム非依存 */}
                       {periodRivers.map((r) => {
-                        const riverOpacity = Math.max(0, Math.min(1, (panZoom.zoom - 1.4) / 0.3));
+                        const riverOpacity = Math.max(0, Math.min(1, (panZoom.zoom - (r.minZoom ?? 1.4)) / 0.3));
                         if (riverOpacity <= 0) return null;
                         const riverNameHidden = hiddenLabels.has(`v:${r.name}`);
                         return (
                           <g key={r.name} style={{ opacity: riverOpacity * 0.9, transition: "opacity 0.3s ease", pointerEvents: "none" }}>
-                            <polyline
-                              points={r.points}
+                            <path
+                              d={r.d}
                               fill="none"
-                              stroke="#5B7A96"
-                              strokeOpacity="0.55"
-                              strokeWidth="0.5"
+                              stroke="#6E93B5"
+                              strokeOpacity="0.75"
+                              strokeWidth="0.9"
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               vectorEffect="non-scaling-stroke"
                             />
                             <text
                               x={r.labelX} y={r.labelY}
+                              textAnchor="middle"
                               className="font-body"
-                              fontSize="5.5"
+                              fontSize={r.size ?? 5.5}
                               fill="#CBD5E1"
                               fontStyle="italic"
                               style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.9))", opacity: riverNameHidden ? 0 : 1 }}
-                              transform={`translate(${r.labelX},${r.labelY}) scale(${textScale(5.5, 9.5)}) translate(${-r.labelX},${-r.labelY})`}
+                              transform={`translate(${r.labelX},${r.labelY}) scale(${textScale(r.size ?? 5.5, 9.5)}) translate(${-r.labelX},${-r.labelY})`}
                             >
                               {r.name}
                             </text>
@@ -4333,7 +4337,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       {/* 海洋・海峡・主要島嶼：陸地/勢力と混同しないよう、控えめなスレートブルーの透過テキストのみ（装飾・タップ不可） */}
                       {/* 地形の名前（kind: "terrain"）は、それぞれの minZoom まで拡大したときに砂色の字間を広げた注記で出す */}
                       {periodSeaLabels.map((s) => {
-                        const terrain = s.kind === "terrain";
+                        const terrain = !!s.kind && !WATER_KINDS.includes(s.kind) && s.kind !== "island"; // 陸の地理（地形・地域名・遺跡）
                         const seaOpacity = hiddenLabels.has(`s:${s.name}`) ? 0 : Math.max(0, Math.min(1, (panZoom.zoom - (s.minZoom ?? 1.15)) / 0.3));
                         if (seaOpacity <= 0) return null;
                         return (

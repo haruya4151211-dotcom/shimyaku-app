@@ -2,6 +2,8 @@ import { lonLatToXY, MAP_VIEWBOX_W } from "./mapProjection.js";
 import { GEO_LAND_PATH, GEO_PATHS, GEO_BBOX, GEO_MEMBERS } from "./generated/geoPaths.js";
 import { MAP_SERIES, seriesYears } from "./atlas/series.js";
 import { PALETTES, BACKGROUND_FILLS, REGION_LABELS, BACKGROUND_LABELS, CITIES, SEA_ROUTES } from "./atlas/styles.js";
+import { GEO_RIVERS, GEO_LABELS, GEO_TIER_ZOOM } from "./atlas/geography.js";
+import { RIVER_PATHS } from "./generated/riverPaths.js";
 import {
   ASIA_ANCIENT_CARDS, ASIA_MEDIEVAL_CARDS, ASIA_RENAISSANCE_CARDS, ASIA_ABSOLUTISM_CARDS, ASIA_REVOLUTION_CARDS, ASIA_IMPERIALISM_CARDS,
   ASIA_BLURB,
@@ -1443,12 +1445,12 @@ export const ANCIENT_CARDS = [
   },
   {
     id: "c28", year: -2550, difficulty: 0, era: "古代（オリエント・地中海・アジア）", region: "エジプト", theme: ["通史", "古代オリエント"],
-    front: "ヘロドトスが「エジプトは〇〇のたまもの」と記した川と、古代エジプトの王の称号は？",
+    front: "「エジプトはナイルのたまもの」と記したギリシアの歴史家と、古代エジプトの王の称号は？",
     back: "",
     cloze: {
-      template: "ギリシアの歴史家ヘロドトスが「エジプトは{{1}}のたまもの」と記したように、エジプトでは毎年の川の氾濫がもたらす肥沃な土のもとで農耕文明が栄えた。王は{{2}}と呼ばれ、太陽神ラーの子として神権政治を行い、古王国時代にはギザに巨大なピラミッドが築かれた。",
+      template: "ギリシアの歴史家{{1}}が「エジプトはナイルのたまもの」と記したように、エジプトでは毎年の川の氾濫がもたらす肥沃な土のもとで農耕文明が栄えた。王は{{2}}と呼ばれ、太陽神ラーの子として神権政治を行い、古王国時代にはギザに巨大なピラミッドが築かれた。",
       slots: [
-        { id: 1, answer: "ナイル", category: "川" },
+        { id: 1, answer: "ヘロドトス", category: "人物" },
         { id: 2, answer: "ファラオ", category: "称号" },
       ],
       points: [
@@ -1935,12 +1937,12 @@ export const RENAISSANCE_CARDS = [
   },
   {
     id: "c43", year: 1498, difficulty: 1, era: "近世（大航海時代・ルネサンス・宗教改革）", region: "ポルトガル王国", theme: ["通史", "大航海時代"],
-    front: "1488年にディアスが到達したアフリカ南端の岬と、1498年にインド航路を開いた航海者は？",
+    front: "1488年にアフリカ南端の喜望峰に到達した航海者と、1498年にインド航路を開いた航海者は？",
     back: "",
     cloze: {
-      template: "ポルトガルは香辛料を求めてアフリカ西岸の探検を進め、1488年にバルトロメウ・ディアスがアフリカ南端の{{1}}に到達した。1498年には{{2}}がインド西岸のカリカットに到達し、インド航路が開かれた。",
+      template: "ポルトガルは香辛料を求めてアフリカ西岸の探検を進め、1488年に{{1}}がアフリカ南端の喜望峰に到達した。1498年には{{2}}がインド西岸のカリカットに到達し、インド航路が開かれた。",
       slots: [
-        { id: 1, answer: "喜望峰", category: "岬" },
+        { id: 1, answer: "バルトロメウ・ディアス", category: "人物" },
         { id: 2, answer: "ヴァスコ・ダ・ガマ", category: "人物" },
       ],
       points: [
@@ -2112,13 +2114,13 @@ export const MEDIEVAL_CARDS = [
   },
   {
     id: "c57", year: 732, difficulty: 1, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "イスラーム世界", theme: ["通史", "中世ヨーロッパ"],
-    front: "732年、イスラーム勢力の侵入をトゥール・ポワティエ間の戦いで撃退したフランク王国の宮宰と、侵入軍が越えてきた山脈は？",
+    front: "732年にイスラーム勢力の侵入を撃退したフランク王国の宮宰と、その戦いは？",
     back: "",
     cloze: {
-      template: "732年、フランク王国の宮宰{{1}}は、イベリア半島から{{2}}山脈を越えて侵入したウマイヤ朝の軍を、トゥール・ポワティエ間の戦いで撃退した。",
+      template: "732年、フランク王国の宮宰{{1}}は、イベリア半島からピレネー山脈を越えて侵入したウマイヤ朝の軍を、{{2}}の戦いで撃退した。",
       slots: [
         { id: 1, answer: "カール・マルテル", category: "人物" },
-        { id: 2, answer: "ピレネー", category: "地名" },
+        { id: 2, answer: "トゥール・ポワティエ間", category: "戦い" },
       ],
       points: [
         { label: "原因", text: "7世紀に成立したイスラーム勢力は急速に拡大し、711年には西ゴート王国を滅ぼしてイベリア半島をほぼ支配した" },
@@ -2547,13 +2549,13 @@ export const MEDIEVAL_CARDS = [
   },
   {
     id: "c65", year: 1346, difficulty: 3, era: "中世（ヨーロッパ・イスラーム・アジア）", region: "ジェノヴァ共和国", theme: ["通史", "中世ヨーロッパ"],
-    front: "ジェノヴァが黒海交易の拠点としたクリミア半島の植民市と、そこから逃れた船がペストを運んだ地中海の島は？",
+    front: "ジェノヴァが黒海交易の拠点としたクリミア半島の植民市と、そこから逃れた船がペストを運んだシチリア島の港町は？",
     back: "",
     cloze: {
-      template: "ジェノヴァは黒海北岸のクリミア半島にある植民市{{1}}を拠点に、黒海交易で栄えた。1346年、キプチャク・ハン国の軍がこの町を包囲した際に疫病が広がり、逃れたジェノヴァ船によってペストは{{2}}島のメッシーナなど地中海の港へ運ばれたといわれる。",
+      template: "ジェノヴァは黒海北岸のクリミア半島にある植民市{{1}}を拠点に、黒海交易で栄えた。1346年、キプチャク・ハン国の軍がこの町を包囲した際に疫病が広がり、逃れたジェノヴァ船によってペストはシチリア島の{{2}}など地中海の港へ運ばれたといわれる。",
       slots: [
         { id: 1, answer: "カッファ", category: "都市" },
-        { id: 2, answer: "シチリア", category: "島" },
+        { id: 2, answer: "メッシーナ", category: "都市" },
       ],
       points: [
         { label: "原因", text: "モンゴル帝国のもとでユーラシアを結ぶ交易路が整い、人や物とともに疫病も遠くまで運ばれるようになった" },
@@ -2792,30 +2794,19 @@ export const CAPITAL_CITIES = [
 ];
 
 // 主要河川：水運・自然国境ラインとしての注記レイヤー（装飾。タップ不可）。都市マーカーと同じLODでフェードイン
-export const RIVERS = [
-  { name: "ライン川", points: "507.7,213.7 505.7,207.7 505.2,203.4 502.9,198.9 500.9,195.2 496.4,194.3", labelX: 505, labelY: 205 },
-  { name: "ドナウ川", points: "506.9,212 516.3,210.3 524.8,210.8 530.2,211.2 537.6,214.2 543.3,226.4 551.8,224.4 563.8,223.6", labelX: 532, labelY: 208 },
-  { name: "セーヌ川", points: "497.2,212 493.5,210.3 490.2,208.4 486.4,206 483.8,205.6", labelX: 492, labelY: 214 },
-  { name: "エルベ川", points: "525.1,200.7 518.8,197.5 514,192.5 509.4,187.3", labelX: 520, labelY: 197 },
-  { name: "テムズ川", points: "478.4,195.7 481.8,196.6 485.5,196.6", labelX: 473, labelY: 200 },
-  { name: "ナイル川", points: "577.1,292.4 572.3,278.6 572.6,274.6", labelX: 575, labelY: 285 },
-];
-
-// 海洋・海峡・主要島嶼：陸地/勢力と混同しないよう、控えめなスレートブルーの透過テキストのみで配置（装飾。タップ不可）
-export const SEA_LABELS = [
-  { name: "地中海", x: 534.8, y: 261.7, size: 9 },
-  { name: "大西洋", x: 440.9, y: 243.7, size: 9 },
-  { name: "北海", x: 494.9, y: 174.9, size: 7 },
-  { name: "バルト海", x: 534.8, y: 164.5, size: 7 },
-  { name: "黒海", x: 580.3, y: 230.4, size: 8 },
-  { name: "ドーバー海峡", x: 493, y: 207, size: 5.5 },
-  { name: "ボスポラス海峡", x: 566, y: 238.9, size: 5.5 },
-  { name: "コルシカ島", x: 509.4, y: 235.4, size: 5.5 },
-  { name: "サルデーニャ島", x: 509.2, y: 243.4, size: 5.5 },
-  { name: "シチリア島", x: 523.4, y: 252.5, size: 5.5 },
-  { name: "クレタ島", x: 554.1, y: 260.6, size: 5.5 },
-  { name: "エルバ島", x: 512.9, y: 232.7, size: 5 },
-];
+// 河川・海・地形・歴史的地域名などの地理の名前は atlas/geography.js に一元管理し、河川の流路は geo/rivers.mjs が
+// Natural Earth から生成する（generated/riverPaths.js）。拡大度の段階（tier）を表示し始める倍率（minZoom）に変えて配る
+export const RIVERS = GEO_RIVERS.map((r) => {
+  const [labelX, labelY] = lonLatToXY(r.at[0], r.at[1]);
+  return { name: r.name, d: RIVER_PATHS[r.name], labelX, labelY, size: r.size, minZoom: GEO_TIER_ZOOM[r.tier], ...(r.hideIn ? { hideIn: r.hideIn } : {}) };
+});
+const GEO_LABEL_ITEMS = GEO_LABELS.map((g) => {
+  const [x, y] = lonLatToXY(g.at[0], g.at[1]);
+  return { name: g.name, x, y, size: g.size, kind: g.kind, minZoom: GEO_TIER_ZOOM[g.tier], ...(g.from !== undefined ? { from: g.from, to: g.to } : {}), ...(g.hideIn ? { hideIn: g.hideIn } : {}) };
+});
+// その時代（シリーズ）の地図に出す河川・地理の名前（hideIn で除外したものを除く）
+const riversFor = (prefix) => RIVERS.filter((r) => !r.hideIn?.includes(prefix));
+const geoLabelsFor = (prefix) => GEO_LABEL_ITEMS.filter((g) => !g.hideIn?.includes(prefix));
 
 export const REGION_BLURB = {
   "神聖ローマ帝国": "多数の領邦（諸侯国・自由都市）からなる複合国家。皇帝の実権は時代とともに低下していく。",
@@ -2833,36 +2824,6 @@ export const REGION_BLURB = {
 // lonLatToXY で経度・緯度から変換する。region の id は各時代のカードの region と一致させ、勢力・都市のタップで
 // 該当カードが引けるようにしている。
 // =====================================================================
-const lineToPoints = (pts) => pts.map(([lon, lat]) => lonLatToXY(lon, lat).join(",")).join(" ");
-
-
-
-
-
-
-const NILE_RIVER = { name: "ナイル川", points: lineToPoints([
-  [31.3, 21.8], [32.3, 22.6], [32.9, 24.1], [32.87, 24.98], [32.64, 25.69], [32.72, 26.16], [31.7, 26.55], [31.18, 27.18],
-  [30.75, 28.1], [31.1, 29.07], [31.23, 30.04], [31.0, 30.8], [30.6, 31.45],
-]), labelX: lonLatToXY(31.9, 27.6)[0], labelY: lonLatToXY(31.9, 27.6)[1] };
-const TIGRIS_RIVER = { name: "ティグリス川", points: lineToPoints([
-  [40.2, 37.9], [42.2, 37.3], [43.1, 36.35], [43.88, 34.2], [44.4, 33.3], [45.8, 32.5], [47.43, 31.0], [48.5, 29.95],
-]), labelX: lonLatToXY(45.0, 34.6)[0], labelY: lonLatToXY(45.0, 34.6)[1] };
-const EUPHRATES_RIVER = { name: "ユーフラテス川", points: lineToPoints([
-  [38.5, 38.7], [37.95, 37.03], [39.0, 35.95], [40.14, 35.33], [40.92, 34.45], [42.37, 34.14], [43.3, 33.4], [44.42, 32.48],
-  [46.26, 31.04], [47.43, 31.0],
-]), labelX: lonLatToXY(39.0, 35.2)[0], labelY: lonLatToXY(39.0, 35.2)[1] };
-const INDUS_RIVER = { name: "インダス川", points: lineToPoints([
-  [72.24, 33.9], [71.5, 32.0], [70.9, 30.0], [68.86, 27.7], [68.37, 25.4], [67.6, 24.2],
-]), labelX: lonLatToXY(70.4, 28.6)[0], labelY: lonLatToXY(70.4, 28.6)[1] };
-
-const ANCIENT_SEA_LABELS = [
-  ["地中海", 18.5, 34.3, 9], ["エーゲ海", 25.2, 38.6, 5], ["黒海", 34.5, 43.3, 8], ["紅海", 37.5, 21.0, 6],
-  ["ペルシア湾", 51.3, 27.2, 5.5], ["カスピ海", 51.0, 41.8, 6.5], ["アラビア海", 62.0, 20.0, 7], ["大西洋", -15.0, 40.0, 9],
-].map(([name, lon, lat, size]) => {
-  const [x, y] = lonLatToXY(lon, lat);
-  return { name, x, y, size };
-});
-
 export const ANCIENT_BLURB = {
   "メソポタミア": "ティグリス川・ユーフラテス川の流域。前3000年ごろからシュメール人の都市国家が栄え、楔形文字や60進法が生まれた。のちにバビロンを都とする王国がこの地を統一した。",
   "エジプト": "大河の定期的な氾濫がもたらす肥沃な土地に栄えた王国。王を神の化身とする神権政治のもと、約3000年にわたって30余りの王朝が続いた。",
@@ -2882,14 +2843,6 @@ export const ANCIENT_BLURB = {
 
 
 
-
-const RENAISSANCE_SEA_LABELS = [
-  ...SEA_LABELS,
-  ...[["カリブ海", -75.0, 15.0, 6], ["メキシコ湾", -90.0, 25.0, 6], ["太平洋", -95.0, 5.0, 9], ["インド洋", 70.0, 0.0, 9]].map(([name, lon, lat, size]) => {
-    const [x, y] = lonLatToXY(lon, lat);
-    return { name, x, y, size };
-  }),
-];
 
 export const RENAISSANCE_BLURB = {
   "フィレンツェ": "毛織物業と金融業で栄えたトスカーナ地方の共和国。富裕な市民が芸術家や学者を支え、ルネサンス文化の中心となった。1530年代に君主国（のちのトスカーナ大公国）へ移行した。",
@@ -2915,14 +2868,6 @@ export const RENAISSANCE_BLURB = {
 
 
 
-
-// 「シチリア島」は c65 の答えなので、中世の地図では出さない
-const MEDIEVAL_SEA_LABELS = SEA_LABELS.filter((s) => s.name !== "ドーバー海峡" && s.name !== "シチリア島").concat(
-  [["カスピ海", 51.0, 41.8, 6.5], ["紅海", 37.5, 21.0, 6], ["ペルシア湾", 51.3, 27.2, 5.5]].map(([name, lon, lat, size]) => {
-    const [x, y] = lonLatToXY(lon, lat);
-    return { name, x, y, size };
-  }),
-);
 
 export const MEDIEVAL_BLURB = {
   "フランク王国": "ゲルマン人の一派フランク人が建てた王国。5世紀末にカトリックに改宗してローマ教会と結び、8世紀には西ヨーロッパの大半を支配した。",
@@ -2980,13 +2925,6 @@ export const IMPERIALISM_BLURB = {
   "日本": "明治維新で近代国家の建設を進め、日清・日露の二つの戦争に勝利して台湾や朝鮮を植民地とし、アジアで唯一の帝国主義国となった。",
   "清": "満州人が建てた中国最後の王朝。アヘン戦争以来、列強の侵略で半植民地化が進み、1912年に滅亡して中華民国が成立した。",
 };
-
-const IMPERIALISM_SEA_LABELS = RENAISSANCE_SEA_LABELS.filter((s) => s.name !== "シチリア島").concat(
-  [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["南シナ海", 114.0, 14.0, 6], ["北極海", 60.0, 78.0, 8]].map(([name, lon, lat, size]) => {
-    const [x, y] = lonLatToXY(lon, lat);
-    return { name, x, y, size };
-  }),
-);
 
 // =====================================================================
 // 年代ごとの地図の組み立て（存続期間ベース）
@@ -3062,24 +3000,10 @@ function assembleSnapshot(prefix, year) {
   // 海の勢力は陸の勢力より先に描く（拠点の円が陸の勢力のタップを妨げないように）
   return { regions: [...maritime, ...regions], background, cities };
 }
-// 東アジアの海の名前（どの時代の地図にも加える）
-const ASIA_SEA_LABELS = [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["東シナ海", 125.0, 29.0, 5], ["南シナ海", 114.0, 14.0, 6], ["ベンガル湾", 88.0, 15.0, 6], ["アラビア海", 64.0, 17.0, 6]]
-  .map(([name, lon, lat, size]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size }; });
-// 地形の名前（山脈・砂漠・高原・半島など）。どの時代の地図にも加え、拡大したときだけ表示する（minZoom：表示に必要な倍率）。
-// 時代の地図の文字として扱われるため、カードの答えと同じ語は npm run check が知らせる
-const TERRAIN_LABELS = [
-  ["サハラ砂漠", 8.0, 23.5, 7, 2.2], ["シベリア", 100.0, 62.0, 7, 2.2], ["ゴビ砂漠", 105.0, 43.2, 5, 2.6], ["ヒマラヤ山脈", 84.0, 29.2, 4.5, 2.6],
-  ["ウラル山脈", 59.5, 58.5, 4.5, 2.6], ["アンデス山脈", -68.5, -22.0, 4.5, 2.6], ["ロッキー山脈", -110.0, 44.0, 4.5, 2.6],
-  ["タクラマカン砂漠", 83.0, 38.9, 4, 3.2], ["チベット高原", 88.0, 33.5, 4.5, 3.2], ["デカン高原", 77.0, 17.0, 4.5, 3.2],
-  ["スカンディナヴィア半島", 15.0, 63.5, 4, 3.2], ["コンゴ盆地", 22.0, -1.5, 4.5, 3.2], ["カラハリ砂漠", 22.5, -23.0, 4, 3.6],
-  ["アラビア半島", 46.0, 22.0, 4.5, 3.6], ["イラン高原", 56.5, 32.5, 4, 4], ["アルプス山脈", 10.5, 46.7, 3.2, 4.5],
-  ["カフカス山脈", 44.0, 42.9, 3.2, 4.5], ["パミール高原", 73.5, 38.4, 3.2, 4.5], ["アナトリア高原", 33.0, 39.0, 3.2, 5],
-].map(([name, lon, lat, size, minZoom]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size, minZoom, kind: "terrain" }; });
-const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)), TERRAIN_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
 // 地図の時代区分ひとつ分（ERA_PERIODS にそのまま展開する）。years はシリーズのうちこの区分が受け持つ年代。
 // 解説文は時代ごとの blurb に、全世界化で加えた勢力（worldCards.js〜worldCards3.js の WORLD_BLURB・WORLD2_BLURB・WORLD3_BLURB のこのシリーズ分）と
 // 東アジア・南アジアの勢力（asiaCards.js の ASIA_BLURB）でまだ書かれていないものを、この順で加える
-export function buildMapPeriod(prefix, years, { rivers, seaLabels, blurb }) {
+export function buildMapPeriod(prefix, years, { blurb }) {
   const snaps = Object.fromEntries(years.map((y) => [y, assembleSnapshot(prefix, y)]));
   const nearest = (year) => snaps[years.reduce((best, k) => (Math.abs(k - year) < Math.abs(best - year) ? k : best), years[0])];
   const ids = [...new Set(years.flatMap((y) => snaps[y].regions.map((r) => r.id)))];
@@ -3090,8 +3014,8 @@ export function buildMapPeriod(prefix, years, { rivers, seaLabels, blurb }) {
     regionsByYear: (year) => nearest(year).regions,
     capitalsByYear: (year) => nearest(year).cities,
     backgroundByYear: (year) => nearest(year).background,
-    rivers,
-    seaLabels: withAsiaSeas(seaLabels),
+    rivers: riversFor(prefix),
+    seaLabels: geoLabelsFor(prefix), // 海・地形・歴史的地域名・遺跡（from〜to のあるものは App.jsx が年代で絞る）
     blurb: fullBlurb,
   };
 }
@@ -3114,33 +3038,20 @@ export const REVOLUTIONS_BLURB = {
   "イタリア王国": "サルデーニャ王国を中心とする統一運動（リソルジメント）が、普仏戦争の隙にローマを占領し完成させた。",
   "フランス": "普仏戦争に敗れナポレオン3世が退位。第三共和政が成立し、アルザス・ロレーヌをドイツ帝国に割譲した。",
 };
-const REVOLUTIONS_RIVERS = [...RIVERS, ...[
-  {
-    "name": "ヴィスワ川",
-    "points": "536.6,181.2 540.1,188.4 543.3,191.7 540.1,202.0",
-    "labelX": 555.3,
-    "labelY": 188
-  }
-]];
 
 // 各時代区分の地図。受け持つ年代は atlas/series.js から年の範囲で選ぶ（年代を足すと自動でこの区分に入る）
-export const ANCIENT_CIVILIZATIONS_MAP = buildMapPeriod("anc", seriesYears("anc", -Infinity, -500), {
-  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER], seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
-});
-export const ANCIENT_EMPIRES_MAP = buildMapPeriod("anc", seriesYears("anc", -500), {
-  rivers: [NILE_RIVER, TIGRIS_RIVER, EUPHRATES_RIVER, INDUS_RIVER, ...RIVERS.filter((r) => r.name === "ライン川" || r.name === "ドナウ川")],
-  seaLabels: ANCIENT_SEA_LABELS, blurb: ANCIENT_BLURB,
-});
-export const MEDIEVAL_1_MAP = buildMapPeriod("med", seriesYears("med", -Infinity, 1000), { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
-export const MEDIEVAL_2_MAP = buildMapPeriod("med", seriesYears("med", 1000), { rivers: RIVERS, seaLabels: MEDIEVAL_SEA_LABELS, blurb: MEDIEVAL_BLURB });
-export const RENAISSANCE_MEDIEVAL_MAP = buildMapPeriod("ren", seriesYears("ren", -Infinity, 1500), { rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB });
-export const RENAISSANCE_EARLY_MODERN_MAP = buildMapPeriod("ren", seriesYears("ren", 1500), { rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: RENAISSANCE_BLURB });
-export const ABSOLUTISM_MAP = buildMapPeriod("abs", MAP_SERIES.abs, { rivers: RIVERS, seaLabels: RENAISSANCE_SEA_LABELS, blurb: ABSOLUTISM_BLURB });
-export const REVOLUTIONS_MAP = buildMapPeriod("rev", MAP_SERIES.rev, { rivers: REVOLUTIONS_RIVERS, seaLabels: SEA_LABELS, blurb: REVOLUTIONS_BLURB });
-export const IMPERIALISM_MAP = buildMapPeriod("imp", MAP_SERIES.imp, { rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: IMPERIALISM_BLURB });
+export const ANCIENT_CIVILIZATIONS_MAP = buildMapPeriod("anc", seriesYears("anc", -Infinity, -500), { blurb: ANCIENT_BLURB });
+export const ANCIENT_EMPIRES_MAP = buildMapPeriod("anc", seriesYears("anc", -500), { blurb: ANCIENT_BLURB });
+export const MEDIEVAL_1_MAP = buildMapPeriod("med", seriesYears("med", -Infinity, 1000), { blurb: MEDIEVAL_BLURB });
+export const MEDIEVAL_2_MAP = buildMapPeriod("med", seriesYears("med", 1000), { blurb: MEDIEVAL_BLURB });
+export const RENAISSANCE_MEDIEVAL_MAP = buildMapPeriod("ren", seriesYears("ren", -Infinity, 1500), { blurb: RENAISSANCE_BLURB });
+export const RENAISSANCE_EARLY_MODERN_MAP = buildMapPeriod("ren", seriesYears("ren", 1500), { blurb: RENAISSANCE_BLURB });
+export const ABSOLUTISM_MAP = buildMapPeriod("abs", MAP_SERIES.abs, { blurb: ABSOLUTISM_BLURB });
+export const REVOLUTIONS_MAP = buildMapPeriod("rev", MAP_SERIES.rev, { blurb: REVOLUTIONS_BLURB });
+export const IMPERIALISM_MAP = buildMapPeriod("imp", MAP_SERIES.imp, { blurb: IMPERIALISM_BLURB });
 // 戦間期と第二次世界大戦（1922・1939・1942年）、冷戦と現代世界（1950・1962・1975・1991年）。解説文は worldCards.js の WORLD_BLURB
-export const WORLD_WARS_MAP = buildMapPeriod("ww", MAP_SERIES.ww, { rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: {} });
-export const COLD_WAR_MAP = buildMapPeriod("cw", MAP_SERIES.cw, { rivers: RIVERS, seaLabels: IMPERIALISM_SEA_LABELS, blurb: {} });
+export const WORLD_WARS_MAP = buildMapPeriod("ww", MAP_SERIES.ww, { blurb: {} });
+export const COLD_WAR_MAP = buildMapPeriod("cw", MAP_SERIES.cw, { blurb: {} });
 // 地図タブの時代区分ID（App.jsx の ERA_PERIODS・ERAS_DATA の mapPeriodId）→ その区分で使う地図。npm run check が時代ごとの地図を選ぶのに使う
 export const MAP_PERIODS_BY_ID = {
   "ancient-civilizations": [ANCIENT_CIVILIZATIONS_MAP],

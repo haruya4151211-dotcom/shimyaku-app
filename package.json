@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "geo": "node geo/build.mjs",
+    "geo": "node geo/build.mjs && node geo/rivers.mjs",
     "check": "node scripts/check.mjs"
   },
   "dependencies": {
