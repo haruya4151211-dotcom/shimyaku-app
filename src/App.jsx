@@ -2825,6 +2825,18 @@ function FavoritesView({ favorites, onJump, onToggleFavorite, onStartAll }) {
 // 動的に計算し、その面積に応じてフォントサイズとLOD（ズーム連動の表示要否）を決定する
 // 輪郭の外枠。絶対座標（M/L/C）と相対座標（l）のパスに対応し、同じ文字列は一度だけ計算する
 const shapeBBoxCache = new Map();
+// 地図の文字どうしの重なりを避ける：優先度の高い順に置いていき、すでに置いた文字と重なるものは隠す（hidden に入れる）。
+// 文字の大きさは viewBox 単位で見積もる（和文は1文字＝1em。英数字が混じると少し大きめの見積もりになり、隠す側に倒れる）。
+// labels: [{ key, x, y, w, h }]（x, y は矩形の左上）を優先度順に渡す
+function hideOverlappingLabels(labels) {
+  const placed = [], hidden = new Set();
+  for (const l of labels) {
+    if (placed.some((p) => l.x < p.x + p.w && p.x < l.x + l.w && l.y < p.y + p.h && p.y < l.y + l.h)) hidden.add(l.key);
+    else placed.push(l);
+  }
+  return hidden;
+}
+
 function getShapeBBox(shapeStr) {
   const cached = shapeBBoxCache.get(shapeStr);
   if (cached) return cached;
@@ -2852,7 +2864,8 @@ function getShapeBBox(shapeStr) {
 // 文字が領土の外へはみ出す計算ミスが生じたため
 function getLabelStyle(area) {
   const tracking = area >= 5000 ? "0.02em" : area >= 2000 ? "0.01em" : "0";
-  const minZoom = area < 500 ? 1.25 : 1.0; // 極端に小さい勢力（オランダ）だけ、わずかな拡大でフェードイン表示
+  // 小さい勢力ほど、ある程度拡大してからフェードイン表示（文字は読める大きさまで底上げされるため、引きの地図で隣と重ならないように）
+  const minZoom = area < 40 ? 3 : area < 150 ? 2.2 : area < 500 ? 1.25 : 1.0;
   return { minZoom, tracking };
 }
 
@@ -3422,7 +3435,7 @@ function RegionDetailSheet({
 // 横方向は cx を 0〜VIEWBOX_W でラップし、視野に入る分だけ地図タイルを x=0, VIEWBOX_W, 2*VIEWBOX_W … に重ねて
 // 描画することで、継ぎ目なく一周できる（広い画面で全世界まで引いたときも途切れない）。
 const MAP_ZOOM_FLOOR = 0.3; // 引きの下限（全世界の横幅が収まる倍率がこれより大きければそちら）
-const MAP_ZOOM_MAX = 8;
+const MAP_ZOOM_MAX = 14; // 寄りの上限（殷・アテネなど小さな勢力・都市まで大きく拡大できるように。輪郭データの細かさで滑らかに見える範囲）
 // 初期表示（各時代のフォーカス）の倍率の範囲。下限は都市マーカーが完全に表示される倍率（1.6からフェードイン、1.9で不透明）
 const FOCUS_ZOOM_MIN = 2;
 const FOCUS_ZOOM_MAX = 4.5;
@@ -3807,7 +3820,7 @@ function useMapPanZoom(containerRef, enabled) {
     e.stopPropagation();
   };
 
-  return { zoom: cam.zoom, view, ready: !!size.w, interacting, gestureRef, onMouseDown, onTouchStart, onDoubleClick, zoomBy, resetView, focusOn, flyTo, onControlPointerDown };
+  return { zoom: cam.zoom, baseScale: s0, view, ready: !!size.w, interacting, gestureRef, onMouseDown, onTouchStart, onDoubleClick, zoomBy, resetView, focusOn, flyTo, onControlPointerDown };
 }
 
 function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyTheme, onJumpToCard }) {
@@ -3870,6 +3883,46 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
 
   const mapContainerRef = useRef(null);
   const panZoom = useMapPanZoom(mapContainerRef, inCoveredEra);
+  // 地図の文字の倍率（viewBox 単位の文字に掛ける scale）。地図の拡大（CSSのscale）を打ち消したうえで、
+  //   1. 画面上で minPx より小さくならないよう底上げし（スマホ幅で 4〜6px になっていた国名・海名を読める大きさに）、
+  //   2. 3倍を超えて拡大するほど少しずつ大きくする（14倍で約1.6倍。地図と一緒に巨大化はしない）
+  const textScale = (units, minPx) => {
+    const boost = Math.max(1, minPx / (units * panZoom.baseScale));
+    const grow = Math.min(1.9, Math.max(1, Math.pow(panZoom.zoom / 3, 0.32)));
+    return (boost * grow) / panZoom.zoom;
+  };
+  // 文字の重なり（拡大して文字が大きくなったときに、勢力名・都市名・海の名前などが重ならないよう、優先度の低いものを隠す）。
+  // 優先度：選択中の勢力 > 勢力名（大きい順）> 都市 > 背景の国名 > 海 > 地形 > 河川。勢力名を隠しても勢力のタップはそのまま
+  const fade = (from) => Math.max(0, Math.min(1, (panZoom.zoom - from) / 0.3));
+  const textBox = (key, x, y, units, k, chars, lines = 1, anchor = "middle", baseline = "center") => {
+    const fs = units * k, w = chars * fs, h = lines * fs * 1.05, pad = fs * 0.12;
+    const x0 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
+    const y0 = baseline === "center" ? y - h / 2 : y - fs * 0.88;
+    return { key, x: x0 - pad, y: y0 - pad, w: w + pad * 2, h: h + pad * 2 };
+  };
+  const hiddenLabels = (() => {
+    if (!panZoom.ready) return new Set();
+    const boxes = [];
+    const regionsByPriority = [...periodRegions].sort((a, b) => (b.id === selectedId) - (a.id === selectedId) || b.labelSize - a.labelSize);
+    for (const r of regionsByPriority) {
+      const bbox = getShapeBBox(r.shape === "path" ? r.dByYear(year) : r.pointsByYear(year));
+      if (r.id !== selectedId && fade(getLabelStyle(bbox.width * bbox.height).minZoom - 0.3) <= 0) continue;
+      boxes.push(textBox(`r:${r.id}`, r.labelX, r.labelY, r.labelSize, textScale(r.labelSize, 11), Math.max(...r.labelLines.map((l) => l.length)), r.labelLines.length));
+    }
+    if (fade(1.6) > 0) for (const c of periodCapitals) {
+      const k = textScale(7, 11.5), dir = c.dir || "br";
+      const dx = dir === "l" || dir === "tl" || dir === "bl" ? -3 : dir === "t" || dir === "b" ? 0 : 3;
+      const dy = dir === "t" || dir === "tl" ? -2.5 : dir === "b" || dir === "bl" || dir === "br" ? 3 : 1;
+      boxes.push(textBox(`c:${c.name}`, c.x + dx * k, c.y + dy * k, 7, k, c.name.length, 1, dx < 0 ? "end" : dx === 0 ? "middle" : "start", "baseline"));
+    }
+    if (fade(1.05) > 0) for (const t of periodBackground) boxes.push(textBox(`b:${t.name}`, t.labelX, t.labelY, 6, textScale(6, 10), t.name.length, 1, "middle", "baseline"));
+    for (const terrainPass of [false, true]) for (const sl of periodSeaLabels) {
+      if ((sl.kind === "terrain") !== terrainPass || fade(sl.minZoom ?? 1.15) <= 0) continue;
+      boxes.push(textBox(`s:${sl.name}`, sl.x, sl.y, sl.size, textScale(sl.size, terrainPass ? 9.5 : 10), sl.name.length * (terrainPass ? 1.18 : 1), 1, "middle", "baseline"));
+    }
+    if (fade(1.4) > 0) for (const rv of periodRivers) boxes.push(textBox(`v:${rv.name}`, rv.labelX, rv.labelY, 5.5, textScale(5.5, 9.5), rv.name.length, 1, "start", "baseline"));
+    return hideOverlappingLabels(boxes);
+  })();
   const stopMapGesture = panZoom.onControlPointerDown;
 
   // 初期表示：主要な都市・勢力が手動で拡大しなくてもタップできる範囲へカメラを合わせる。
@@ -4050,8 +4103,8 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                               className="font-body"
                               fontSize="6"
                               fill="#AEB8C4"
-                              style={{ opacity: bgLabelOpacity * 0.8, transition: "opacity 0.3s ease" }}
-                              transform={`translate(${t.labelX},${t.labelY}) scale(${1 / panZoom.zoom}) translate(${-t.labelX},${-t.labelY})`}
+                              style={{ opacity: hiddenLabels.has(`b:${t.name}`) ? 0 : bgLabelOpacity * 0.8, transition: "opacity 0.3s ease" }}
+                              transform={`translate(${t.labelX},${t.labelY}) scale(${textScale(6, 10)}) translate(${-t.labelX},${-t.labelY})`}
                             >
                               {t.name}
                             </text>
@@ -4089,7 +4142,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                         // LODフェードイン：minZoomの0.3手前から徐々にフェードインさせ、パチッと出現しないようにする
                         const labelOpacity = isSelected
                           ? 1
-                          : Math.max(0, Math.min(1, (panZoom.zoom - (minZoom - 0.3)) / 0.3));
+                          : hiddenLabels.has(`r:${r.id}`) ? 0 : Math.max(0, Math.min(1, (panZoom.zoom - (minZoom - 0.3)) / 0.3));
                         const lineHeight = fontSize * 1.05;
                         const startDy = -((r.labelLines.length - 1) * lineHeight) / 2;
 
@@ -4114,7 +4167,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                                 region定義側のr.subLabels配列から描画する（geo-framework/schema/snapshot.schema.json の
                                 entity.subLabels、build-era.jsが生成）。新しい時代・新しい勢力を追加してもこのJSXは変更不要 */}
                             {(r.subLabels || []).map((sub, subIdx) => (
-                              <text key={subIdx} x={sub.at[0]} y={sub.at[1]} textAnchor="middle" className="font-body" fontSize={sub.size ?? 4} fontWeight={600} fill="#FFFFFF" style={{ pointerEvents: "none", opacity: Math.max(0, Math.min(1, (panZoom.zoom - 1.15) / 0.3)), filter: "drop-shadow(0 0.6px 1.5px rgba(10,14,20,0.85))" }} transform={`translate(${sub.at[0]},${sub.at[1]}) scale(${1 / panZoom.zoom}) translate(${-sub.at[0]},${-sub.at[1]})`}>{sub.text}</text>
+                              <text key={subIdx} x={sub.at[0]} y={sub.at[1]} textAnchor="middle" className="font-body" fontSize={sub.size ?? 4} fontWeight={600} fill="#FFFFFF" style={{ pointerEvents: "none", opacity: Math.max(0, Math.min(1, (panZoom.zoom - 1.15) / 0.3)), filter: "drop-shadow(0 0.6px 1.5px rgba(10,14,20,0.85))" }} transform={`translate(${sub.at[0]},${sub.at[1]}) scale(${textScale(sub.size ?? 4, 9)}) translate(${-sub.at[0]},${-sub.at[1]})`}>{sub.text}</text>
                             ))}
                             {/* タイポグラフィの脱・硬質化：黒縁取り(stroke)を撤廃し、柔らかいドロップシャドウ＋
                                 オフホワイトの文字色で可読性を確保。フォントもモダンなサンセリフ（font-body）に統一。
@@ -4129,7 +4182,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                               fontSize={fontSize}
                               fontWeight={700}
                               fill="#F1F5F9"
-                              transform={`translate(${r.labelX},${r.labelY}) scale(${1 / panZoom.zoom}) translate(${-r.labelX},${-r.labelY})`}
+                              transform={`translate(${r.labelX},${r.labelY}) scale(${textScale(fontSize, 11)}) translate(${-r.labelX},${-r.labelY})`}
                               style={{
                                 pointerEvents: "none",
                                 letterSpacing: tracking,
@@ -4163,7 +4216,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                         return (
                           <g
                             key={c.name}
-                            transform={`translate(${c.x},${c.y}) scale(${1 / panZoom.zoom}) translate(${-c.x},${-c.y})`}
+                            transform={`translate(${c.x},${c.y}) scale(${textScale(7, 11.5)}) translate(${-c.x},${-c.y})`}
                             style={{ opacity: cityOpacity, transition: "opacity 0.3s ease", pointerEvents: tappable ? "auto" : "none", cursor: tappable ? "pointer" : undefined, outline: "none" }}
                             {...(tappable && {
                               onClick: () => openRegion(c.region),
@@ -4183,7 +4236,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                               fontSize="7"
                               fill="#F8FAFC"
                               fontWeight={600}
-                              style={{ filter: "drop-shadow(0 1px 2px rgba(10,14,20,0.9))" }}
+                              style={{ filter: "drop-shadow(0 1px 2px rgba(10,14,20,0.9))", opacity: hiddenLabels.has(`c:${c.name}`) ? 0 : 1, transition: "opacity 0.3s ease" }}
                             >
                               {c.name}
                             </text>
@@ -4196,6 +4249,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       {periodRivers.map((r) => {
                         const riverOpacity = Math.max(0, Math.min(1, (panZoom.zoom - 1.4) / 0.3));
                         if (riverOpacity <= 0) return null;
+                        const riverNameHidden = hiddenLabels.has(`v:${r.name}`);
                         return (
                           <g key={r.name} style={{ opacity: riverOpacity * 0.9, transition: "opacity 0.3s ease", pointerEvents: "none" }}>
                             <polyline
@@ -4214,8 +4268,8 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                               fontSize="5.5"
                               fill="#CBD5E1"
                               fontStyle="italic"
-                              style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.9))" }}
-                              transform={`translate(${r.labelX},${r.labelY}) scale(${1 / panZoom.zoom}) translate(${-r.labelX},${-r.labelY})`}
+                              style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.9))", opacity: riverNameHidden ? 0 : 1 }}
+                              transform={`translate(${r.labelX},${r.labelY}) scale(${textScale(5.5, 9.5)}) translate(${-r.labelX},${-r.labelY})`}
                             >
                               {r.name}
                             </text>
@@ -4224,8 +4278,10 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       })}
 
                       {/* 海洋・海峡・主要島嶼：陸地/勢力と混同しないよう、控えめなスレートブルーの透過テキストのみ（装飾・タップ不可） */}
+                      {/* 地形の名前（kind: "terrain"）は、それぞれの minZoom まで拡大したときに砂色の字間を広げた注記で出す */}
                       {periodSeaLabels.map((s) => {
-                        const seaOpacity = Math.max(0, Math.min(1, (panZoom.zoom - 1.15) / 0.3));
+                        const terrain = s.kind === "terrain";
+                        const seaOpacity = hiddenLabels.has(`s:${s.name}`) ? 0 : Math.max(0, Math.min(1, (panZoom.zoom - (s.minZoom ?? 1.15)) / 0.3));
                         if (seaOpacity <= 0) return null;
                         return (
                           <text
@@ -4234,10 +4290,11 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                             textAnchor="middle"
                             className="font-body"
                             fontSize={s.size}
-                            fontStyle="italic"
-                            fill="rgba(224,242,254,0.65)"
-                            transform={`translate(${s.x},${s.y}) scale(${1 / panZoom.zoom}) translate(${-s.x},${-s.y})`}
-                            style={{ opacity: seaOpacity * 0.9, transition: "opacity 0.3s ease", pointerEvents: "none", letterSpacing: "0.03em", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.7))" }}
+                            fontStyle={terrain ? undefined : "italic"}
+                            fontWeight={terrain ? 600 : undefined}
+                            fill={terrain ? "rgba(236,220,186,0.62)" : "rgba(224,242,254,0.65)"}
+                            transform={`translate(${s.x},${s.y}) scale(${textScale(s.size, terrain ? 9.5 : 10)}) translate(${-s.x},${-s.y})`}
+                            style={{ opacity: seaOpacity * 0.9, transition: "opacity 0.3s ease", pointerEvents: "none", letterSpacing: terrain ? "0.18em" : "0.03em", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.7))" }}
                           >
                             {s.name}
                           </text>

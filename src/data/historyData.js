@@ -3024,7 +3024,17 @@ function assembleSnapshot(prefix, year) {
 // 東アジアの海の名前（どの時代の地図にも加える）
 const ASIA_SEA_LABELS = [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["東シナ海", 125.0, 29.0, 5], ["南シナ海", 114.0, 14.0, 6], ["ベンガル湾", 88.0, 15.0, 6], ["アラビア海", 64.0, 17.0, 6]]
   .map(([name, lon, lat, size]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size }; });
-const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
+// 地形の名前（山脈・砂漠・高原・半島など）。どの時代の地図にも加え、拡大したときだけ表示する（minZoom：表示に必要な倍率）。
+// 時代の地図の文字として扱われるため、カードの答えと同じ語は npm run check が知らせる
+const TERRAIN_LABELS = [
+  ["サハラ砂漠", 8.0, 23.5, 7, 2.2], ["シベリア", 100.0, 62.0, 7, 2.2], ["ゴビ砂漠", 105.0, 43.2, 5, 2.6], ["ヒマラヤ山脈", 84.0, 29.2, 4.5, 2.6],
+  ["ウラル山脈", 59.5, 58.5, 4.5, 2.6], ["アンデス山脈", -68.5, -22.0, 4.5, 2.6], ["ロッキー山脈", -110.0, 44.0, 4.5, 2.6],
+  ["タクラマカン砂漠", 83.0, 38.9, 4, 3.2], ["チベット高原", 88.0, 33.5, 4.5, 3.2], ["デカン高原", 77.0, 17.0, 4.5, 3.2],
+  ["スカンディナヴィア半島", 15.0, 63.5, 4, 3.2], ["コンゴ盆地", 22.0, -1.5, 4.5, 3.2], ["カラハリ砂漠", 22.5, -23.0, 4, 3.6],
+  ["アラビア半島", 46.0, 22.0, 4.5, 3.6], ["イラン高原", 56.5, 32.5, 4, 4], ["アルプス山脈", 10.5, 46.7, 3.2, 4.5],
+  ["カフカス山脈", 44.0, 42.9, 3.2, 4.5], ["パミール高原", 73.5, 38.4, 3.2, 4.5], ["アナトリア高原", 33.0, 39.0, 3.2, 5],
+].map(([name, lon, lat, size, minZoom]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size, minZoom, kind: "terrain" }; });
+const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)), TERRAIN_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
 // 地図の時代区分ひとつ分（ERA_PERIODS にそのまま展開する）。years はシリーズのうちこの区分が受け持つ年代。
 // 解説文は時代ごとの blurb に、全世界化で加えた勢力（worldCards.js の WORLD_BLURB のこのシリーズ分）と
 // 東アジア・南アジアの勢力（asiaCards.js の ASIA_BLURB）でまだ書かれていないものを、この順で加える
