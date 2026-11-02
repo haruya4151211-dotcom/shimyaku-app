@@ -2886,6 +2886,7 @@ function regionStatus(id, year) {
 const COVERED_ERA = [1500, 1789]; // 大航海時代・近世のうち実際にコンテンツが存在する範囲（1500〜1599年はルネサンス期、1600年以降は絶対王政期の勢力図）
 const MEDIEVAL_MAP_UNTIL = 1450; // 中世②の区分で、これより前は中世ヨーロッパの勢力図、以降はルネサンス期（1492年）の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
 const RENAISSANCE_MAP_UNTIL = 1600; // 大航海時代・近世の区分で、これより前はルネサンス期、以降は絶対王政期の勢力図を使う（ERAS_DATA の yearRange の境目と一致）
+const MARITIME_BASE_ZOOM = 1.0; // 海の勢力の拠点（島・港）を表示し始める倍率（通常の都市は1.6。引きの地図で海の勢力が埋もれないように早めに出す）
 const WORLD_WARS_MAP_FROM = 1919; // 帝国主義と二つの大戦の区分で、これ以降は戦間期と第二次世界大戦の勢力図（ERAS_DATA の yearRange の境目と一致）
 
 // ============================================================
@@ -3483,7 +3484,7 @@ const MAP_QUICK_REGIONS = [
   { label: "東南アジア", bounds: lonLatBounds([[92, -11], [141, 24]]) },
   { label: "アフリカ", bounds: lonLatBounds([[-18, -35], [52, 37]]) },
   { label: "アメリカ", bounds: lonLatBounds([[-125, -56], [-34, 55]]) },
-  { label: "オセアニア", bounds: lonLatBounds([[110, -48], [180, -5]]) },
+  { label: "オセアニア", bounds: lonLatBounds([[110, -48], [235, 23]]) }, // ポリネシア（ハワイ・ラパヌイ）まで。東経180°より東は 360° を足した経度
 ];
 
 function useMapPanZoom(containerRef, enabled) {
@@ -3900,6 +3901,52 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     const y0 = baseline === "center" ? y - h / 2 : y - fs * 0.88;
     return { key, x: x0 - pad, y: y0 - pad, w: w + pad * 2, h: h + pad * 2 };
   };
+  // 海の勢力（ヴァイキング・ポリネシア・トンガ大洋帝国）：拠点のまわりの円（タップ範囲。薄く塗る）と、航路の破線を描く。
+  // 航路は経度を連続させた座標のため、地図の継ぎ目をまたぐものは1周分左にずらした複製も描いて途切れないようにする。
+  // 航路の線にも幅の広い透明な当たり判定を重ね、線をタップしてもその勢力の詳細（カード）を開く
+  const renderMaritimeRegion = (r) => {
+    const isSelected = selectedId === r.id;
+    const routePoints = (pts, dx) => pts.map(([x, y]) => `${x + dx},${y}`).join(" ");
+    const copies = r.routes.some((pts) => pts.some(([x]) => x >= VIEWBOX_W)) ? [0, -VIEWBOX_W] : [0];
+    const labelOpacity = isSelected ? 1 : hiddenLabels.has(`r:${r.id}`) ? 0 : fade(1.0);
+    const lineHeight = r.labelSize * 1.05;
+    const startDy = -((r.labelLines.length - 1) * lineHeight) / 2;
+    return (
+      <g
+        key={r.id}
+        className="region-hitbox"
+        onClick={() => openRegion(r.id)}
+        tabIndex={0}
+        role="button"
+        aria-label={`${r.id}の詳細を見る`}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openRegion(r.id); } }}
+        style={{ cursor: "pointer", outline: "none" }}
+      >
+        <path d={r.dByYear(year)} fill={r.fill} fillOpacity={isSelected ? 0.35 : 0.14} stroke="none" />
+        {copies.map((dx) => r.routes.map((pts, i) => (
+          <g key={`${dx}-${i}`}>
+            <polyline points={routePoints(pts, dx)} fill="none" stroke="transparent" strokeWidth="12" vectorEffect="non-scaling-stroke" style={{ pointerEvents: "stroke" }} />
+            <polyline points={routePoints(pts, dx)} fill="none" stroke={r.fill} strokeOpacity={isSelected ? 1 : 0.85} strokeWidth={isSelected ? 2.6 : 1.8} strokeDasharray="5 4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" style={{ pointerEvents: "none" }} />
+          </g>
+        )))}
+        <text
+          x={r.labelX} y={r.labelY}
+          textAnchor="middle"
+          className="font-body"
+          fontSize={r.labelSize}
+          fontWeight={700}
+          fontStyle="italic"
+          fill="#F1F5F9"
+          transform={`translate(${r.labelX},${r.labelY}) scale(${textScale(r.labelSize, 11)}) translate(${-r.labelX},${-r.labelY})`}
+          style={{ pointerEvents: "none", opacity: labelOpacity, transition: "opacity 0.3s ease", filter: "drop-shadow(0 1px 2.5px rgba(10,14,20,0.7))" }}
+        >
+          {r.labelLines.map((line, i) => (
+            <tspan key={i} x={r.labelX} dy={i === 0 ? startDy : lineHeight}>{line}</tspan>
+          ))}
+        </text>
+      </g>
+    );
+  };
   const hiddenLabels = (() => {
     if (!panZoom.ready) return new Set();
     const boxes = [];
@@ -3909,7 +3956,8 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
       if (r.id !== selectedId && fade(getLabelStyle(bbox.width * bbox.height).minZoom - 0.3) <= 0) continue;
       boxes.push(textBox(`r:${r.id}`, r.labelX, r.labelY, r.labelSize, textScale(r.labelSize, 11), Math.max(...r.labelLines.map((l) => l.length)), r.labelLines.length));
     }
-    if (fade(1.6) > 0) for (const c of periodCapitals) {
+    for (const c of periodCapitals) {
+      if (fade(c.maritime ? MARITIME_BASE_ZOOM : 1.6) <= 0) continue;
       const k = textScale(7, 11.5), dir = c.dir || "br";
       const dx = dir === "l" || dir === "tl" || dir === "bl" ? -3 : dir === "t" || dir === "b" ? 0 : 3;
       const dy = dir === "t" || dir === "tl" ? -2.5 : dir === "b" || dir === "bl" || dir === "br" ? 3 : 1;
@@ -4113,8 +4161,9 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       })}
 
                       {[...periodRegions]
-                        .sort((a, b) => (a.id === selectedId ? 1 : 0) - (b.id === selectedId ? 1 : 0))
+                        .sort((a, b) => (b.maritime ? 1 : 0) - (a.maritime ? 1 : 0) || (a.id === selectedId ? 1 : 0) - (b.id === selectedId ? 1 : 0))
                         .map((r) => {
+                        if (r.maritime) return renderMaritimeRegion(r);
                         const st = regionStatus(r.id, year);
                         const isNetherlandsUnderSpain = r.id === "オランダ" && year < 1648;
                         const fillColor = isNetherlandsUnderSpain ? "#E0AD6B" : r.fill;
@@ -4204,7 +4253,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       {/* 首都マーカー：歴史地図アトラス風の「○地名」注記。タップ不可の装飾レイヤーで、わずかな拡大でフェードイン。
                           文字・円のサイズも地図の勢力ラベルと同様にズーム倍率を打ち消して常に一定の見た目サイズを保つ */}
                       {periodCapitals.map((c) => {
-                        const cityOpacity = Math.max(0, Math.min(1, (panZoom.zoom - 1.6) / 0.3));
+                        const cityOpacity = Math.max(0, Math.min(1, (panZoom.zoom - (c.maritime ? MARITIME_BASE_ZOOM : 1.6)) / 0.3));
                         if (cityOpacity <= 0) return null;
                         // ラベルの逃がし方向（国名・他の注記との衝突回避用）。未指定は右下がデフォルト
                         const dir = c.dir || "br";
@@ -4228,7 +4277,11 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                           >
                             {/* 指で押しやすいよう、見た目より大きい透明の当たり判定を敷く */}
                             {tappable && <circle cx={c.x} cy={c.y} r="6" fill="transparent" />}
-                            <circle cx={c.x} cy={c.y} r="1.6" fill="none" stroke="#F1F5F9" strokeOpacity="0.85" strokeWidth="0.6" />
+                            {c.maritime ? (
+                              <rect x={c.x - 1.4} y={c.y - 1.4} width="2.8" height="2.8" transform={`rotate(45 ${c.x} ${c.y})`} fill={periodRegions.find((r) => r.id === c.region)?.fill ?? "#F1F5F9"} stroke="#F8FAFC" strokeWidth="0.5" />
+                            ) : (
+                              <circle cx={c.x} cy={c.y} r="1.6" fill="none" stroke="#F1F5F9" strokeOpacity="0.85" strokeWidth="0.6" />
+                            )}
                             <text
                               x={c.x + dx} y={c.y + dy}
                               textAnchor={anchor}

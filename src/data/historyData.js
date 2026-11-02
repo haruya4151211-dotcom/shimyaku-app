@@ -1,7 +1,7 @@
-import { lonLatToXY } from "./mapProjection.js";
+import { lonLatToXY, MAP_VIEWBOX_W } from "./mapProjection.js";
 import { GEO_LAND_PATH, GEO_PATHS, GEO_BBOX, GEO_MEMBERS } from "./generated/geoPaths.js";
 import { MAP_SERIES, seriesYears } from "./atlas/series.js";
-import { PALETTES, BACKGROUND_FILLS, REGION_LABELS, BACKGROUND_LABELS, CITIES } from "./atlas/styles.js";
+import { PALETTES, BACKGROUND_FILLS, REGION_LABELS, BACKGROUND_LABELS, CITIES, SEA_ROUTES } from "./atlas/styles.js";
 import {
   ASIA_ANCIENT_CARDS, ASIA_MEDIEVAL_CARDS, ASIA_RENAISSANCE_CARDS, ASIA_ABSOLUTISM_CARDS, ASIA_REVOLUTION_CARDS, ASIA_IMPERIALISM_CARDS,
   ASIA_BLURB,
@@ -3000,12 +3000,46 @@ function periodAt(list, year) {
 }
 const DEFAULT_FILL = ["#8C9A7A", "#C2CCB4"];
 const toXY = (at) => lonLatToXY(at[0], at[1]);
+// ---------------------------------------------------------------------------
+// 海の勢力（ヴァイキング・ポリネシア・トンガ大洋帝国）：陸の輪郭を持たず、拠点（CITIES）と航路（SEA_ROUTES）で表す。
+// 地図の勢力としては「航路の各点と拠点のまわりの小さな円」を輪郭にし（タップ範囲・ラベルの位置の検査に使う）、
+// 見た目は App.jsx の地図が航路の破線と拠点のマーカーで描く。航路は経度を連続させたまま座標にし、地図の継ぎ目をまたいでもつながる
+// ---------------------------------------------------------------------------
+const MARITIME_IDS = [...new Set(SEA_ROUTES.map((r) => r.region))];
+const MARITIME_HIT_RADIUS = 2.2; // viewBox 単位（≒経度0.8°）
+const wrapX = (x) => ((x % MAP_VIEWBOX_W) + MAP_VIEWBOX_W) % MAP_VIEWBOX_W;
+const circlePath = ([cx, cy], r, n = 12) => {
+  const pts = Array.from({ length: n }, (_, i) => [cx + r * Math.cos((2 * Math.PI * i) / n), cy + r * Math.sin((2 * Math.PI * i) / n)].map((v) => Math.round(v * 10) / 10));
+  return "M" + pts[0].join(" ") + pts.slice(1).map((p, i) => "l" + (Math.round((p[0] - pts[i][0]) * 10) / 10) + " " + (Math.round((p[1] - pts[i][1]) * 10) / 10)).join("") + "z";
+};
+function maritimeRegion(prefix, id, year) {
+  const routes = SEA_ROUTES.filter((r) => r.region === id && r.from <= year && year <= r.to).map((r) => r.points.map(toXY));
+  if (!routes.length) return null;
+  const bases = CITIES.filter((c) => c.region === id && c.from <= year && year <= c.to).map((c) => toXY(c.at));
+  // 拠点を先に、航路の点を後に置き、すでに置いた円の内側に入る点は省く（円どうしが中心を含むほど重ならないように）
+  const spots = [];
+  for (const [x, y] of [...bases, ...routes.flat()].map(([x, y]) => [wrapX(x), y])) {
+    if (!spots.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < MARITIME_HIT_RADIUS * 1.05)) spots.push([x, y]);
+  }
+  const d = spots.map((p) => circlePath(p, MARITIME_HIT_RADIUS)).join("");
+  const xs = spots.map((p) => p[0]), ys = spots.map((p) => p[1]);
+  const [fill, strokeColor] = PALETTES[prefix]?.[id] ?? DEFAULT_FILL;
+  const label = periodAt(REGION_LABELS[id], year) ?? { at: [0, 0], lines: [id], size: 5 };
+  const [lx, labelY] = toXY(label.at);
+  const r = MARITIME_HIT_RADIUS;
+  return {
+    id, fill, strokeColor, labelX: wrapX(lx), labelY, labelLines: label.lines, labelSize: label.size, shape: "path", dByYear: () => d,
+    bbox: [Math.min(...xs) - r, Math.min(...ys) - r, Math.max(...xs) + r, Math.max(...ys) + r], maritime: true, routes,
+  };
+}
 function assembleSnapshot(prefix, year) {
   const key = `${prefix}${year}`;
-  const members = GEO_MEMBERS[key];
-  if (!members) throw new Error(`地図の年代 ${key} の輪郭データがありません（node geo/build.mjs を実行してください）`);
+  const geoMembers = GEO_MEMBERS[key];
+  if (!geoMembers) throw new Error(`地図の年代 ${key} の輪郭データがありません（node geo/build.mjs を実行してください）`);
+  const maritime = MARITIME_IDS.map((id) => maritimeRegion(prefix, id, year)).filter(Boolean);
+  const members = [...geoMembers, ...maritime.map((m) => m.id)];
   const regions = [], background = [];
-  for (const id of members) {
+  for (const id of geoMembers) {
     const d = GEO_PATHS[`${key}/${id}`];
     if (id.startsWith("bg:")) {
       const name = id.slice(3);
@@ -3023,9 +3057,10 @@ function assembleSnapshot(prefix, year) {
   // 勢力を持つ都市は、その勢力がこの年代の地図にあるときだけ置く（輪郭が未作成の勢力の都市は表示しない）
   const cities = CITIES.filter((c) => c.from <= year && year <= c.to && (!c.region || members.includes(c.region))).map((c) => {
     const [x, y] = toXY(c.at);
-    return { name: c.name, x, y, region: c.region, ...(c.dir ? { dir: c.dir } : {}), ...(c.asiaLayer ? { asiaLayer: true } : {}) };
+    return { name: c.name, x, y, region: c.region, ...(c.dir ? { dir: c.dir } : {}), ...(c.asiaLayer ? { asiaLayer: true } : {}), ...(MARITIME_IDS.includes(c.region) ? { maritime: true } : {}) };
   });
-  return { regions, background, cities };
+  // 海の勢力は陸の勢力より先に描く（拠点の円が陸の勢力のタップを妨げないように）
+  return { regions: [...maritime, ...regions], background, cities };
 }
 // 東アジアの海の名前（どの時代の地図にも加える）
 const ASIA_SEA_LABELS = [["日本海", 134.0, 40.0, 5], ["黄海", 123.5, 36.0, 4.5], ["東シナ海", 125.0, 29.0, 5], ["南シナ海", 114.0, 14.0, 6], ["ベンガル湾", 88.0, 15.0, 6], ["アラビア海", 64.0, 17.0, 6]]

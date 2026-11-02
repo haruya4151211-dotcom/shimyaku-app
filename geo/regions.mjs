@@ -420,6 +420,24 @@ const MOGHULISTAN = ["KGZ", ...kz("Almaty", "Almaty City", "Zhambyl"), "CHN/Xinj
 const QARA_KHITAI = ["KGZ", ...kz("Almaty", "Almaty City", "Zhambyl", "South Kazakhstan"), ...uz("Ferghana", "Tashkent", "Namangan", "Andijon", "Sirdaryo", "Jizzakh", "Samarkand", "Bukhoro", "Kashkadarya", "Surkhandarya", "Navoi"), "TJK", "CHN/Xinjiang"];
 const GOLDEN_HORDE = ["KAB", "RUS/Udmurt", ...kz("West Kazakhstan", "Atyrau", "Aqtöbe", "Mangghystau", "Qostanay", "North Kazakhstan", "Aqmola", "Astana", "Qaraghandy", "Pavlodar", "Qyzylorda", "East Kazakhstan"), ...uz("Khorezm", "Karakalpakstan"), "TKM/Tashauz", ...RUS_STEPPE_SOUTH, ...ru("Astrakhan'", "Volgograd", "Saratov", "Samara", "Orenburg", "Bashkortostan", "Tatarstan", "Ul'yanovsk", "Penza", "Chuvash", "Mariy-El", "Mordovia", "Voronezh", "Belgorod", "Tambov", "Chelyabinsk", "Kurgan"), ...ua("Odessa", "Mykolayiv", "Kherson", "Zaporizhzhya", "Dnipropetrovs'k", "Kirovohrad", "Donets'k", "Luhans'k", "Kharkiv")];
 
+
+// ---------------------------------------------------------------------------
+// 全世界化・優先度3の部品：東アジア・南アジアの補完、アルメニア、オセアニア
+// ---------------------------------------------------------------------------
+const kr = (...names) => names.map((n) => `KOR/${n}`);
+const lk = (...names) => names.map((n) => `LKA/${n}`);
+const GOJOSEON = prk("P'yŏngan-bukto", "P'yŏngan-namdo", "P'yŏngyang", "Chagang-do", "Hwanghae-namdo", "Hwanghae-bukto");
+const BAEKJE = kr("Seoul", "Gyeonggi", "Incheon", "South Chungcheong", "North Chungcheong", "Daejeon", "Sejong", "North Jeolla", "South Jeolla", "Gwangju");
+const BAEKJE_550 = kr("South Chungcheong", "Daejeon", "Sejong", "North Jeolla", "South Jeolla", "Gwangju"); // 475年に漢城を失い南へ
+const VEDIC_EARLY = ["PAK/Punjab", "PAK/K.P.", "PAK/F.C.T.", ...ind("Punjab", "Haryana", "Chandigarh", "Delhi", "Himachal Pradesh")];
+const VEDIC_LATE = [...VEDIC_EARLY, ...ind("Uttar Pradesh", "Uttarakhand", "Bihar")];
+const MAHAJANAPADAS = ind("Uttar Pradesh", "Bihar", "Jharkhand", "Delhi", "Haryana", "Uttarakhand", "Madhya Pradesh");
+const SATAVAHANA = ind("Maharashtra", "Telangana", "Andhra Pradesh", "Karnataka");
+const VARDHANA = ind("Uttar Pradesh", "Bihar", "Jharkhand", "Haryana", "Delhi", "Chandigarh", "Punjab", "Uttarakhand", "Himachal Pradesh", "West Bengal");
+const CHOLA_CORE = ind("Tamil Nadu", "Puducherry");
+const SRI_LANKA_NORTH = lk("Yāpanaya", "Kilinŏchchi", "Mulativ", "Mannārama", "Vavuniyāva", "Anurādhapura", "Pŏḷŏnnaruva", "Trikuṇāmalaya", "Puttalama", "Kuruṇægala", "Mātale");
+const VIJAYANAGARA = ind("Karnataka", "Andhra Pradesh", "Tamil Nadu", "Puducherry", "Kerala");
+
 // ---------------------------------------------------------------------------
 // 勢力の定義（存続期間ベース）
 //   life   … 存続期間 [[開始年, 終了年], ...]。地図の年代（atlas/series.js）のうち、この期間に入る年代に描く。
@@ -1234,8 +1252,9 @@ export const ENTITIES = {
   "ササン朝": {
     life: [[224,649]],
     shapes: [
-      { from: 224, to: 375, def: { add: ["IRN", "IRQ", "KWT", "AZE", "ARM", ...IRAN_TKM] } },
-      { from: 376, to: 649, def: { add: ["IRN", "IRQ", "KWT", "AZE", "ARM", ...IRAN_TKM, ...AFG_WEST] } },
+      { from: 224, to: 375, def: { add: ["IRN", "IRQ", "KWT", "AZE", ...IRAN_TKM] } }, // アルメニアは従属王国として別に描く
+      { from: 376, to: 428, def: { add: ["IRN", "IRQ", "KWT", "AZE", ...IRAN_TKM, ...AFG_WEST] } },
+      { from: 429, to: 649, def: { add: ["IRN", "IRQ", "KWT", "AZE", "ARM", ...IRAN_TKM, ...AFG_WEST] } }, // 428年にアルメニア王国を廃して直轄化
     ],
   },
   "エトルリア": {
@@ -1744,6 +1763,74 @@ export const ENTITIES = {
     shapes: [
       { from: 1242, to: 1378, def: { add: GOLDEN_HORDE } },
       { from: 1379, to: 1502, def: { add: GOLDEN_HORDE, sub: [...uz("Khorezm", "Karakalpakstan"), "TKM/Tashauz"] } }, // 1379年にホラズムをティムールに奪われる
+    ],
+  },
+
+  // ---- 全世界化・優先度3（ステップ2）。カードは src/data/worldCards3.js。海の勢力（ヴァイキング・ポリネシア・トンガ大洋帝国）は
+  //      輪郭を持たず、historyData.js の assembleSnapshot が拠点と航路（atlas/styles.js の SEA_ROUTES）から組み立てる ----
+  "古朝鮮": {
+    life: [[-400,-108]],
+    shapes: [
+      { from: -400, to: -108, def: { add: GOJOSEON } },
+    ],
+  },
+  "百済": {
+    life: [[346,660]],
+    shapes: [
+      { from: 346, to: 474, def: { add: BAEKJE } },
+      { from: 475, to: 660, def: { add: BAEKJE_550 } },
+    ],
+  },
+  "ヴェーダ時代": {
+    life: [[-1500,-601]],
+    shapes: [
+      { from: -1500, to: -1001, def: { add: VEDIC_EARLY } }, // 前期：パンジャーブ地方
+      { from: -1000, to: -601, def: { add: VEDIC_LATE } }, // 後期：ガンジス川流域へ
+    ],
+  },
+  "十六大国": {
+    life: [[-600,-345]],
+    shapes: [
+      { from: -600, to: -345, def: { add: MAHAJANAPADAS } },
+    ],
+  },
+  "サータヴァーハナ朝": {
+    life: [[-100,220]],
+    shapes: [
+      { from: -100, to: 220, def: { add: SATAVAHANA } },
+    ],
+  },
+  "ヴァルダナ朝": {
+    life: [[606,650]],
+    shapes: [
+      { from: 606, to: 650, def: { add: VARDHANA } }, // ハルシャ王の死（647年）後まもなく分裂
+    ],
+  },
+  "チョーラ朝": {
+    life: [[850,1279]],
+    shapes: [
+      { from: 850, to: 999, def: { add: CHOLA_CORE } },
+      { from: 1000, to: 1069, def: { add: [...CHOLA_CORE, "IND/Kerala", "IND/Andhra Pradesh", ...SRI_LANKA_NORTH] } }, // ラージャラージャ1世・ラージェンドラ1世の最大領域
+      { from: 1070, to: 1279, def: { add: [...CHOLA_CORE, "IND/Kerala"] } }, // 1070年にスリランカから撤退
+    ],
+  },
+  "ヴィジャヤナガル王国": {
+    life: [[1336,1646]],
+    shapes: [
+      { from: 1336, to: 1646, def: { add: VIJAYANAGARA } },
+    ],
+  },
+  "アルメニア王国": {
+    life: [[-190,113],[118,428]],
+    shapes: [
+      { from: -190, to: 113, def: { add: ["ARM"] } },
+      { from: 118, to: 428, def: { add: ["ARM"] } }, // 114〜117年はトラヤヌス帝のローマ領
+    ],
+  },
+  "マオリ": {
+    life: [[1250,1839]],
+    shapes: [
+      { from: 1250, to: 1839, def: { add: ["NZL"], sub: ["NZL/Auckland Islands", "NZL/Campbell Islands", "NZL/Antipodes Islands", "NZL/Kermadec Islands", "NZL/Tokelau", "NZL/The Snares", "NZL/Three Kings Islands"] } }, // 1840年のワイタンギ条約でイギリスの植民地に
     ],
   },
 };
