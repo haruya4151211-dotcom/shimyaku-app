@@ -2848,10 +2848,13 @@ const GEO_STYLE = {
 };
 // 地理の文字の縁取り色。地図の地色が暗いため、白フチではなく地色に近い濃紺のフチで勢力の塗りや国名から字形を切り離す
 const GEO_HALO = "rgba(9,13,20,0.82)";
-// 河川の線：大河（tier 3）ほど太く、拡大するほど太く濃く（線の太さは画面上の px）
-const riverStroke = (tier, zoom) => {
-  const base = tier <= 3 ? 1.3 : tier === 4 ? 1.0 : 0.8, z = Math.log2(Math.max(1, zoom));
-  return { width: base * Math.min(2.3, 0.85 + 0.4 * z), opacity: Math.min(0.95, 0.62 + 0.09 * z) };
+// 河川の線（線の太さは画面上の px）。引きの地図では勢力の塗りと国名が主役なので、細く淡い背景の線として馴染ませ、
+// 拡大するにつれて太く濃くなり、大河（tier 3）の流路が浮かび上がる。線が出始める倍率（start）から約6倍拡大するまでを
+// なめらかに補間し、支流ほど細く淡いまま留める
+const riverStroke = (tier, zoom, start) => {
+  const t = Math.max(0, Math.min(1, Math.log2(zoom / start) / Math.log2(6))), e = t * t * (3 - 2 * t);
+  const base = tier <= 3 ? 1 : tier === 4 ? 0.8 : 0.65, peak = tier <= 3 ? 1 : 0.85;
+  return { width: base * (0.5 + 1.3 * e), opacity: peak * (0.2 + 0.62 * e) };
 };
 
 function getShapeBBox(shapeStr) {
@@ -4363,18 +4366,18 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       })}
 
                       {/* 主要河川：青のラインで流路を描き、名称を青の斜体で添える（装飾・タップ不可）。
-                          線は名称より1段早い倍率から出し、大河ほど太く、拡大するほど太く濃くする */}
+                          線は名称より1段早い倍率からごく淡く出し、拡大するほど太く濃くする（riverStroke） */}
                       {periodRivers.map((r) => {
-                        const lineZoom = GEO_TIER_ZOOM[Math.max(1, (r.tier ?? 3) - 1)];
-                        const lineOpacity = fade(lineZoom - 0.3);
+                        const lineZoom = GEO_TIER_ZOOM[Math.max(1, (r.tier ?? 3) - 1)] - 0.3;
+                        const lineOpacity = fade(lineZoom);
                         if (lineOpacity <= 0) return null;
-                        const stroke = riverStroke(r.tier ?? 3, panZoom.zoom);
+                        const stroke = riverStroke(r.tier ?? 3, panZoom.zoom, lineZoom);
                         return (
                           <g key={r.name} style={{ pointerEvents: "none" }}>
                             <path
                               d={r.d}
                               fill="none"
-                              stroke="#7AAAD6"
+                              stroke="#82A9CC"
                               strokeOpacity={stroke.opacity}
                               strokeWidth={stroke.width}
                               strokeLinecap="round"
