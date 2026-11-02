@@ -370,6 +370,56 @@ const AFRICA_1962 = [...AFRICA_1950, "SDN", "SDS", "MAR", "TUN", "LBY", "GHA", "
 const AFRICA_1975 = [...AFRICA_1962, "KEN", "MWI", "ZMB", "GMB", "BWA", "LSO", "MUS", "SWZ", "GNQ", "GNB", "MOZ", "CPV", "COM", "STP", "AGO"];
 const AFRICA_1991 = [...AFRICA_1975, "SYC", "DJI", "ZWE", "NAM"];
 
+
+// ---------------------------------------------------------------------------
+// 全世界化・優先度2の部品：東欧・北欧、中央アジア、アフリカ、アメリカ大陸
+// ---------------------------------------------------------------------------
+const kz = (...names) => names.map((n) => `KAZ/${n}`);
+const uz = (...names) => names.map((n) => `UZB/${n}`);
+const mx = (...names) => names.map((n) => `MEX/${n}`);
+const pe = (...names) => names.map((n) => `PER/${n}`);
+const ml = (...names) => names.map((n) => `MLI/${n}`);
+const se = (...names) => names.map((n) => `SWE/${n}`);
+// アフリカ
+const KUSH_NILE = p([[30.8, 22.0], [30.3, 20.8], [30.0, 19.6], [30.6, 18.6], [31.5, 17.8], [32.0, 16.5], [32.2, 15.3], [32.6, 15.0], [33.8, 15.5], [34.4, 17.0], [34.2, 18.0], [32.6, 19.0], [31.9, 19.6], [31.8, 20.6], [32.3, 21.5], [31.9, 22.1]], "SDN"); // ナパタからメロエ・ハルツームまでのナイル川流域
+const AKSUM = ["ERI", "ETH/Tigray", "ETH/Amhara"];
+// サヘル地帯の北縁（サハラ砂漠の南端）。これより北の砂漠は西アフリカの諸王国に含めない（現代の州境の直線を避ける）
+const SAHEL = [[-18, 10], [-18, 17.4], [-15, 17.8], [-12, 17.6], [-9, 17.3], [-6, 17.8], [-3, 18.1], [0, 17.9], [3, 18.4], [6, 17.8], [9, 16.8], [9, 10]];
+const GHANA_EMPIRE = [p(SAHEL, "MRT/Hodh ech Chargui", "MRT/Hodh el Gharbi", "MRT/Assaba", "MRT/Guidimaka", "MLI/Kayes"), p([[-12, 13.5], [-6, 13.5], [-6, 16.5], [-12, 16.5]], "MLI/Koulikoro")];
+const MALI_EMPIRE = ["SEN", "GMB", "GIN[-14,9,-8,13]", ...ml("Kayes", "Koulikoro", "Bamako", "Sikasso", "Ségou", "Mopti"), p(SAHEL, "MLI/Timbuktu", "MRT/Hodh ech Chargui", "MRT/Hodh el Gharbi", "MRT/Assaba", "MRT/Guidimaka", "MRT/Gorgol", "MRT/Brakna", "MRT/Trarza")];
+const MALI_LATE = ["GIN[-14,9,-8,13]", ...ml("Kayes", "Koulikoro", "Bamako", "Sikasso"), "SEN/Tambacounda", "SEN/Kédougou"];
+const SONGHAI = [...ml("Mopti", "Ségou"), p(SAHEL, "MLI/Gao", "MLI/Timbuktu", "NER/Tahoua"), "NER/Tillabéri", "NER/Niamey", "NER/Dosso"];
+const SWAHILI_COAST = ["KEN/Coast", "TZA/Tanga", "TZA/Pwani", "TZA/Dar-Es-Salaam", "TZA/Lindi", "TZA/Mtwara", "TZA/Zanzibar South and Central", "TZA/Kaskazini-Unguja", "TZA/Zanzibar West", "TZA/Kusini-Pemba", "TZA/Kaskazini-Pemba"];
+const MONOMOTAPA = ["ZWE", "MOZ/Tete", "MOZ/Manica"];
+const BENIN_KINGDOM = ["NGA/Edo", "NGA/Delta"];
+const ASHANTI = ["GHA/Ashanti", "GHA/Brong Ahafo"];
+// アメリカ大陸
+const OLMEC = [p([[-96.5, 19.2], [-94.0, 18.7], [-93.9, 17.0], [-95.8, 17.2], [-96.6, 18.0]], "MEX/Veracruz"), "MEX/Tabasco"]; // メキシコ湾岸の南部（ベラクルス州南部〜タバスコ州）
+const TEOTIHUACAN = mx("México", "Distrito Federal", "Hidalgo", "Tlaxcala", "Morelos");
+const MAYA = [...mx("Yucatán", "Campeche", "Quintana Roo", "Chiapas"), "GTM", "BLZ", ...["Copán", "Ocotepeque", "Santa Bárbara", "Cortés", "Lempira"].map((n) => `HND/${n}`), "SLV"];
+const CHAVIN = pe("Áncash", "Huánuco", "La Libertad");
+const MOCHE = pe("La Libertad", "Lambayeque");
+const TIWANAKU = ["BOL/La Paz", "BOL/Oruro", ...pe("Puno", "Moquegua")];
+// 東欧・ロシア
+const RUS_NOVGOROD_LANDS = ru("Novgorod", "Leningrad", "City of St. Petersburg", "Karelia", "Arkhangel'sk", "Vologda");
+const KIEVAN_RUS_CORE = [...ua("Kiev", "Kiev City", "Chernihiv", "Zhytomyr", "Rivne", "Volyn", "Cherkasy", "Sumy", "Poltava", "Vinnytsya", "Khmel'nyts'kyy"), "BLR", ...ru("Smolensk", "Bryansk", "Kaluga", "Tula", "Orel", "Moskva", "Moskovskaya", "Tver'", "Yaroslavl'", "Vladimir", "Ivanovo", "Kostroma", "Ryazan'", "Pskov")];
+const MUSCOVY_1360 = ru("Moskva", "Moskovskaya", "Vladimir", "Ivanovo", "Kostroma", "Yaroslavl'");
+const MUSCOVY_1492 = [...MUSCOVY_1360, ...RUS_NOVGOROD_LANDS, ...ru("Tver'", "Kaluga", "Tula", "Nizhegorod", "Kirov", "Perm'", "Komi")];
+const MUSCOVY_1517 = [...MUSCOVY_1492, ...ru("Pskov", "Ryazan'", "Smolensk", "Bryansk", "Orel", "Kursk", "Lipetsk"), "UKR/Chernihiv"];
+const HUNGARY_CORE = ["HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...VOJVODINA, "UKR/Transcarpathia"];
+const POLAND_PIAST = { add: ["POL"], sub: ["POL/Warmian-Masurian", "POL/West Pomeranian"] };
+const POLAND_1360 = { add: ["POL"], sub: ["POL/Warmian-Masurian", "POL/West Pomeranian", "POL/Pomeranian", "POL/Lower Silesian", "POL/Opole"] };
+const LITHUANIA_1400 = [{ add: ["LTU"], sub: ["LTU/Klaipedos"] }, "BLR", ...ua("Volyn", "Rivne", "Zhytomyr", "Kiev", "Kiev City", "Chernihiv", "Sumy", "Poltava", "Cherkasy", "Vinnytsya", "Khmel'nyts'kyy", "L'viv", "Ivano-Frankivs'k", "Ternopil'"), "RUS/Smolensk", "RUS/Bryansk"];
+const POLAND_1492 = { add: ["POL", WARMIA_ELBLAG], sub: ["POL/Warmian-Masurian", "POL/West Pomeranian", "POL/Lower Silesian", "POL/Opole", "POL/Lubusz", SILESIA_PRUSSIAN] };
+// 北欧
+const DENMARK = ["DNK", ...se("Skåne", "Blekinge", "Halland")];
+const NORWAY = ["NOR", ...se("Jämtland")];
+// 中央アジア
+const CHAGATAI_1300 = [...uz("Ferghana", "Tashkent", "Namangan", "Andijon", "Sirdaryo", "Jizzakh", "Samarkand", "Kashkadarya", "Surkhandarya", "Navoi", "Bukhoro"), "TJK", "KGZ", ...kz("Almaty", "Almaty City", "Zhambyl", "South Kazakhstan"), "CHN/Xinjiang", "TKM/Chardzhou", ...af("Balkh", "Kunduz", "Takhar", "Badakhshan", "Jawzjan", "Faryab", "Samangan", "Baghlan", "Sari Pul")];
+const MOGHULISTAN = ["KGZ", ...kz("Almaty", "Almaty City", "Zhambyl"), "CHN/Xinjiang"];
+const QARA_KHITAI = ["KGZ", ...kz("Almaty", "Almaty City", "Zhambyl", "South Kazakhstan"), ...uz("Ferghana", "Tashkent", "Namangan", "Andijon", "Sirdaryo", "Jizzakh", "Samarkand", "Bukhoro", "Kashkadarya", "Surkhandarya", "Navoi"), "TJK", "CHN/Xinjiang"];
+const GOLDEN_HORDE = ["KAB", "RUS/Udmurt", ...kz("West Kazakhstan", "Atyrau", "Aqtöbe", "Mangghystau", "Qostanay", "North Kazakhstan", "Aqmola", "Astana", "Qaraghandy", "Pavlodar", "Qyzylorda", "East Kazakhstan"), ...uz("Khorezm", "Karakalpakstan"), "TKM/Tashauz", ...RUS_STEPPE_SOUTH, ...ru("Astrakhan'", "Volgograd", "Saratov", "Samara", "Orenburg", "Bashkortostan", "Tatarstan", "Ul'yanovsk", "Penza", "Chuvash", "Mariy-El", "Mordovia", "Voronezh", "Belgorod", "Tambov", "Chelyabinsk", "Kurgan"), ...ua("Odessa", "Mykolayiv", "Kherson", "Zaporizhzhya", "Dnipropetrovs'k", "Kirovohrad", "Donets'k", "Luhans'k", "Kharkiv")];
+
 // ---------------------------------------------------------------------------
 // 勢力の定義（存続期間ベース）
 //   life   … 存続期間 [[開始年, 終了年], ...]。地図の年代（atlas/series.js）のうち、この期間に入る年代に描く。
@@ -765,19 +815,14 @@ export const ENTITIES = {
     life: [[1492,1772]],
     shapes: [
       { from: 1492, to: 1516, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, "TUR[25,35,38.5,43]"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi", "TUR/Hatay", "TUR/Adana", "TUR/Osmaniye", ...VOJVODINA] } },
-      { from: 1517, to: 1554, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, ...MOLDAVIA, "MDA", "TUR", "SYR", "LBN", "ISR", "PSX", "JOR", ...OTTOMAN_EGYPT, ...HEJAZ, "RUS/Crimea", "RUS/Sevastopol"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi", ...VOJVODINA] } },
-      { from: 1555, to: 1647, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, ...MOLDAVIA, "MDA", "TUR", "SYR", "LBN", "ISR", "PSX", "JOR", ...OTTOMAN_EGYPT, ...HEJAZ, "RUS/Crimea", "RUS/Sevastopol", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...VOJVODINA, ...SLAVONIA, "IRQ", ALGERIA_COAST, TRIPOLITANIA, "HUN/region:Great Southern Plain", "HUN/region:Northern Great Plain", "HUN/region:Central Hungary", "HUN/region:Southern Transdanubia", "HUN/Fejér", "HUN/Tolna", "HUN/Székesfehérvár", "HUN/Dunaújváros"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi"] } },
+      { from: 1517, to: 1554, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, ...MOLDAVIA, ...BUKOVINA, "MDA", "TUR", "SYR", "LBN", "ISR", "PSX", "JOR", ...OTTOMAN_EGYPT, ...HEJAZ, "RUS/Crimea", "RUS/Sevastopol"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi", ...VOJVODINA] } },
+      { from: 1555, to: 1647, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...DOBRUJA, ...EURO_TURKEY, "TUR/Istanbul", ...WALLACHIA, ...MOLDAVIA, ...BUKOVINA, "MDA", "TUR", "SYR", "LBN", "ISR", "PSX", "JOR", ...OTTOMAN_EGYPT, ...HEJAZ, "RUS/Crimea", "RUS/Sevastopol", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, ...VOJVODINA, ...SLAVONIA, "IRQ", ALGERIA_COAST, TRIPOLITANIA, "HUN/region:Great Southern Plain", "HUN/region:Northern Great Plain", "HUN/region:Central Hungary", "HUN/region:Southern Transdanubia", "HUN/Fejér", "HUN/Tolna", "HUN/Székesfehérvár", "HUN/Dunaújváros"], sub: ["GRC/Kriti", "GRC/Ionioi Nisoi"] } },
       { from: 1648, to: 1714, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", "ROU", "MDA", ...SLAVONIA, "HUN", "UKR/Odessa", "UKR/Mykolayiv", "UKR/Kherson", "UKR/Zaporizhzhya", "RUS/Crimea", "UKR/Chernivtsi", "RUS/Sevastopol", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST], sub: ["HUN/region:Western Transdanubia", "HUN/Komárom-Esztergom", "HUN/Tatabánya", "HUN/Nógrád", "HUN/Salgótarján", "HUN/Borsod-Abaúj-Zemplén", "HUN/Miskolc", "GRC/Ionioi Nisoi"] } },
       { from: 1715, to: 1771, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", ...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "MDA", ...BANAT_RO, "SRB/Severno-Banatski", "SRB/Srednje-Banatski", "SRB/Južno-Banatski", "UKR/Odessa", "UKR/Mykolayiv", "UKR/Kherson", "UKR/Zaporizhzhya", "UKR/Dnipropetrovs'k", "UKR/Kirovohrad", "UKR/Donets'k", "RUS/Crimea", "RUS/Sevastopol", "RUS/Rostov", "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST, ...BUKOVINA], sub: ["GRC/Ionioi Nisoi", "SRB/Severno-Backi", "SRB/Zapadno-Backi", "SRB/Južno-Backi", "SRB/Sremski"] } },
       { from: 1772, to: 1772, def: { add: ["GRC", "BGR", "MKD", "ALB", "SRB", "KOS", "MNE", "BIH", ...EURO_TURKEY, "TUR", ...WALLACHIA, ...MOLDAVIA, ...DOBRUJA, "MDA", "UKR/Odessa", "UKR/Mykolayiv", "UKR/Kherson", "RUS/Crimea", "RUS/Sevastopol", ...BUKOVINA, "CYP", "SYR", "LBN", "ISR", "PSX", "JOR", "IRQ", ...OTTOMAN_EGYPT, ...HEJAZ, TRIPOLITANIA, CYRENAICA, "TUN", ALGERIA_COAST], sub: ["GRC/Ionioi Nisoi", ...VOJVODINA] } },
     ],
   },
-  "bg:ハンガリー王国": {
-    life: [[1492,1517]],
-    shapes: [
-      { from: 1492, to: 1517, def: { add: ["HUN", "SVK", ...TRANSYLVANIA, ...PARTIUM, ...BANAT_RO, "HRV", ...VOJVODINA], sub: VENICE_DALMATIA } },
-    ],
-  },
+
   "bg:スイス": {
     life: [[1492,1555],[1885,1914]],
     shapes: [
@@ -835,9 +880,10 @@ export const ENTITIES = {
       { from: 1773, to: 1870, def: { add: BRITAIN_1812 } },
       { from: 1871, to: 1884, def: { add: BRITAIN_1871 } },
       // 1885年：上ビルマはまだコンバウン朝（同年末の第3次イギリス＝ビルマ戦争で併合）
-      { from: 1885, to: 1885, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", ...BURMA_LOWER, "LKA", "EGY", "CYP", "ZAF/Western Cape", "ZAF/Eastern Cape", "ZAF/Northern Cape", "ZAF/KwaZulu-Natal", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS")] } },
-      { from: 1886, to: 1899, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "ZAF/Western Cape", "ZAF/Eastern Cape", "ZAF/Northern Cape", "ZAF/KwaZulu-Natal", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS")] } },
-      { from: 1900, to: 1913, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS"), "ZAF", "LSO", "SDN", "SDS", "KEN", "UGA", "NGA", "GHA", "ZWE", "ZMB", "MWI", "MYS", "BRN", p(PAPUA, "PNG"), WEIHAIWEI] } },
+      { from: 1885, to: 1885, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", ...BURMA_LOWER, "LKA", "EGY", "CYP", "ZAF/Western Cape", "ZAF/Eastern Cape", "ZAF/Northern Cape", "ZAF/KwaZulu-Natal", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS")], sub: [...BENIN_KINGDOM, ...ASHANTI] } },
+      { from: 1886, to: 1899, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "ZAF/Western Cape", "ZAF/Eastern Cape", "ZAF/Northern Cape", "ZAF/KwaZulu-Natal", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS")], sub: [...BENIN_KINGDOM, ...ASHANTI] } },
+      { from: 1900, to: 1901, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS"), "ZAF", "LSO", "SDN", "SDS", "KEN", "UGA", "NGA", "GHA", "ZWE", "ZMB", "MWI", "MYS", "BRN", p(PAPUA, "PNG"), WEIHAIWEI], sub: ASHANTI } }, // アシャンティの併合は1902年
+      { from: 1902, to: 1913, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS"), "ZAF", "LSO", "SDN", "SDS", "KEN", "UGA", "NGA", "GHA", "ZWE", "ZMB", "MWI", "MYS", "BRN", p(PAPUA, "PNG"), WEIHAIWEI] } },
       { from: 1914, to: 1914, def: { add: ["GBR", "IRL", "CAN", "AUS", "NZL", "IND", "KAS", "PAK", "BGD", "MMR", "LKA", "EGY", "CYP", "BWA", "SLE", "GMB", p([[-3.3, 4.5], [1.2, 4.5], [1.2, 7], [-3.3, 7]], "GHA"), p([[2.6, 4], [9, 4], [9, 7], [2.6, 7]], "NGA"), "HKG", "JAM", "BHS", "GUY", "BLZ", "FJI", "SOL", "SGP", p([[100, 6.5], [104.5, 6.5], [104.5, 1.2], [100, 1.2]], "MYS"), "ZAF", "LSO", "SDN", "SDS", "KEN", "UGA", "NGA", "GHA", "ZWE", "ZMB", "MWI", "MYS", "BRN", p(PAPUA, "PNG"), "SWZ", "KWT", "QAT", "BHR", "ARE", WEIHAIWEI] } },
     ],
   },
@@ -870,17 +916,19 @@ export const ENTITIES = {
       { from: 1914, to: 1914, def: { add: [RUS_EUROPE, "RUS[60,40,180,82]", "FIN", "EST", "LVA", "LTU", "BLR", "UKR", "MDA", ...CONGRESS_POLAND, "GEO", "ARM", "AZE", "KAZ", "KAB", "UZB", "TKM", "KGZ", "TJK", "TUR/Kars", "TUR/Ardahan", "TUR/Artvin"], sub: ["RUS/Kaliningrad", "LTU/Klaipedos", ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi", KURILS, SOUTH_SAKHALIN] } },
     ],
   },
-  "bg:スウェーデン": {
-    life: [[1648,1772]],
+  "スウェーデン王国": {
+    life: [[1523,1772]],
     shapes: [
+      { from: 1523, to: 1647, def: { add: ["SWE", "FIN"], sub: ["SWE/Skåne", "SWE/Blekinge", "SWE/Halland", "SWE/Jämtland"] } }, // スコーネなどはデンマーク、イェムトランドはノルウェー領
       { from: 1648, to: 1714, def: { add: ["SWE", "FIN", "EST", "LVA/region:Vidzeme", "LVA/region:Riga", "RUS/Leningrad", "RUS/City of St. Petersburg", VORPOMMERN, STETTIN, BREMEN_VERDEN], sub: ["SWE/Skåne", "SWE/Blekinge"] } },
       { from: 1715, to: 1771, def: { add: ["SWE", "FIN", VORPOMMERN, STETTIN, BREMEN_VERDEN] } },
       { from: 1772, to: 1772, def: { add: ["SWE", "FIN", VORPOMMERN_N_PEENE], sub: ["FIN/South Karelia", "FIN/Kymenlaakso"] } },
     ],
   },
-  "bg:ポーランド＝リトアニア": {
-    life: [[1648,1772]],
+  "ポーランド＝リトアニア": {
+    life: [[1569,1772]],
     shapes: [
+      { from: 1569, to: 1647, def: { add: ["POL", "LTU", "BLR", "UKR", "LVA", "RUS/Smolensk", "RUS/Bryansk"], post: [WARMIA_ELBLAG], sub: ["POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "POL/Warmian-Masurian", "LTU/Klaipedos", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_STEPPE, "UKR/Transcarpathia", "UKR/Chernivtsi", "UKR/Kharkiv"] } }, // 1569年のルブリン合同
       { from: 1648, to: 1714, def: { add: ["POL", "LTU", "BLR", "UKR", "LVA", "RUS/Smolensk", "RUS/Bryansk"], post: [WARMIA_ELBLAG], sub: ["POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "POL/Warmian-Masurian", "LTU/Klaipedos", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_STEPPE, "UKR/Transcarpathia", "UKR/Chernivtsi", "UKR/Kharkiv"] } },
       { from: 1715, to: 1771, def: { add: ["POL", "LTU", "BLR", "UKR", "LVA"], post: [WARMIA_ELBLAG], sub: ["POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", SILESIA_PRUSSIAN, "POL/Warmian-Masurian", "LTU/Klaipedos", "LVA/region:Vidzeme", "LVA/region:Riga", ...UKR_STEPPE, ...UKR_LEFT_BANK, "UKR/Transcarpathia", "UKR/Chernivtsi"] } },
       { from: 1772, to: 1772, def: { add: ["POL", "LTU", "BLR", "UKR", "LVA/region:Kurzeme", "LVA/region:Zemgale"], sub: ["POL/Lower Silesian", "POL/Opole", "POL/West Pomeranian", "POL/Lubusz", "POL/Pomeranian", "POL/Warmian-Masurian", "POL/Subcarpathian", SILESIA_PRUSSIAN, NETZE_DISTRICT, { add: ["POL/Lesser Poland"], sub: [LESSER_POLAND_RUSSIAN] }, "LTU/Klaipedos", "BLR/Vitebsk", "BLR/Mogilev", "BLR/Gomel", ...UKR_STEPPE, ...UKR_LEFT_BANK, ...GALICIA_EAST, "UKR/Transcarpathia", "UKR/Chernivtsi"] } },
@@ -1282,7 +1330,7 @@ export const ENTITIES = {
   "ティムール朝": {
     life: [[1370,1507]],
     shapes: [
-      { from: 1370, to: 1446, def: { add: ["IRN", "IRQ", "AZE", "ARM", "TKM", "UZB", "TJK", "AFG", ...tr("Mardin", "Sanliurfa", "Diyarbakir", "Batman", "Kars", "Ardahan"), ...ANATOLIA_EAST] } },
+      { from: 1370, to: 1446, def: { add: ["IRN", "IRQ", "AZE", "ARM", "TKM", "UZB", "TJK", "AFG", "KAZ/South Kazakhstan", ...tr("Mardin", "Sanliurfa", "Diyarbakir", "Batman", "Kars", "Ardahan"), ...ANATOLIA_EAST] } },
       { from: 1447, to: 1507, def: { add: ["TKM", "UZB", "TJK", "AFG", ...ir("Razavi Khorasan", "North Khorasan", "South Khorasan")] } }, // シャー＝ルフの死後はホラーサーンとマー・ワラー・アンナフルのみ
     ],
   },
@@ -1507,6 +1555,195 @@ export const ENTITIES = {
     life: [[1965,1979]],
     shapes: [
       { from: 1965, to: 1979, def: { add: ["ZWE"] } },
+    ],
+  },
+
+  // ---- 全世界化・優先度2（ステップ2）。カードは src/data/worldCards2.js ----
+  // アフリカ
+  "クシュ王国": {
+    life: [[-800,350]],
+    shapes: [
+      { from: -800, to: 350, def: { add: [KUSH_NILE] } },
+    ],
+  },
+  "アクスム王国": {
+    life: [[100,940]],
+    shapes: [
+      { from: 100, to: 940, def: { add: AKSUM } },
+    ],
+  },
+  "ガーナ王国": {
+    life: [[700,1076]],
+    shapes: [
+      { from: 700, to: 1076, def: { add: GHANA_EMPIRE } },
+    ],
+  },
+  "マリ帝国": {
+    life: [[1235,1600]],
+    shapes: [
+      { from: 1235, to: 1459, def: { add: MALI_EMPIRE } },
+      { from: 1460, to: 1600, def: { add: MALI_LATE } }, // ソンガイ帝国の台頭で西部の一部のみに
+    ],
+  },
+  "ソンガイ帝国": {
+    life: [[1464,1591]],
+    shapes: [
+      { from: 1464, to: 1591, def: { add: SONGHAI } },
+    ],
+  },
+  "スワヒリ都市国家": {
+    life: [[900,1600]],
+    shapes: [
+      { from: 900, to: 1600, def: { add: SWAHILI_COAST } },
+    ],
+  },
+  "モノモタパ王国": {
+    life: [[1430,1629]],
+    shapes: [
+      { from: 1430, to: 1629, def: { add: MONOMOTAPA } }, // 1629年にポルトガルの属国となる
+    ],
+  },
+  "ベニン王国": {
+    life: [[1440,1897]],
+    shapes: [
+      { from: 1440, to: 1897, def: { add: BENIN_KINGDOM } }, // オバ・エウアレのもとで王国が拡大した15世紀半ばから
+    ],
+  },
+  "アシャンティ王国": {
+    life: [[1701,1901]],
+    shapes: [
+      { from: 1701, to: 1901, def: { add: ASHANTI } },
+    ],
+  },
+  // アメリカ大陸
+  "オルメカ文明": {
+    life: [[-1200,-400]],
+    shapes: [
+      { from: -1200, to: -400, def: { add: OLMEC } },
+    ],
+  },
+  "テオティワカン": {
+    life: [[-100,650]],
+    shapes: [
+      { from: -100, to: 650, def: { add: TEOTIHUACAN } },
+    ],
+  },
+  "マヤ文明": {
+    life: [[-1000,1450]],
+    shapes: [
+      { from: -1000, to: 1450, def: { add: MAYA } },
+    ],
+  },
+  "チャビン文化": {
+    life: [[-900,-200]],
+    shapes: [
+      { from: -900, to: -200, def: { add: CHAVIN } },
+    ],
+  },
+  "モチェ文化": {
+    life: [[100,700]],
+    shapes: [
+      { from: 100, to: 700, def: { add: MOCHE } },
+    ],
+  },
+  "ティワナク": {
+    life: [[500,1000]],
+    shapes: [
+      { from: 500, to: 1000, def: { add: TIWANAKU } },
+    ],
+  },
+  // 東欧・ロシア
+  "キエフ公国": {
+    life: [[882,1240]],
+    shapes: [
+      { from: 882, to: 1135, def: { add: [...KIEVAN_RUS_CORE, ...RUS_NOVGOROD_LANDS] } },
+      { from: 1136, to: 1240, def: { add: KIEVAN_RUS_CORE } }, // ノヴゴロドが自立（ロシアの諸公国の総称として描く）
+    ],
+  },
+  "ノヴゴロド国": {
+    life: [[1136,1478]],
+    shapes: [
+      { from: 1136, to: 1240, def: { add: RUS_NOVGOROD_LANDS } },
+      { from: 1241, to: 1347, def: { add: [...RUS_NOVGOROD_LANDS, "RUS/Pskov"] } },
+      { from: 1348, to: 1478, def: { add: RUS_NOVGOROD_LANDS } }, // 1348年にプスコフが自立
+    ],
+  },
+  "モスクワ大公国": {
+    life: [[1263,1547]],
+    shapes: [
+      { from: 1263, to: 1340, def: { add: ru("Moskva", "Moskovskaya") } },
+      { from: 1341, to: 1461, def: { add: MUSCOVY_1360 } },
+      { from: 1462, to: 1504, def: { add: [...MUSCOVY_1492, ...ru("Ryazan'", "Lipetsk")] } }, // イヴァン3世：ノヴゴロド・トヴェリを併合
+      { from: 1505, to: 1547, def: { add: MUSCOVY_1517 } }, // ヴァシーリー3世：プスコフ・リャザン・スモレンスクを併合
+    ],
+  },
+  "ブルガリア帝国": {
+    life: [[681,1018],[1185,1396]],
+    shapes: [
+      { from: 681, to: 1018, def: { add: ["BGR", "MKD", ...WALLACHIA] } }, // 第1次ブルガリア帝国
+      { from: 1185, to: 1279, def: { add: ["BGR", "MKD"] } }, // 第2次ブルガリア帝国
+      { from: 1280, to: 1396, def: { add: ["BGR"] } },
+    ],
+  },
+  "ハンガリー王国": {
+    life: [[1000,1526]],
+    shapes: [
+      { from: 1000, to: 1101, def: { add: HUNGARY_CORE } },
+      { from: 1102, to: 1203, def: { add: [...HUNGARY_CORE, "HRV"] } }, // 1102年にクロアチアと同君連合
+      { from: 1204, to: 1357, def: { add: [...HUNGARY_CORE, "HRV"], sub: ["HRV/Zadarska"] } }, // ザラ（ザダル）はヴェネツィア領
+      { from: 1358, to: 1491, def: { add: [...HUNGARY_CORE, "HRV"] } },
+      { from: 1492, to: 1526, def: { add: [...HUNGARY_CORE, "HRV"], sub: VENICE_DALMATIA } },
+    ],
+  },
+  "ポーランド王国": {
+    life: [[1025,1568]],
+    shapes: [
+      { from: 1025, to: 1307, def: POLAND_PIAST },
+      { from: 1308, to: 1385, def: POLAND_1360 }, // ポモージェ（グダニスク）はドイツ騎士団、シロンスクはボヘミア領
+      { from: 1386, to: 1465, def: { add: [POLAND_1360, ...LITHUANIA_1400] } }, // リトアニアとの同君連合
+      { from: 1466, to: 1502, def: { add: [POLAND_1492, ...LITHUANIA_1400, "POL/Pomeranian", "RUS/Orel", "RUS/Kursk"] } }, // 第2次トルンの和約で西プロイセンを獲得
+      { from: 1503, to: 1568, def: { add: [POLAND_1492, ...LITHUANIA_1400, "POL/Pomeranian"], sub: ["RUS/Smolensk", "RUS/Bryansk", "UKR/Chernihiv"] } },
+    ],
+  },
+  // 北欧
+  "デンマーク王国": {
+    life: [[800,1396]],
+    shapes: [
+      { from: 800, to: 1396, def: { add: DENMARK } },
+    ],
+  },
+  "ノルウェー王国": {
+    life: [[872,1396]],
+    shapes: [
+      { from: 872, to: 1261, def: { add: NORWAY } },
+      { from: 1262, to: 1396, def: { add: [...NORWAY, "ISL"] } }, // 1262年にアイスランドを併合
+    ],
+  },
+  "カルマル同盟": {
+    life: [[1397,1522]],
+    shapes: [
+      { from: 1397, to: 1522, def: { add: ["DNK", "NOR", "SWE", "FIN", "ISL"] } },
+    ],
+  },
+  // 中央アジア
+  "西遼": {
+    life: [[1124,1218]],
+    shapes: [
+      { from: 1124, to: 1218, def: { add: QARA_KHITAI } },
+    ],
+  },
+  "チャガタイ＝ハン国": {
+    life: [[1225,1400]],
+    shapes: [
+      { from: 1225, to: 1369, def: { add: CHAGATAI_1300 } },
+      { from: 1370, to: 1400, def: { add: MOGHULISTAN } }, // 西部はティムールに奪われ、東部（モグーリスタン）のみ
+    ],
+  },
+  "キプチャク＝ハン国": {
+    life: [[1242,1502]],
+    shapes: [
+      { from: 1242, to: 1378, def: { add: GOLDEN_HORDE } },
+      { from: 1379, to: 1502, def: { add: GOLDEN_HORDE, sub: [...uz("Khorezm", "Karakalpakstan"), "TKM/Tashauz"] } }, // 1379年にホラズムをティムールに奪われる
     ],
   },
 };
