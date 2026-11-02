@@ -13,6 +13,9 @@ import {
 import {
   WORLD2_ANCIENT_CARDS, WORLD2_MEDIEVAL_CARDS, WORLD2_RENAISSANCE_CARDS, WORLD2_ABSOLUTISM_CARDS, WORLD2_IMPERIALISM_CARDS, WORLD2_BLURB,
 } from "./worldCards2.js";
+import {
+  WORLD3_ANCIENT_CARDS, WORLD3_MEDIEVAL_CARDS, WORLD3_RENAISSANCE_CARDS, WORLD3_REVOLUTION_CARDS, WORLD3_BLURB,
+} from "./worldCards3.js";
 
 // ---------------------------------------------------------------------------
 // カード画像（image）の選定方針
@@ -3039,13 +3042,13 @@ const TERRAIN_LABELS = [
 ].map(([name, lon, lat, size, minZoom]) => { const [x, y] = lonLatToXY(lon, lat); return { name, x, y, size, minZoom, kind: "terrain" }; });
 const withAsiaSeas = (labels) => labels.concat(ASIA_SEA_LABELS.filter((a) => !labels.some((l) => l.name === a.name)), TERRAIN_LABELS.filter((a) => !labels.some((l) => l.name === a.name)));
 // 地図の時代区分ひとつ分（ERA_PERIODS にそのまま展開する）。years はシリーズのうちこの区分が受け持つ年代。
-// 解説文は時代ごとの blurb に、全世界化で加えた勢力（worldCards.js の WORLD_BLURB・worldCards2.js の WORLD2_BLURB のこのシリーズ分）と
+// 解説文は時代ごとの blurb に、全世界化で加えた勢力（worldCards.js〜worldCards3.js の WORLD_BLURB・WORLD2_BLURB・WORLD3_BLURB のこのシリーズ分）と
 // 東アジア・南アジアの勢力（asiaCards.js の ASIA_BLURB）でまだ書かれていないものを、この順で加える
 export function buildMapPeriod(prefix, years, { rivers, seaLabels, blurb }) {
   const snaps = Object.fromEntries(years.map((y) => [y, assembleSnapshot(prefix, y)]));
   const nearest = (year) => snaps[years.reduce((best, k) => (Math.abs(k - year) < Math.abs(best - year) ? k : best), years[0])];
   const ids = [...new Set(years.flatMap((y) => snaps[y].regions.map((r) => r.id)))];
-  const extra = (id) => WORLD_BLURB[prefix]?.[id] ?? WORLD2_BLURB[prefix]?.[id] ?? ASIA_BLURB[id];
+  const extra = (id) => WORLD_BLURB[prefix]?.[id] ?? WORLD2_BLURB[prefix]?.[id] ?? WORLD3_BLURB[prefix]?.[id] ?? ASIA_BLURB[id];
   const fullBlurb = { ...blurb, ...Object.fromEntries(ids.filter((id) => !(id in blurb) && extra(id)).map((id) => [id, extra(id)])) };
   return {
     keyYears: [...years],
@@ -3130,7 +3133,7 @@ export const ERAS_DATA = {
     // 2つの時代区分にまたがるため、配列で両方に紐づける
     mapPeriodId: ["ancient-civilizations", "ancient-empires"],
     defaultMapYear: -490,
-    cards: byYear(ANCIENT_CARDS, ASIA_ANCIENT_CARDS, WORLD_ANCIENT_CARDS, WORLD2_ANCIENT_CARDS),
+    cards: byYear(ANCIENT_CARDS, ASIA_ANCIENT_CARDS, WORLD_ANCIENT_CARDS, WORLD2_ANCIENT_CARDS, WORLD3_ANCIENT_CARDS),
     // 古代の時代区分の勢力ポリゴン・都市データは未作成（地図タブでは「準備中」表示）。
     // 作成する際は ANCIENT_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3147,7 +3150,7 @@ export const ERAS_DATA = {
     mapPeriodId: ["medieval-1", "medieval-2"],
     yearRange: [500, 1449],
     defaultMapYear: 1095,
-    cards: byYear(MEDIEVAL_CARDS, ASIA_MEDIEVAL_CARDS, WORLD_MEDIEVAL_CARDS, WORLD2_MEDIEVAL_CARDS),
+    cards: byYear(MEDIEVAL_CARDS, ASIA_MEDIEVAL_CARDS, WORLD_MEDIEVAL_CARDS, WORLD2_MEDIEVAL_CARDS, WORLD3_MEDIEVAL_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は MEDIEVAL_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3165,7 +3168,7 @@ export const ERAS_DATA = {
     mapPeriodId: ["medieval-2", "early-modern"],
     yearRange: [1450, 1599],
     defaultMapYear: 1517,
-    cards: byYear(RENAISSANCE_CARDS, ASIA_RENAISSANCE_CARDS, WORLD_RENAISSANCE_CARDS, WORLD2_RENAISSANCE_CARDS),
+    cards: byYear(RENAISSANCE_CARDS, ASIA_RENAISSANCE_CARDS, WORLD_RENAISSANCE_CARDS, WORLD2_RENAISSANCE_CARDS, WORLD3_RENAISSANCE_CARDS),
     // 勢力図・都市データは IMPERIALISM_MAP（地図タブの「帝国主義と二つの大戦」区分のうち1918年まで）。
     // 作成する際は RENAISSANCE_CARDS の region と同じ勢力IDを付けること
     mapData: {
@@ -3193,7 +3196,7 @@ export const ERAS_DATA = {
     period: "近代（市民革命と国民国家）",
     mapPeriodId: "revolutions",
     defaultMapYear: 1815,
-    cards: byYear(FRENCH_REVOLUTION_CARDS, ASIA_REVOLUTION_CARDS, WORLD_REVOLUTION_CARDS),
+    cards: byYear(FRENCH_REVOLUTION_CARDS, ASIA_REVOLUTION_CARDS, WORLD_REVOLUTION_CARDS, WORLD3_REVOLUTION_CARDS),
     // 勢力ポリゴン・首都・河川・解説は、geo-frameworkが App.jsx の GEO_FRAMEWORK_DATA:revolutions ブロックへ
     // 自動生成し、地図の時代区分 "revolutions"（mapPeriodId）として保持している。ここには年代とベースマップのみ持つ
     mapData: {

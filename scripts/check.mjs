@@ -12,6 +12,7 @@ import { PALETTES, BACKGROUND_FILLS, REGION_LABELS, BACKGROUND_LABELS, CITIES } 
 import { ENTITIES } from "../geo/regions.mjs";
 import { WORLD_BLURB } from "../src/data/worldCards.js";
 import { WORLD2_BLURB } from "../src/data/worldCards2.js";
+import { WORLD3_BLURB } from "../src/data/worldCards3.js";
 
 // 許可リスト：答えの語が、別の語の一部として含まれるだけのもの（伏せる必要がない）
 const ALLOWED_CONTAINING_WORDS = [
@@ -169,9 +170,9 @@ for (const [eraId, era] of Object.entries(ERAS_DATA)) {
     const texts = [
       ...REGION_LABELS[id].filter((l) => overlaps(l.from, l.to)).flatMap((l) => [...l.lines, ...(l.subLabels ?? []).map((x) => x.text)]),
       ...CITIES.filter((c) => c.region === id && overlaps(c.from, c.to)).map((c) => c.name),
-      ...(ERA_SERIES[eraId] ?? []).map((p) => WORLD_BLURB[p]?.[id] ?? WORLD2_BLURB[p]?.[id]).filter(Boolean),
+      ...(ERA_SERIES[eraId] ?? []).map((p) => WORLD_BLURB[p]?.[id] ?? WORLD2_BLURB[p]?.[id] ?? WORLD3_BLURB[p]?.[id]).filter(Boolean),
     ];
-    if (!(ERA_SERIES[eraId] ?? []).some((p) => WORLD_BLURB[p]?.[id] ?? WORLD2_BLURB[p]?.[id])) warn("地図", `${eraId}: 勢力「${id}」の解説文（WORLD_BLURB・WORLD2_BLURB）がない`);
+    if (!(ERA_SERIES[eraId] ?? []).some((p) => WORLD_BLURB[p]?.[id] ?? WORLD2_BLURB[p]?.[id] ?? WORLD3_BLURB[p]?.[id])) warn("地図", `${eraId}: 勢力「${id}」の解説文（WORLD_BLURB・WORLD2_BLURB・WORLD3_BLURB）がない`);
     for (const t of texts) for (const { id: cid, answer } of answers) if (answer.length >= 2 && containsAnswer(t, answer)) err("答え", `${eraId}: 配置待ちの勢力「${id}」の地図の文字「${t.slice(0, 20)}${t.length > 20 ? "…" : ""}」に ${cid} の答え「${answer}」`);
   }
   console.log(`${era.title}：カード ${cards.length}問（地図から引ける ${reachable.size}問）・地図 ${snaps.length}年代`);
