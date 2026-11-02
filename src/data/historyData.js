@@ -2798,7 +2798,7 @@ export const CAPITAL_CITIES = [
 // Natural Earth から生成する（generated/riverPaths.js）。拡大度の段階（tier）を表示し始める倍率（minZoom）に変えて配る
 export const RIVERS = GEO_RIVERS.map((r) => {
   const [labelX, labelY] = lonLatToXY(r.at[0], r.at[1]);
-  return { name: r.name, d: RIVER_PATHS[r.name], labelX, labelY, size: r.size, minZoom: GEO_TIER_ZOOM[r.tier], ...(r.hideIn ? { hideIn: r.hideIn } : {}) };
+  return { name: r.name, d: RIVER_PATHS[r.name], labelX, labelY, size: r.size, tier: r.tier, minZoom: GEO_TIER_ZOOM[r.tier], ...(r.hideIn ? { hideIn: r.hideIn } : {}) };
 });
 const GEO_LABEL_ITEMS = GEO_LABELS.map((g) => {
   const [x, y] = lonLatToXY(g.at[0], g.at[1]);

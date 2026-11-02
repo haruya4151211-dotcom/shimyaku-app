@@ -14,7 +14,7 @@ import {
   REVOLUTIONS_MAP,
 } from './data/historyData';
 import { MAP_VIEWBOX_W, MAP_VIEWBOX_H, lonLatBounds } from './data/mapProjection';
-import { WATER_KINDS } from './data/atlas/geography';
+import { WATER_KINDS, GEO_TIER_ZOOM } from './data/atlas/geography';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
 
@@ -2837,6 +2837,23 @@ function hideOverlappingLabels(labels) {
   return hidden;
 }
 
+// 地理の注記の分類と書体。水域・河川は青の斜体、地形（山脈・砂漠・半島・島など）は砂色で字間を広く、
+// 歴史的地域名は中間の白（グレー）、遺跡・オアシスは点マーカーに名前を添える
+const geoClass = (kind) => (WATER_KINDS.includes(kind) ? "water" : kind === "region" ? "region" : kind === "site" || kind === "oasis" ? "site" : "terrain");
+const GEO_STYLE = {
+  water: { fill: "#B9DAF4", italic: true, weight: 500, tracking: 0.04, minPx: 10, opacity: 0.8 },
+  terrain: { fill: "#E4CF9F", weight: 600, tracking: 0.2, minPx: 9.5, opacity: 0.82 },
+  region: { fill: "#D3D8DF", weight: 500, tracking: 0.12, minPx: 9.5, opacity: 0.74 },
+  site: { fill: "#EDE2C8", weight: 500, tracking: 0.02, minPx: 9, opacity: 0.92 },
+};
+// 地理の文字の縁取り色。地図の地色が暗いため、白フチではなく地色に近い濃紺のフチで勢力の塗りや国名から字形を切り離す
+const GEO_HALO = "rgba(9,13,20,0.82)";
+// 河川の線：大河（tier 3）ほど太く、拡大するほど太く濃く（線の太さは画面上の px）
+const riverStroke = (tier, zoom) => {
+  const base = tier <= 3 ? 1.3 : tier === 4 ? 1.0 : 0.8, z = Math.log2(Math.max(1, zoom));
+  return { width: base * Math.min(2.3, 0.85 + 0.4 * z), opacity: Math.min(0.95, 0.62 + 0.09 * z) };
+};
+
 function getShapeBBox(shapeStr) {
   const cached = shapeBBoxCache.get(shapeStr);
   if (cached) return cached;
@@ -2864,8 +2881,8 @@ function getShapeBBox(shapeStr) {
 // 文字が領土の外へはみ出す計算ミスが生じたため
 function getLabelStyle(area) {
   const tracking = area >= 5000 ? "0.02em" : area >= 2000 ? "0.01em" : "0";
-  // 小さい勢力ほど、ある程度拡大してからフェードイン表示（文字は読める大きさまで底上げされるため、引きの地図で隣と重ならないように）
-  const minZoom = area < 40 ? 3 : area < 150 ? 2.2 : area < 500 ? 1.25 : 1.0;
+  // 小さい勢力ほど、ある程度拡大してからフェードイン表示（地理の注記と同じ Tier 1〜4 の倍率。文字は読める大きさまで底上げされるため、引きの地図で隣と重ならないように）
+  const minZoom = area < 40 ? GEO_TIER_ZOOM[4] : area < 150 ? GEO_TIER_ZOOM[3] : area < 500 ? GEO_TIER_ZOOM[2] : GEO_TIER_ZOOM[1];
   return { minZoom, tracking };
 }
 
@@ -3894,8 +3911,9 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     const grow = Math.min(1.9, Math.max(1, Math.pow(panZoom.zoom / 3, 0.32)));
     return (boost * grow) / panZoom.zoom;
   };
-  // 文字の重なり（拡大して文字が大きくなったときに、勢力名・都市名・海の名前などが重ならないよう、優先度の低いものを隠す）。
-  // 優先度：選択中の勢力 > 勢力名（大きい順）> 都市 > 背景の国名 > 海 > 地形 > 河川。勢力名を隠しても勢力のタップはそのまま
+  // 文字の重なり（拡大して文字が大きくなったときに、優先度の低いものを隠す）。「政治の文字」と「地理の文字」の2層で別々に判定する。
+  //   政治：選択中の勢力 > 勢力名（大きい順）> 都市 > 背景の国名。勢力名を隠しても勢力のタップはそのまま
+  //   地理：海 > 地形 > 歴史的地域名 > 河川 > 遺跡・オアシス。地理どうしの重なりだけで隠し、勢力名と重なる地理は消さずに薄くする（dimmedGeo）
   const fade = (from) => Math.max(0, Math.min(1, (panZoom.zoom - from) / 0.3));
   const textBox = (key, x, y, units, k, chars, lines = 1, anchor = "middle", baseline = "center") => {
     const fs = units * k, w = chars * fs, h = lines * fs * 1.05, pad = fs * 0.12;
@@ -3949,8 +3967,13 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
       </g>
     );
   };
-  const hiddenLabels = (() => {
-    if (!panZoom.ready) return new Set();
+  // 遺跡・オアシスの点マーカーと、その右に添える名前の位置（文字と同じ倍率で大きさを決める）
+  const siteMarker = (s) => {
+    const k = textScale(s.size, GEO_STYLE.site.minPx), fs = s.size * k;
+    return { k, r: fs * 0.32, labelX: s.x + fs * 0.75, labelY: s.y + fs * 0.34 };
+  };
+  const { hiddenLabels, hiddenGeo, dimmedGeo } = (() => {
+    if (!panZoom.ready) return { hiddenLabels: new Set(), hiddenGeo: new Set(), dimmedGeo: new Set() };
     const boxes = [];
     const regionsByPriority = [...periodRegions].sort((a, b) => (b.id === selectedId) - (a.id === selectedId) || b.labelSize - a.labelSize);
     for (const r of regionsByPriority) {
@@ -3966,14 +3989,53 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
       boxes.push(textBox(`c:${c.name}`, c.x + dx * k, c.y + dy * k, 7, k, c.name.length, 1, dx < 0 ? "end" : dx === 0 ? "middle" : "start", "baseline"));
     }
     if (fade(1.05) > 0) for (const t of periodBackground) boxes.push(textBox(`b:${t.name}`, t.labelX, t.labelY, 6, textScale(6, 10), t.name.length, 1, "middle", "baseline"));
-    for (const terrainPass of [false, true]) for (const sl of periodSeaLabels) {
-      const isTerrain = !!sl.kind && !WATER_KINDS.includes(sl.kind) && sl.kind !== "island";
-      if (isTerrain !== terrainPass || fade(sl.minZoom ?? 1.15) <= 0) continue;
-      boxes.push(textBox(`s:${sl.name}`, sl.x, sl.y, sl.size, textScale(sl.size, terrainPass ? 9.5 : 10), sl.name.length * (terrainPass ? 1.18 : 1), 1, "middle", "baseline"));
+    const hiddenLabels = hideOverlappingLabels(boxes);
+    const political = boxes.filter((b) => !hiddenLabels.has(b.key));
+
+    const geo = [];
+    for (const cls of ["water", "terrain", "region"]) for (const sl of periodSeaLabels) {
+      if (geoClass(sl.kind) !== cls || fade(sl.minZoom ?? 1.15) <= 0) continue;
+      const st = GEO_STYLE[cls];
+      geo.push(textBox(`s:${sl.name}`, sl.x, sl.y, sl.size, textScale(sl.size, st.minPx), sl.name.length * (1 + st.tracking), 1, "middle", "baseline"));
     }
-    for (const rv of periodRivers) if (fade(rv.minZoom ?? 1.4) > 0) boxes.push(textBox(`v:${rv.name}`, rv.labelX, rv.labelY, rv.size ?? 5.5, textScale(rv.size ?? 5.5, 9.5), rv.name.length, 1, "middle", "baseline"));
-    return hideOverlappingLabels(boxes);
+    for (const rv of periodRivers) if (fade(rv.minZoom ?? 1.4) > 0) geo.push(textBox(`v:${rv.name}`, rv.labelX, rv.labelY, rv.size ?? 5.5, textScale(rv.size ?? 5.5, GEO_STYLE.water.minPx), rv.name.length * (1 + GEO_STYLE.water.tracking), 1, "middle", "baseline"));
+    for (const sl of periodSeaLabels) {
+      if (geoClass(sl.kind) !== "site" || fade(sl.minZoom ?? GEO_TIER_ZOOM[5]) <= 0) continue;
+      const m = siteMarker(sl);
+      const b = textBox(`s:${sl.name}`, m.labelX, m.labelY, sl.size, m.k, sl.name.length, 1, "start", "baseline");
+      geo.push({ ...b, x: b.x - m.r * 2, w: b.w + m.r * 2 });
+    }
+    const hiddenGeo = hideOverlappingLabels(geo);
+    const dimmedGeo = new Set(geo.filter((g) => !hiddenGeo.has(g.key) && political.some((p) => g.x < p.x + p.w && p.x < g.x + g.w && g.y < p.y + p.h && p.y < g.y + g.h)).map((g) => g.key));
+    return { hiddenLabels, hiddenGeo, dimmedGeo };
   })();
+  // 地理の文字：暗い縁取り（paint-order: stroke）で勢力の塗りや国名の上でも字形を保ち、種類ごとに色・書体・字間を変える
+  const geoText = (key, name, x, y, size, cls, opacity, anchor = "middle") => {
+    const st = GEO_STYLE[cls];
+    const k = cls === "site" ? siteMarker({ x, y, size }).k : textScale(size, st.minPx);
+    return (
+      <text
+        key={key}
+        x={x} y={y}
+        textAnchor={anchor}
+        className="font-body"
+        fontSize={size}
+        fontStyle={st.italic ? "italic" : undefined}
+        fontWeight={st.weight}
+        fill={st.fill}
+        stroke={GEO_HALO}
+        strokeWidth={size * 0.2}
+        strokeLinejoin="round"
+        paintOrder="stroke"
+        transform={`translate(${x},${y}) scale(${k}) translate(${-x},${-y})`}
+        style={{ opacity: opacity * st.opacity, transition: "opacity 0.3s ease", pointerEvents: "none", letterSpacing: `${st.tracking}em` }}
+      >
+        {name}
+      </text>
+    );
+  };
+  // 地理の文字の不透明度：tier の倍率でフェードインし、地理どうしの重なりで負けたものは隠し、勢力名・都市名と重なるものは薄くして共存させる
+  const geoOpacity = (key, minZoom) => (hiddenGeo.has(key) ? 0 : fade(minZoom) * (dimmedGeo.has(key) ? 0.5 : 1));
   const stopMapGesture = panZoom.onControlPointerDown;
 
   // 初期表示：主要な都市・勢力が手動で拡大しなくてもタップできる範囲へカメラを合わせる。
@@ -4300,61 +4362,55 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                         );
                       })}
 
-                      {/* 主要河川：極細のブルーグレーのラインで流路を描き、名称を小さく添える（装飾・タップ不可）。
-                          都市マーカーと同じLODでフェードインし、文字サイズはズーム非依存 */}
+                      {/* 主要河川：青のラインで流路を描き、名称を青の斜体で添える（装飾・タップ不可）。
+                          線は名称より1段早い倍率から出し、大河ほど太く、拡大するほど太く濃くする */}
                       {periodRivers.map((r) => {
-                        const riverOpacity = Math.max(0, Math.min(1, (panZoom.zoom - (r.minZoom ?? 1.4)) / 0.3));
-                        if (riverOpacity <= 0) return null;
-                        const riverNameHidden = hiddenLabels.has(`v:${r.name}`);
+                        const lineZoom = GEO_TIER_ZOOM[Math.max(1, (r.tier ?? 3) - 1)];
+                        const lineOpacity = fade(lineZoom - 0.3);
+                        if (lineOpacity <= 0) return null;
+                        const stroke = riverStroke(r.tier ?? 3, panZoom.zoom);
                         return (
-                          <g key={r.name} style={{ opacity: riverOpacity * 0.9, transition: "opacity 0.3s ease", pointerEvents: "none" }}>
+                          <g key={r.name} style={{ pointerEvents: "none" }}>
                             <path
                               d={r.d}
                               fill="none"
-                              stroke="#6E93B5"
-                              strokeOpacity="0.75"
-                              strokeWidth="0.9"
+                              stroke="#7AAAD6"
+                              strokeOpacity={stroke.opacity}
+                              strokeWidth={stroke.width}
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               vectorEffect="non-scaling-stroke"
+                              style={{ opacity: lineOpacity, transition: "opacity 0.3s ease" }}
                             />
-                            <text
-                              x={r.labelX} y={r.labelY}
-                              textAnchor="middle"
-                              className="font-body"
-                              fontSize={r.size ?? 5.5}
-                              fill="#CBD5E1"
-                              fontStyle="italic"
-                              style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.9))", opacity: riverNameHidden ? 0 : 1 }}
-                              transform={`translate(${r.labelX},${r.labelY}) scale(${textScale(r.size ?? 5.5, 9.5)}) translate(${-r.labelX},${-r.labelY})`}
-                            >
-                              {r.name}
-                            </text>
+                            {geoText(`v:${r.name}`, r.name, r.labelX, r.labelY, r.size ?? 5.5, "water", geoOpacity(`v:${r.name}`, r.minZoom ?? 1.4))}
                           </g>
                         );
                       })}
 
-                      {/* 海洋・海峡・主要島嶼：陸地/勢力と混同しないよう、控えめなスレートブルーの透過テキストのみ（装飾・タップ不可） */}
-                      {/* 地形の名前（kind: "terrain"）は、それぞれの minZoom まで拡大したときに砂色の字間を広げた注記で出す */}
+                      {/* 地理の名前（海・地形・歴史的地域名）：それぞれの tier の倍率まで拡大したときに、種類ごとの書体で出す（装飾・タップ不可） */}
                       {periodSeaLabels.map((s) => {
-                        const terrain = !!s.kind && !WATER_KINDS.includes(s.kind) && s.kind !== "island"; // 陸の地理（地形・地域名・遺跡）
-                        const seaOpacity = hiddenLabels.has(`s:${s.name}`) ? 0 : Math.max(0, Math.min(1, (panZoom.zoom - (s.minZoom ?? 1.15)) / 0.3));
-                        if (seaOpacity <= 0) return null;
+                        const cls = geoClass(s.kind);
+                        if (cls === "site") return null;
+                        const opacity = geoOpacity(`s:${s.name}`, s.minZoom ?? 1.15);
+                        return opacity > 0 ? geoText(s.name, s.name, s.x, s.y, s.size, cls, opacity) : null;
+                      })}
+
+                      {/* 遺跡・オアシス（Tier 5）：点のマーカーで位置を示し、右に名前を添える。オアシスは緑の丸、遺跡は砂色のひし形 */}
+                      {periodSeaLabels.map((s) => {
+                        if (geoClass(s.kind) !== "site") return null;
+                        const opacity = geoOpacity(`s:${s.name}`, s.minZoom ?? GEO_TIER_ZOOM[5]);
+                        const markerOpacity = fade(s.minZoom ?? GEO_TIER_ZOOM[5]);
+                        if (markerOpacity <= 0) return null;
+                        const m = siteMarker(s);
                         return (
-                          <text
-                            key={s.name}
-                            x={s.x} y={s.y}
-                            textAnchor="middle"
-                            className="font-body"
-                            fontSize={s.size}
-                            fontStyle={terrain ? undefined : "italic"}
-                            fontWeight={terrain ? 600 : undefined}
-                            fill={terrain ? "rgba(236,220,186,0.62)" : "rgba(224,242,254,0.65)"}
-                            transform={`translate(${s.x},${s.y}) scale(${textScale(s.size, terrain ? 9.5 : 10)}) translate(${-s.x},${-s.y})`}
-                            style={{ opacity: seaOpacity * 0.9, transition: "opacity 0.3s ease", pointerEvents: "none", letterSpacing: terrain ? "0.18em" : "0.03em", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.7))" }}
-                          >
-                            {s.name}
-                          </text>
+                          <g key={s.name} style={{ pointerEvents: "none" }}>
+                            {s.kind === "oasis" ? (
+                              <circle cx={s.x} cy={s.y} r={m.r} fill="#7CC4A0" stroke={GEO_HALO} strokeWidth={m.r * 0.5} style={{ opacity: markerOpacity, transition: "opacity 0.3s ease" }} />
+                            ) : (
+                              <rect x={s.x - m.r * 0.8} y={s.y - m.r * 0.8} width={m.r * 1.6} height={m.r * 1.6} transform={`rotate(45 ${s.x} ${s.y})`} fill="#E4CF9F" stroke={GEO_HALO} strokeWidth={m.r * 0.5} style={{ opacity: markerOpacity, transition: "opacity 0.3s ease" }} />
+                            )}
+                            {opacity > 0 && geoText(`t:${s.name}`, s.name, m.labelX, m.labelY, s.size, "site", opacity, "start")}
+                          </g>
                         );
                       })}
                     </g>
