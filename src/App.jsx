@@ -17,7 +17,7 @@ import { MAP_VIEWBOX_W, MAP_VIEWBOX_H, lonLatBounds } from './data/mapProjection
 import { WATER_KINDS, GEO_TIER_ZOOM } from './data/atlas/geography';
 import SearchModal from './search/SearchModal';
 import { isMacLike, getIndexItem, pickSearchYear } from './search/searchIndex';
-import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef, useDeferredValue } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -3105,7 +3105,7 @@ function dockScale(distancePct, sigma = 3.2, maxBoost = 0.75) {
   return 1 + maxBoost * Math.exp(-(distancePct * distancePct) / (2 * sigma * sigma));
 }
 
-function EraScrubber({ value, onChange, keyYears }) {
+function EraScrubber({ value, onChange, keyYears, onDragChange }) {
   const wrapRef = useRef(null);
   const [raw, setRaw] = useState(value);
   const [dragging, setDragging] = useState(false);
@@ -3147,30 +3147,43 @@ function EraScrubber({ value, onChange, keyYears }) {
     if (!e.touches) e.preventDefault();
     lastX.current = e.touches ? e.touches[0].clientX : e.clientX;
     setDragging(true);
+    onDragChange?.(true);
   };
 
+  // ドラッグ中の移動は1フレームに1回だけ反映する（マウス・タッチのイベントは画面の更新より高い頻度で届くため、
+  // 届いた位置は覚えておき、次の描画の直前に最新の位置だけを処理する）。年が変わったときだけ onChange を呼ぶ
   useEffect(() => {
     if (!dragging) return;
-    const onMove = (e) => {
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let frame = null, pendingX = null, lastYear = null;
+    const flush = () => {
+      frame = null;
+      const clientX = pendingX;
       const v = valueFromClientX(clientX);
       const dx = lastX.current == null ? 0 : clientX - lastX.current;
       lastX.current = clientX;
       setStretch(1 + Math.min(0.7, Math.abs(dx) * 0.06));
       setRaw(v);
       setHoverPct(pctFromClientX(clientX));
-      onChange(Math.round(v));
+      const y = Math.round(v);
+      if (y !== lastYear) { lastYear = y; onChange(y); }
+    };
+    const onMove = (e) => {
+      pendingX = e.touches ? e.touches[0].clientX : e.clientX;
+      if (frame == null) frame = requestAnimationFrame(flush);
     };
     const onUp = () => {
+      if (frame != null) { cancelAnimationFrame(frame); flush(); } // 離す直前の位置を取りこぼさない
       setDragging(false);
       lastX.current = null;
       setStretch(1);
+      onDragChange?.(false);
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("touchmove", onMove, { passive: false });
     window.addEventListener("mouseup", onUp);
     window.addEventListener("touchend", onUp);
     return () => {
+      if (frame != null) cancelAnimationFrame(frame);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("touchmove", onMove);
       window.removeEventListener("mouseup", onUp);
@@ -3348,6 +3361,8 @@ function EraScrubber({ value, onChange, keyYears }) {
 const MAP_SHEET_HEIGHT_VH = { half: 56, full: 92 };
 const SEARCH_FLY_MS = 900; // 検索結果へカメラを寄せる時間
 const SPOTLIGHT_MS = 7000; // 検索結果を強調表示しておく時間
+// 操作の時刻（年代の切り替えの間隔をはかる。イベント処理の中だけで呼ぶ）
+const nowMs = () => performance.now();
 const TERRITORY_FADE_MS = 450; // 年代の切り替えで勢力図が入れ替わるクロスフェードの時間（CSS の .territory-in / -out と合わせる）
 const MAP_SHEET_UP_THRESHOLD = -60; // これ以上上にドラッグしたらフル展開
 const MAP_SHEET_DOWN_THRESHOLD = 70; // これ以上下にドラッグしたら畳む/閉じる
@@ -3948,7 +3963,10 @@ function useMapPanZoom(containerRef, enabled) {
 }
 
 function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyTheme, onJumpToCard, searchTarget, onSearchHandled }) {
-  const [year, setYear] = useState(() => ERAS_DATA[selectedEraId]?.defaultMapYear ?? 1648);
+  // sliderYear はスライダーの年（つまみの表示に即座に反映）。地図の描画は year（遅延値）で行い、
+  // 連続ドラッグ中は地図の再描画を後回しにしてつまみの追従を優先する（React が古い描画を中断して最新の年だけを描く）
+  const [sliderYear, setYear] = useState(() => ERAS_DATA[selectedEraId]?.defaultMapYear ?? 1648);
+  const year = useDeferredValue(sliderYear);
   const [selectedId, setSelectedId] = useState(null);
   // 検索で選んだ項目の強調（スポットライト）。key は文字の重なり判定と同じ（r: 勢力 / c: 都市 / s: 地理・遺跡 / v: 河川）。
   // 強調中はズーム倍率による出し分けと重なりによる非表示を上書きして最前面に出し、まわりを暗くしてパルスで示す
@@ -3978,42 +3996,60 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   const periodSeaLabels = (activePeriod?.seaLabelsByYear ? activePeriod.seaLabelsByYear(year) : activePeriod?.seaLabels ?? [])
     .filter((s) => (s.from ?? -Infinity) <= year && year <= (s.to ?? Infinity));
   const periodBlurb = activePeriod?.blurbByYear ? activePeriod.blurbByYear(year) : activePeriod?.blurb ?? {};
-  const periodKeyYears = activePeriod?.hasContent && activePeriod.keyYears?.length ? activePeriod.keyYears : ERA_BOUNDARY_YEARS;
+  // スライダーの目盛り（キーイヤー）は地図の描画を待たず、スライダーの年の時代区分から出す
+  const sliderPeriod = getActiveEraPeriod(sliderYear);
+  const periodKeyYears = sliderPeriod?.hasContent && sliderPeriod.keyYears?.length ? sliderPeriod.keyYears : ERA_BOUNDARY_YEARS;
 
   // ---- 年代の切り替えで勢力図が変わるときのクロスフェード ----
   // 表示中の勢力図（スナップショット）が入れ替わったら、前の年の勢力のうち形・色・名前が変わるもの（消える・縮む・分裂する勢力）を
   // 「残像」として下に残して徐々に消し、新しく現れる・形が変わる勢力だけをふわっと浮かび上がらせる。変わらない勢力はそのまま。
   // 重なる部分は新しい形が上に来るため、膨張は外側へにじみ出るように、縮小・分裂は旧領がほどけるように見える。カメラは一切動かさない
-  const [shownTerritory, setShownTerritory] = useState({ regions: periodRegions, background: periodBackground, year, n: 0 });
-  const [territoryFade, setTerritoryFade] = useState(null);
-  if (shownTerritory.regions !== periodRegions || shownTerritory.background !== periodBackground) {
-    const prev = shownTerritory;
-    const n = prev.n + 1;
-    setShownTerritory({ regions: periodRegions, background: periodBackground, year, n });
-    if (inCoveredEra && (prev.regions.length || prev.background.length)) {
-      const shapeOf = (r, y) => (r.maritime ? r.routes : r.shape === "path" ? r.dByYear(y) : r.pointsByYear(y));
-      const sameRegion = (a, b, ya, yb) => !!a && !!b && a.fill === b.fill && shapeOf(a, ya) === shapeOf(b, yb)
-        && a.labelX === b.labelX && a.labelY === b.labelY && a.labelLines.join("\n") === b.labelLines.join("\n");
-      const nextById = new Map(periodRegions.map((r) => [r.id, r]));
-      const prevById = new Map(prev.regions.map((r) => [r.id, r]));
-      const nextBg = new Map(periodBackground.map((t) => [t.name, t]));
-      const prevBg = new Map(prev.background.map((t) => [t.name, t]));
-      setTerritoryFade({
-        key: n,
-        ghosts: prev.regions
-          .filter((r) => !r.maritime && !sameRegion(r, nextById.get(r.id), prev.year, year))
-          .map((r) => ({ id: r.id, shape: r.shape, d: shapeOf(r, prev.year), fill: r.fill, stroke: r.strokeColor, labelX: r.labelX, labelY: r.labelY, labelLines: r.labelLines, labelSize: r.labelSize, minZoom: r.maritime ? 1 : (() => { const b = getShapeBBox(shapeOf(r, prev.year)); return getLabelStyle(b.width * b.height).minZoom; })() })),
-        entering: new Set(periodRegions.filter((r) => !sameRegion(prevById.get(r.id), r, prev.year, year)).map((r) => r.id)),
-        bgGhosts: prev.background.filter((t) => nextBg.get(t.name)?.d !== t.d || nextBg.get(t.name)?.fill !== t.fill),
-        bgEntering: new Set(periodBackground.filter((t) => prevBg.get(t.name)?.d !== t.d || prevBg.get(t.name)?.fill !== t.fill).map((t) => t.name)),
-      });
-    }
-  }
-  useEffect(() => {
-    if (!territoryFade) return;
-    const t = setTimeout(() => setTerritoryFade(null), TERRITORY_FADE_MS + 80);
-    return () => clearTimeout(t);
-  }, [territoryFade?.key]); // eslint-disable-line
+  // 判定は年を変える操作（changeYear）の中で行い、描画は地図（遅延値の year）がその年に追いついてから始める。
+  // 連続ドラッグで勢力図が次々に入れ替わるときは、前の演出が終わらないうちの切り替えを即座の切り替えにして演出を重ねない
+  const [territoryFadeState, setTerritoryFade] = useState(null);
+  const territoryFade = territoryFadeState && territoryFadeState.year === year ? territoryFadeState : null;
+  const shownSnapshotRef = useRef(null); // 直近に表示を指示した勢力図 { regions, background, year }
+  const lastSnapshotChangeRef = useRef(-Infinity); // 直近に勢力図が入れ替わった時刻（performance.now）
+  const fadeTimerRef = useRef(null);
+  useEffect(() => () => clearTimeout(fadeTimerRef.current), []);
+  const snapshotAt = (y) => {
+    const p = getActiveEraPeriod(y);
+    const ok = p && p.hasContent && y >= p.contentRange[0] && y <= p.contentRange[1];
+    return ok ? { regions: p.regionsByYear ? p.regionsByYear(y) : p.regions ?? [], background: p.backgroundByYear ? p.backgroundByYear(y) : p.background ?? [], year: y } : null;
+  };
+  const planTerritoryFade = (y) => {
+    const prev = shownSnapshotRef.current ?? snapshotAt(year);
+    const next = snapshotAt(y);
+    shownSnapshotRef.current = next;
+    if (!prev || !next || (prev.regions === next.regions && prev.background === next.background)) return;
+    const now = nowMs();
+    const rapid = now - lastSnapshotChangeRef.current < TERRITORY_FADE_MS; // 前の演出の途中で次の勢力図へ進んだ
+    lastSnapshotChangeRef.current = now;
+    clearTimeout(fadeTimerRef.current);
+    if (rapid) { setTerritoryFade(null); return; }
+    const shapeOf = (r, yy) => (r.maritime ? r.routes : r.shape === "path" ? r.dByYear(yy) : r.pointsByYear(yy));
+    const sameRegion = (a, b) => !!a && !!b && a.fill === b.fill && shapeOf(a, prev.year) === shapeOf(b, next.year)
+      && a.labelX === b.labelX && a.labelY === b.labelY && a.labelLines.join("\n") === b.labelLines.join("\n");
+    const nextById = new Map(next.regions.map((r) => [r.id, r]));
+    const prevById = new Map(prev.regions.map((r) => [r.id, r]));
+    const nextBg = new Map(next.background.map((t) => [t.name, t]));
+    const prevBg = new Map(prev.background.map((t) => [t.name, t]));
+    setTerritoryFade({
+      key: now,
+      year: y,
+      ghosts: prev.regions
+        .filter((r) => !r.maritime && !sameRegion(r, nextById.get(r.id)))
+        .map((r) => {
+          const b = getShapeBBox(shapeOf(r, prev.year));
+          return { id: r.id, shape: r.shape, d: shapeOf(r, prev.year), fill: r.fill, stroke: r.strokeColor, labelX: r.labelX, labelY: r.labelY, labelLines: r.labelLines, labelSize: r.labelSize, minZoom: getLabelStyle(b.width * b.height).minZoom };
+        }),
+      entering: new Set(next.regions.filter((r) => !sameRegion(prevById.get(r.id), r)).map((r) => r.id)),
+      bgGhosts: prev.background.filter((t) => nextBg.get(t.name)?.d !== t.d || nextBg.get(t.name)?.fill !== t.fill),
+      bgEntering: new Set(next.background.filter((t) => prevBg.get(t.name)?.d !== t.d || prevBg.get(t.name)?.fill !== t.fill).map((t) => t.name)),
+    });
+    // 地図の描画が遅れても演出が終わりきるよう、余裕をみて片付ける
+    fadeTimerRef.current = setTimeout(() => setTerritoryFade(null), TERRITORY_FADE_MS + 400);
+  };
   // 新しく現れる・形が変わる勢力の要素：key を切り替えるたびに付け直してフェードインを毎回やり直す
   const enterKey = (kind, id) => (territoryFade?.[kind].has(id) ? `${id}~${territoryFade.key}` : id);
   const enterClass = (kind, id) => (territoryFade?.[kind].has(id) ? " territory-in" : "");
@@ -4036,10 +4072,19 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     const eraId = findEraIdByYear(y);
     if (eraId && eraId !== selectedEraId) onSelectEra(eraId);
   };
-  // 年代の変更（シークバーのドラッグ・タップ・キー操作、「移動」ボタン）
+  // 年代の変更（シークバーのドラッグ・タップ・キー操作、「移動」ボタン）。
+  // ドラッグ中は学習の時代（App 全体の再描画を伴う）を切り替えず、指を離したときに最後の年で一度だけ合わせる
+  const scrubbingRef = useRef(false);
+  const latestYearRef = useRef(sliderYear);
   const changeYear = (y) => {
+    latestYearRef.current = y;
+    planTerritoryFade(y);
     setYear(y);
-    syncEraToYear(y);
+    if (!scrubbingRef.current) syncEraToYear(y);
+  };
+  const onScrubDrag = (dragging) => {
+    scrubbingRef.current = dragging;
+    if (!dragging) syncEraToYear(latestYearRef.current);
   };
 
   const openRegion = (id, featuredCard = null) => {
@@ -4359,7 +4404,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
             boxShadow: "0 10px 26px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.18)",
           }}
         >
-          <EraScrubber value={year} onChange={changeYear} keyYears={periodKeyYears} />
+          <EraScrubber value={sliderYear} onChange={changeYear} keyYears={periodKeyYears} onDragChange={onScrubDrag} />
         </div>
 
         {!inCoveredEra ? (
