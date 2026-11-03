@@ -16,7 +16,7 @@ import {
 import { MAP_VIEWBOX_W, MAP_VIEWBOX_H, lonLatBounds } from './data/mapProjection';
 import { WATER_KINDS, GEO_TIER_ZOOM } from './data/atlas/geography';
 import SearchModal from './search/SearchModal';
-import { isMacLike } from './search/searchIndex';
+import { isMacLike, getIndexItem, pickSearchYear } from './search/searchIndex';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
 
@@ -191,6 +191,13 @@ export default function App() {
   const [view, setView] = useState("study"); // 'study' | 'favorites'
   // 横断検索のモーダル：ヘッダーの虫眼鏡ボタン、または Cmd+K（Mac）/ Ctrl+K（Windows など）で開閉する
   const [searchOpen, setSearchOpen] = useState(false);
+  // 検索結果の選択：地図タブへ切り替え、MapView がその年代へ移ってカメラを寄せ、強調表示する（nonce で同じ項目の再選択も拾う）
+  const [searchTarget, setSearchTarget] = useState(null);
+  const selectSearchResult = (item) => {
+    setSearchOpen(false);
+    setSearchTarget({ item, nonce: Date.now() });
+    setView("map");
+  };
   useEffect(() => {
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
@@ -502,8 +509,7 @@ export default function App() {
       <FontStyles />
       <div className="max-w-2xl mx-auto px-4 pb-16">
         <Header view={view} setView={setView} favCount={favorites.length} onSearch={() => setSearchOpen(true)} />
-        {/* 結果を選んだときの時代移動・ハイライト・カード表示はステップ2で onSelect につなぐ */}
-        <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+        <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} onSelect={selectSearchResult} />
 
         {!dataLoaded ? (
           <div className="text-center py-24" style={{ color: "#C7CDD9", fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
@@ -524,6 +530,8 @@ export default function App() {
             onStudyRegion={studyByRegion}
             onStudyTheme={studyByTheme}
             onJumpToCard={jumpToCard}
+            searchTarget={searchTarget}
+            onSearchHandled={() => setSearchTarget(null)}
           />
         ) : (
           <>
@@ -667,6 +675,20 @@ function FontStyles() {
           radial-gradient(circle at 100% 110%, rgba(99,102,241,0.10), transparent 55%),
           #12182a;
         border-top: 1px solid rgba(255,255,255,0.08);
+      }
+      /* 検索結果のスポットライト：周囲の暗転はすっと入って数秒でほどけ、輪は外へ広がりながら消える脈動を繰り返す */
+      .spot-dim { animation: spotDim 4.6s ease forwards; }
+      @keyframes spotDim { 0% { opacity: 0; } 10% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
+      .spot-glow { animation: spotGlow 1.6s ease-in-out infinite; }
+      @keyframes spotGlow { 0%, 100% { stroke-opacity: 0.45; fill-opacity: 0.08; } 50% { stroke-opacity: 1; fill-opacity: 0.22; } }
+      .spot-ring { transform-box: fill-box; transform-origin: center; animation: spotRing 1.6s ease-out infinite; }
+      @keyframes spotRing { 0% { transform: scale(0.35); opacity: 1; } 100% { transform: scale(2.6); opacity: 0; } }
+      .spot-card { animation: spotCard 1.6s ease-in-out 3; }
+      @keyframes spotCard { 0%, 100% { box-shadow: 0 0 0 1px rgba(255,215,106,0.45); } 50% { box-shadow: 0 0 0 2px rgba(255,215,106,0.95), 0 0 18px rgba(255,215,106,0.35); } }
+      @media (prefers-reduced-motion: reduce) {
+        .spot-dim { animation: none; opacity: 0; }
+        .spot-glow, .spot-card { animation: none; }
+        .spot-ring { animation: none; transform: scale(1.4); }
       }
       /* 検索ボタンのキー案内は、マウスなど細かく指せる環境（PC）でだけ出す */
       .search-btn-kbd { display: none; }
@@ -2903,7 +2925,7 @@ function getShapeBBox(shapeStr) {
       if (y > maxY) maxY = y;
     }
   }
-  const bbox = { width: maxX - minX, height: maxY - minY };
+  const bbox = { width: maxX - minX, height: maxY - minY, x0: minX, y0: minY, x1: maxX, y1: maxY };
   shapeBBoxCache.set(shapeStr, bbox);
   return bbox;
 }
@@ -3314,13 +3336,18 @@ function EraScrubber({ value, onChange, keyYears }) {
 // ビューポート接地型：bottom:0に固定したまま「高さ」を可変させる方式（translateYでシート全体を沈めない）。
 // これによりHalf展開時でも、フッター（主導線CTA）は常に画面最下部に接地したまま露出し続ける。
 const MAP_SHEET_HEIGHT_VH = { half: 56, full: 92 };
+const SEARCH_FLY_MS = 900; // 検索結果へカメラを寄せる時間
+const SPOTLIGHT_MS = 7000; // 検索結果を強調表示しておく時間
 const MAP_SHEET_UP_THRESHOLD = -60; // これ以上上にドラッグしたらフル展開
 const MAP_SHEET_DOWN_THRESHOLD = 70; // これ以上下にドラッグしたら畳む/閉じる
 
 function RegionDetailSheet({
-  region, blurb, year, status, matchedCards, relatedThemes,
+  region, blurb, year, status, matchedCards, featuredCard, relatedThemes,
   sheetState, setSheetState, onJumpToCard, onStudyTheme, onStudyRegion,
 }) {
+  // 検索で選んだカードの解答の表示（カードが変わったら隠し直す）
+  const [revealedFor, setRevealedFor] = useState(null);
+  const revealed = !!featuredCard && revealedFor === featuredCard.id;
   const [dragDelta, setDragDelta] = useState(0);
   const [dragging, setDragging] = useState(false);
   const dragStartY = useRef(0);
@@ -3406,6 +3433,36 @@ function RegionDetailSheet({
 
         {/* ボディ（シート内だけ独立してスクロール）。フッターの主導線CTAに最後のカード/テーマが隠れないよう下部に余白を確保 */}
         <div className="flex-1 overflow-y-auto px-5 py-2 pb-20 space-y-4">
+          {/* 検索で選んだカード：シートの先頭に設問を出し、その場で解答を確かめるか、学習画面でそのまま解ける */}
+          {featuredCard && (
+            <div className="spot-card rounded-xl px-4 py-3" style={{ background: "linear-gradient(135deg, rgba(255,215,106,0.10), rgba(255,255,255,0.03))" }} data-featured-card={featuredCard.id}>
+              <div className="flex items-center gap-2 font-body" style={{ fontSize: 11, color: "#E9C46A", letterSpacing: "0.08em" }}>
+                <Search size={12} aria-hidden="true" /> 検索したカード
+                <span style={{ color: "#8A93A6", letterSpacing: 0 }}>{featuredCard.year < 0 ? `前${-featuredCard.year}` : featuredCard.year}年</span>
+                <DiffTag difficulty={featuredCard.difficulty} />
+              </div>
+              <p className="font-body text-sm mt-1.5 leading-relaxed" style={{ color: "#EFE3C8", wordBreak: "keep-all", overflowWrap: "anywhere" }}>{featuredCard.front}</p>
+              {revealed && (
+                <div className="font-body mt-2 flex flex-wrap gap-1.5">
+                  {featuredCard.cloze
+                    ? featuredCard.cloze.slots.map((sl) => (
+                      <span key={sl.id} className="rounded-full px-2.5 py-1" style={{ fontSize: 12, background: "rgba(165,227,208,0.12)", border: "1px solid rgba(165,227,208,0.35)", color: "#D9F5EC" }}>
+                        <span style={{ color: "#8A93A6", marginRight: 4 }}>{sl.category}</span>{sl.answer}
+                      </span>
+                    ))
+                    : <p style={{ fontSize: 12.5, color: "#D9F5EC", lineHeight: 1.7 }}>{featuredCard.back}</p>}
+                </div>
+              )}
+              <div className="flex gap-2 mt-3">
+                <button type="button" onClick={() => setRevealedFor(revealed ? null : featuredCard.id)} className="fluid-tap glass-chip rounded-full px-3 font-body" style={{ height: 32, fontSize: 12, color: "#c7d3ea" }} aria-expanded={revealed}>
+                  {revealed ? "解答を隠す" : "解答を見る"}
+                </button>
+                <button type="button" onClick={(e) => { spawnRipple(e); onJumpToCard(featuredCard.id); }} className="fluid-tap glass-chip-active rounded-full px-3 font-body flex items-center gap-1" style={{ height: 32, fontSize: 12, color: "#f0f9ff" }}>
+                  このカードを解く <ChevronRight size={13} />
+                </button>
+              </div>
+            </div>
+          )}
           <p className="font-body text-sm leading-relaxed" style={{ color: "#C7CDD9" }}>{blurb?.[region.id]}</p>
 
           {matchedCards.length === 0 ? (
@@ -3421,7 +3478,7 @@ function RegionDetailSheet({
                     <li key={c.id}>
                       <button
                         onClick={(e) => { spawnRipple(e); onJumpToCard(c.id); }}
-                        className="glass-row fluid-tap-wide w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left"
+                        className={`glass-row fluid-tap-wide w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left${c.id === featuredCard?.id ? " spot-card" : ""}`}
                       >
                         <span
                           className="font-display shrink-0"
@@ -3615,12 +3672,13 @@ function useMapPanZoom(containerRef, enabled) {
 
   // viewBox座標の矩形が地図領域に収まるカメラ（初期表示用。倍率は FOCUS_ZOOM_MIN〜MAX に収める）
   // 地図領域は画面の下端より先まで続くことがあるため、実際に画面に見えている縦の範囲に収めて中央に置く
-  const camForBounds = (b, { minZoom = FOCUS_ZOOM_MIN, maxZoom = FOCUS_ZOOM_MAX } = {}) => {
+  // bottomInset：画面下から覆うもの（開く予定の詳細シートなど）の高さ(px)。その分だけ上に寄せて収める
+  const camForBounds = (b, { minZoom = FOCUS_ZOOM_MIN, maxZoom = FOCUS_ZOOM_MAX, bottomInset = 0 } = {}) => {
     const sz = sizeRef.current;
     const s0 = mapBaseScale(sz);
     const r = containerRef.current?.getBoundingClientRect();
     const visTop = r ? Math.max(0, -r.top) : 0;
-    const visBottom = r ? Math.max(visTop + 1, Math.min(sz.h, window.innerHeight - r.top)) : sz.h;
+    const visBottom = r ? Math.max(visTop + 1, Math.min(sz.h, window.innerHeight - bottomInset - r.top)) : sz.h;
     const fit = Math.min(sz.w / ((b.x1 - b.x0) * s0), (visBottom - visTop) / ((b.y1 - b.y0) * s0));
     const zoom = Math.min(maxZoom, Math.max(minZoom, fit));
     const cy = (b.y0 + b.y1) / 2 - ((visTop + visBottom) / 2 - sz.h / 2) * unitsPerPx(zoom);
@@ -3861,9 +3919,11 @@ function useMapPanZoom(containerRef, enabled) {
 
   // 地域へ移動（地域移動ボタン）：その範囲が画面に収まるようにカメラを動かす。広い地域は引いて全体を見せる。
   // リセットの戻り先（時代の初期表示）は変えない。移動後に年代を変えても表示範囲はそのまま保つ
-  const flyTo = (bounds) => {
+  // 検索結果へのフォーカス移動では、倍率の範囲（minZoom / maxZoom）・所要時間・下を覆うシートの高さも指定する
+  const flyTo = (bounds, { minZoom = mapMinZoom(sizeRef.current), maxZoom = FOCUS_ZOOM_MAX, duration = 520, bottomInset = 0 } = {}) => {
     if (!bounds || !sizeRef.current.w) return;
-    animateTo(camForBounds(bounds, { minZoom: mapMinZoom(sizeRef.current) }), 520);
+    animateTo(camForBounds(bounds, { minZoom, maxZoom: Math.max(minZoom, maxZoom), bottomInset }), duration);
+    atHomeRef.current = false; // 初期表示から外れたので、地図領域の大きさが変わっても初期表示へ戻さない
   };
 
   // 地図の上のボタン列（地域移動・ズーム）の押し始め：地図のパンとして扱わない。
@@ -3876,9 +3936,13 @@ function useMapPanZoom(containerRef, enabled) {
   return { zoom: cam.zoom, baseScale: s0, view, ready: !!size.w, interacting, gestureRef, onMouseDown, onTouchStart, onDoubleClick, zoomBy, resetView, focusOn, flyTo, onControlPointerDown };
 }
 
-function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyTheme, onJumpToCard }) {
+function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyTheme, onJumpToCard, searchTarget, onSearchHandled }) {
   const [year, setYear] = useState(() => ERAS_DATA[selectedEraId]?.defaultMapYear ?? 1648);
   const [selectedId, setSelectedId] = useState(null);
+  // 検索で選んだ項目の強調（スポットライト）。key は文字の重なり判定と同じ（r: 勢力 / c: 都市 / s: 地理・遺跡 / v: 河川）。
+  // 強調中はズーム倍率による出し分けと重なりによる非表示を上書きして最前面に出し、まわりを暗くしてパルスで示す
+  const [spotlight, setSpotlight] = useState(null);
+  const [featuredCardId, setFeaturedCardId] = useState(null); // 検索で選んだカード（詳細シートの先頭に出す）
   const [sheetState, setSheetState] = useState("closed"); // closed | half | full
   // 初回操作誘導ツールチップ：「地図」タブに来るたび（＝MapViewが再マウントされるたび）trueにリセットされる。
   // 文脈穴埋めカードのtooltipArmedと同じライフサイクル設計（初回のみ表示→操作で即破棄→手動で再表示可）
@@ -3929,9 +3993,10 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     syncEraToYear(y);
   };
 
-  const openRegion = (id) => {
+  const openRegion = (id, featuredCard = null) => {
     syncEraToYear(year);
     setSelectedId(id);
+    setFeaturedCardId(featuredCard);
     setSheetState("half");
     setMapTipArmed(false);
   };
@@ -3960,7 +4025,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   // 航路は経度を連続させた座標のため、地図の継ぎ目をまたぐものは1周分左にずらした複製も描いて途切れないようにする。
   // 航路の線にも幅の広い透明な当たり判定を重ね、線をタップしてもその勢力の詳細（カード）を開く
   const renderMaritimeRegion = (r) => {
-    const isSelected = selectedId === r.id;
+    const isSelected = selectedId === r.id || spotlight?.key === `r:${r.id}`;
     const routePoints = (pts, dx) => pts.map(([x, y]) => `${x + dx},${y}`).join(" ");
     const copies = r.routes.some((pts) => pts.some(([x]) => x >= VIEWBOX_W)) ? [0, -VIEWBOX_W] : [0];
     const labelOpacity = isSelected ? 1 : hiddenLabels.has(`r:${r.id}`) ? 0 : fade(1.0);
@@ -4010,38 +4075,48 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   const { hiddenLabels, hiddenGeo, dimmedGeo } = (() => {
     if (!panZoom.ready) return { hiddenLabels: new Set(), hiddenGeo: new Set(), dimmedGeo: new Set() };
     const boxes = [];
-    const regionsByPriority = [...periodRegions].sort((a, b) => (b.id === selectedId) - (a.id === selectedId) || b.labelSize - a.labelSize);
+    const spotKey = spotlight?.key;
+    const first = (r) => r.id === selectedId || `r:${r.id}` === spotKey;
+    const regionsByPriority = [...periodRegions].sort((a, b) => first(b) - first(a) || b.labelSize - a.labelSize);
     for (const r of regionsByPriority) {
       const bbox = getShapeBBox(r.shape === "path" ? r.dByYear(year) : r.pointsByYear(year));
-      if (r.id !== selectedId && fade(getLabelStyle(bbox.width * bbox.height).minZoom - 0.3) <= 0) continue;
+      if (!first(r) && fade(getLabelStyle(bbox.width * bbox.height).minZoom - 0.3) <= 0) continue;
       boxes.push(textBox(`r:${r.id}`, r.labelX, r.labelY, r.labelSize, textScale(r.labelSize, 11), Math.max(...r.labelLines.map((l) => l.length)), r.labelLines.length));
     }
     for (const c of periodCapitals) {
-      if (fade(c.maritime ? MARITIME_BASE_ZOOM : 1.6) <= 0) continue;
+      if (fade(c.maritime ? MARITIME_BASE_ZOOM : 1.6) <= 0 && `c:${c.name}` !== spotKey) continue;
       const k = textScale(7, 11.5), dir = c.dir || "br";
       const dx = dir === "l" || dir === "tl" || dir === "bl" ? -3 : dir === "t" || dir === "b" ? 0 : 3;
       const dy = dir === "t" || dir === "tl" ? -2.5 : dir === "b" || dir === "bl" || dir === "br" ? 3 : 1;
       boxes.push(textBox(`c:${c.name}`, c.x + dx * k, c.y + dy * k, 7, k, c.name.length, 1, dx < 0 ? "end" : dx === 0 ? "middle" : "start", "baseline"));
     }
     if (fade(1.05) > 0) for (const t of periodBackground) boxes.push(textBox(`b:${t.name}`, t.labelX, t.labelY, 6, textScale(6, 10), t.name.length, 1, "middle", "baseline"));
-    const hiddenLabels = hideOverlappingLabels(boxes);
+    const spotFirst = (list) => { const i = list.findIndex((b) => b.key === spotKey); if (i > 0) list.unshift(...list.splice(i, 1)); return list; };
+    const hiddenLabels = hideOverlappingLabels(spotFirst(boxes));
     const political = boxes.filter((b) => !hiddenLabels.has(b.key));
 
     const geo = [];
     for (const cls of ["water", "terrain", "region"]) for (const sl of periodSeaLabels) {
-      if (geoClass(sl.kind) !== cls || fade(sl.minZoom ?? 1.15) <= 0) continue;
+      if (geoClass(sl.kind) !== cls || (fade(sl.minZoom ?? 1.15) <= 0 && `s:${sl.name}` !== spotKey)) continue;
       const st = GEO_STYLE[cls];
       geo.push(textBox(`s:${sl.name}`, sl.x, sl.y, sl.size, textScale(sl.size, st.minPx), sl.name.length * (1 + st.tracking), 1, "middle", "baseline"));
     }
-    for (const rv of periodRivers) if (fade(rv.minZoom ?? 1.4) > 0) geo.push(textBox(`v:${rv.name}`, rv.labelX, rv.labelY, rv.size ?? 5.5, textScale(rv.size ?? 5.5, GEO_STYLE.water.minPx), rv.name.length * (1 + GEO_STYLE.water.tracking), 1, "middle", "baseline"));
+    for (const rv of periodRivers) if (fade(rv.minZoom ?? 1.4) > 0 || `v:${rv.name}` === spotKey) geo.push(textBox(`v:${rv.name}`, rv.labelX, rv.labelY, rv.size ?? 5.5, textScale(rv.size ?? 5.5, GEO_STYLE.water.minPx), rv.name.length * (1 + GEO_STYLE.water.tracking), 1, "middle", "baseline"));
     for (const sl of periodSeaLabels) {
-      if (geoClass(sl.kind) !== "site" || fade(sl.minZoom ?? GEO_TIER_ZOOM[5]) <= 0) continue;
+      if (geoClass(sl.kind) !== "site" || (fade(sl.minZoom ?? GEO_TIER_ZOOM[5]) <= 0 && `s:${sl.name}` !== spotKey)) continue;
       const m = siteMarker(sl);
       const b = textBox(`s:${sl.name}`, m.labelX, m.labelY, sl.size, m.k, sl.name.length, 1, "start", "baseline");
       geo.push({ ...b, x: b.x - m.r * 2, w: b.w + m.r * 2 });
     }
-    const hiddenGeo = hideOverlappingLabels(geo);
-    const dimmedGeo = new Set(geo.filter((g) => !hiddenGeo.has(g.key) && political.some((p) => g.x < p.x + p.w && p.x < g.x + g.w && g.y < p.y + p.h && p.y < g.y + g.h)).map((g) => g.key));
+    const hiddenGeo = hideOverlappingLabels(spotFirst(geo));
+    const overlaps = (g, p) => g.x < p.x + p.w && p.x < g.x + g.w && g.y < p.y + p.h && p.y < g.y + g.h;
+    const dimmedGeo = new Set(geo.filter((g) => !hiddenGeo.has(g.key) && g.key !== spotKey && political.some((p) => overlaps(g, p))).map((g) => g.key));
+    // 強調中の地理の名前に重なる勢力名・都市名は隠し、地理の名前を最前面で読めるようにする（選択中の勢力名は残す）
+    const spotGeo = geo.find((g) => g.key === spotKey);
+    if (spotGeo) for (const p of political) if (p.key !== `r:${selectedId}` && overlaps(spotGeo, p)) hiddenLabels.add(p.key);
+    // 強調中の勢力名・都市名に重なる地理の名前は隠し、勢力名・都市名を最前面で読めるようにする
+    const spotPolitical = political.find((p) => p.key === spotKey);
+    if (spotPolitical) for (const g of geo) if (overlaps(g, spotPolitical)) hiddenGeo.add(g.key);
     return { hiddenLabels, hiddenGeo, dimmedGeo };
   })();
   // 地理の文字：暗い縁取り（paint-order: stroke）で勢力の塗りや国名の上でも字形を保ち、種類ごとに色・書体・字間を変える
@@ -4070,7 +4145,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     );
   };
   // 地理の文字の不透明度：tier の倍率でフェードインし、地理どうしの重なりで負けたものは隠し、勢力名・都市名と重なるものは薄くして共存させる
-  const geoOpacity = (key, minZoom) => (hiddenGeo.has(key) ? 0 : fade(minZoom) * (dimmedGeo.has(key) ? 0.5 : 1));
+  const geoOpacity = (key, minZoom) => (key === spotlight?.key ? 1 : hiddenGeo.has(key) ? 0 : fade(minZoom) * (dimmedGeo.has(key) ? 0.5 : 1));
   const stopMapGesture = panZoom.onControlPointerDown;
 
   // 初期表示：主要な都市・勢力が手動で拡大しなくてもタップできる範囲へカメラを合わせる。
@@ -4088,6 +4163,87 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     panZoom.focusOn(focusBounds, { move: !initialFocusDoneRef.current, animate: false });
     initialFocusDoneRef.current = true;
   }, [focusKey, focusBoundsKey, panZoom.ready]); // eslint-disable-line
+
+  // ---- 検索結果へのタイムワープ ----
+  // 1. 選んだ項目に適した年へ移る（地図の要素は、いま見ている年の地図にあればそのまま。カードはその年代）。
+  // 2. 年が切り替わって地図が描けたら、地図が画面いっぱいに見えるようスクロールし、カメラを滑らかに寄せて強調表示する。
+  // 3. 勢力・カードは、寄せ終わると同時に詳細シートを開く（カードはシートの先頭にそのカードを出す）
+  const findSearchTarget = (item) => {
+    const zoomNow = panZoom.zoom;
+    const clampZ = (lo, hi) => Math.min(hi, Math.max(lo, zoomNow));
+    const point = (key, x, y, zoom, extra = {}) => ({ key, bounds: { x0: x - 0.5, y0: y - 0.5, x1: x + 0.5, y1: y + 0.5 }, minZoom: zoom, maxZoom: zoom, spot: { key, x, y, ...extra } });
+    const padded = ([x0, y0, x1, y1], k = 0.12) => ({ x0: x0 - (x1 - x0) * k, y0: y0 - (y1 - y0) * k, x1: x1 + (x1 - x0) * k, y1: y1 + (y1 - y0) * k });
+    if (item.type === "region" || item.type === "card") {
+      const id = item.type === "card" ? item.region : item.id;
+      const r = periodRegions.find((x) => x.id === id);
+      if (!r) return null;
+      const pts = r.maritime ? r.routes.flat() : null;
+      const box = pts ? [Math.min(...pts.map((p) => p[0])), Math.min(...pts.map((p) => p[1])), Math.max(...pts.map((p) => p[0])), Math.max(...pts.map((p) => p[1]))] : r.bbox;
+      const key = `r:${id}`;
+      return { key, regionId: id, bounds: padded(box), minZoom: undefined, maxZoom: 6, spot: { key, x: r.labelX, y: r.labelY, d: r.maritime ? null : r.shape === "path" ? r.dByYear(year) : null, points: !r.maritime && r.shape !== "path" ? r.pointsByYear(year) : null } };
+    }
+    if (item.type === "city") {
+      // 都市と遺跡・オアシスを兼ねる名前（サマルカンドなど）は、その年の地図に都市としてあれば都市を優先する
+      const c = periodCapitals.find((x) => x.name === item.id);
+      if (c) return point(`c:${c.name}`, c.x, c.y, clampZ(4, 8));
+      const sl = periodSeaLabels.find((x) => x.name === item.id && (x.kind === "site" || x.kind === "oasis"));
+      return sl ? point(`s:${sl.name}`, sl.x, sl.y, clampZ((sl.minZoom ?? GEO_TIER_ZOOM[5]) + 0.6, 9)) : null;
+    }
+    if (item.kind === "river") {
+      const rv = periodRivers.find((x) => x.name === item.id);
+      if (!rv) return null;
+      const b = getShapeBBox(rv.d);
+      const key = `v:${rv.name}`;
+      return { key, bounds: padded([b.x0, b.y0, b.x1, b.y1]), minZoom: Math.max(rv.minZoom ?? 2, 1.6), maxZoom: 6, spot: { key, x: rv.labelX, y: rv.labelY, river: rv.d } };
+    }
+    const sl = periodSeaLabels.find((x) => x.name === item.id);
+    return sl ? point(`s:${sl.name}`, sl.x, sl.y, clampZ((sl.minZoom ?? 1.2) + 0.8, 7)) : null;
+  };
+  const searchPlanRef = useRef(null);
+  const searchTimersRef = useRef([]);
+  const [searchStep, setSearchStep] = useState(0);
+  useEffect(() => () => searchTimersRef.current.forEach(clearTimeout), []);
+  useEffect(() => {
+    if (!searchTarget) return;
+    const { item } = searchTarget;
+    const targetYear = pickSearchYear(item, year, inCoveredEra && !!findSearchTarget(item));
+    onSearchHandled?.();
+    // 地図に勢力が描かれていないカード（念のため）は、学習画面でそのカードを開く
+    if (targetYear === null) { onJumpToCard(item.id); return; }
+    searchPlanRef.current = { item, year: targetYear };
+    searchTimersRef.current.push(setTimeout(() => {
+      setSpotlight(null);
+      setSheetState("closed");
+      setFeaturedCardId(null);
+      changeYear(targetYear);
+      setSearchStep((n) => n + 1);
+    }, 0));
+  }, [searchTarget?.nonce]); // eslint-disable-line
+  useEffect(() => {
+    const plan = searchPlanRef.current;
+    if (!plan || !panZoom.ready || !inCoveredEra || year !== plan.year) return;
+    searchPlanRef.current = null;
+    const opensSheet = plan.item.type === "region" || plan.item.type === "card";
+    searchTimersRef.current.push(setTimeout(() => {
+      // 地図の下端を画面の下端にそろえ、地図が画面いっぱいに見える位置までスクロールしてから寄せる
+      const el = mapContainerRef.current;
+      if (el) {
+        const r = el.getBoundingClientRect();
+        if (Math.abs(r.bottom - window.innerHeight) > 4) window.scrollTo({ top: Math.max(0, window.scrollY + r.bottom - window.innerHeight), behavior: "instant" });
+      }
+      const target = findSearchTarget(plan.item);
+      if (!target) return;
+      panZoom.flyTo(target.bounds, { minZoom: target.minZoom, maxZoom: target.maxZoom, duration: SEARCH_FLY_MS, bottomInset: opensSheet ? (window.innerHeight * MAP_SHEET_HEIGHT_VH.half) / 100 : 0 });
+      setSpotlight({ ...target.spot, nonce: Date.now() });
+      if (opensSheet) searchTimersRef.current.push(setTimeout(() => openRegion(target.regionId, plan.item.type === "card" ? plan.item.id : null), SEARCH_FLY_MS));
+    }, 80));
+  }, [searchStep, year, panZoom.ready, inCoveredEra]); // eslint-disable-line
+  // 強調は一定時間で解除し、通常の表示ルール（ズームによる出し分け・重なりの非表示）に戻す
+  useEffect(() => {
+    if (!spotlight) return;
+    const t = setTimeout(() => setSpotlight(null), SPOTLIGHT_MS);
+    return () => clearTimeout(t);
+  }, [spotlight?.nonce]); // eslint-disable-line
 
   // 地図描画領域の最大化：上部固定ヘッダーの実測高さを引いた「画面最下部までの残り全高」を
   // 地図キャンバスの高さとして与える。ヘッダー内容（EraScrubber）の実際のレンダリング高さに追従するため、
@@ -4289,7 +4445,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                         const { minZoom, tracking } = getLabelStyle(bbox.width * bbox.height);
                         const fontSize = r.labelSize;
                         // LODフェードイン：minZoomの0.3手前から徐々にフェードインさせ、パチッと出現しないようにする
-                        const labelOpacity = isSelected
+                        const labelOpacity = isSelected || spotlight?.key === `r:${r.id}`
                           ? 1
                           : hiddenLabels.has(`r:${r.id}`) ? 0 : Math.max(0, Math.min(1, (panZoom.zoom - (minZoom - 0.3)) / 0.3));
                         const lineHeight = fontSize * 1.05;
@@ -4353,7 +4509,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       {/* 首都マーカー：歴史地図アトラス風の「○地名」注記。タップ不可の装飾レイヤーで、わずかな拡大でフェードイン。
                           文字・円のサイズも地図の勢力ラベルと同様にズーム倍率を打ち消して常に一定の見た目サイズを保つ */}
                       {periodCapitals.map((c) => {
-                        const cityOpacity = Math.max(0, Math.min(1, (panZoom.zoom - (c.maritime ? MARITIME_BASE_ZOOM : 1.6)) / 0.3));
+                        const cityOpacity = spotlight?.key === `c:${c.name}` ? 1 : Math.max(0, Math.min(1, (panZoom.zoom - (c.maritime ? MARITIME_BASE_ZOOM : 1.6)) / 0.3));
                         if (cityOpacity <= 0) return null;
                         // ラベルの逃がし方向（国名・他の注記との衝突回避用）。未指定は右下がデフォルト
                         const dir = c.dir || "br";
@@ -4401,7 +4557,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                           線は名称より1段早い倍率からごく淡く出し、拡大するほど太く濃くする（riverStroke） */}
                       {periodRivers.map((r) => {
                         const lineZoom = GEO_TIER_ZOOM[Math.max(1, (r.tier ?? 3) - 1)] - 0.3;
-                        const lineOpacity = fade(lineZoom);
+                        const lineOpacity = spotlight?.key === `v:${r.name}` ? 1 : fade(lineZoom);
                         if (lineOpacity <= 0) return null;
                         const stroke = riverStroke(r.tier ?? 3, panZoom.zoom, lineZoom);
                         return (
@@ -4434,7 +4590,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       {periodSeaLabels.map((s) => {
                         if (geoClass(s.kind) !== "site") return null;
                         const opacity = geoOpacity(`s:${s.name}`, s.minZoom ?? GEO_TIER_ZOOM[5]);
-                        const markerOpacity = fade(s.minZoom ?? GEO_TIER_ZOOM[5]);
+                        const markerOpacity = spotlight?.key === `s:${s.name}` ? 1 : fade(s.minZoom ?? GEO_TIER_ZOOM[5]);
                         if (markerOpacity <= 0) return null;
                         const m = siteMarker(s);
                         return (
@@ -4450,6 +4606,34 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                       })}
                     </g>
                   ))}
+
+                  {/* 検索結果のスポットライト：まわりを暗くして対象だけを抜き、勢力は輪郭の発光、都市・地名は脈打つ輪で示す。
+                      地図の横の繰り返しのうち、画面の中央に近い位置へずらして描く */}
+                  {spotlight && (() => {
+                    const v = panZoom.view;
+                    const shift = Math.round((v.left + v.width / 2 - spotlight.x) / VIEWBOX_W) * VIEWBOX_W;
+                    const u = 1 / (panZoom.baseScale * panZoom.zoom); // 画面上の1pxに当たる viewBox の長さ
+                    const area = { x: v.left - shift, y: v.top, width: v.width, height: v.height };
+                    const shape = spotlight.d ? <path d={spotlight.d} /> : spotlight.points ? <polygon points={spotlight.points} /> : null;
+                    return (
+                      <g key={spotlight.nonce} transform={`translate(${shift},0)`} style={{ pointerEvents: "none" }} data-spotlight={spotlight.key}>
+                        <defs>
+                          <radialGradient id="spotHoleGrad"><stop offset="0.55" stopColor="#000" /><stop offset="1" stopColor="#fff" /></radialGradient>
+                          <mask id="spotMask" maskUnits="userSpaceOnUse" {...area}>
+                            <rect {...area} fill="#fff" />
+                            {shape && React.cloneElement(shape, { fill: "#000" })}
+                            <circle cx={spotlight.x} cy={spotlight.y} r={130 * u} fill="url(#spotHoleGrad)" />
+                          </mask>
+                        </defs>
+                        <rect className="spot-dim" {...area} fill="rgba(5,8,14,0.62)" mask="url(#spotMask)" />
+                        {shape && React.cloneElement(shape, { className: "spot-glow", fill: "rgba(255,215,106,0.16)", stroke: "#FFD76A", strokeWidth: 2.5, strokeLinejoin: "round", vectorEffect: "non-scaling-stroke" })}
+                        {spotlight.river && <path className="spot-glow" d={spotlight.river} fill="none" stroke="#A8D8FF" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />}
+                        {!shape && [0, 1].map((i) => (
+                          <circle key={i} className="spot-ring" cx={spotlight.x} cy={spotlight.y} r={18 * u} fill="none" stroke="#FFD76A" strokeWidth={2.5} vectorEffect="non-scaling-stroke" style={{ animationDelay: `${i * 0.8}s` }} />
+                        ))}
+                      </g>
+                    );
+                  })()}
                 </svg>
               </div>
 
@@ -4517,6 +4701,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
         year={year}
         status={status}
         matchedCards={matchedCards}
+        featuredCard={featuredCardId ? getIndexItem(`card:${featuredCardId}`)?.card ?? null : null}
         relatedThemes={relatedThemes}
         sheetState={sheetState}
         setSheetState={setSheetState}

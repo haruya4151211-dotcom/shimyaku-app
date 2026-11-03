@@ -162,6 +162,7 @@ function buildIndex() {
         type: "card",
         key: `card:${c.id}`,
         id: c.id,
+        card: c,
         name: c.front,
         year: c.year,
         eraId: era.id,
@@ -183,8 +184,21 @@ function buildIndex() {
   return items;
 }
 
-let INDEX = null;
+let INDEX = null, BY_KEY = null;
 export const getSearchIndex = () => (INDEX ??= buildIndex());
+export const getIndexItem = (key) => (BY_KEY ??= new Map(getSearchIndex().map((i) => [i.key, i]))).get(key);
+
+// 検索結果を選んだときに移る地図の年。地図の要素は、いま見ている年の地図にあればそのまま、なければ出てくる年のうち最も近い年。
+// カードは、その勢力が地図に出てくる年のうちカードの年に最も近い年（勢力が地図にないカードは null）
+export function pickSearchYear(item, currentYear, presentNow) {
+  const nearest = (years, y) => years.reduce((best, k) => (best === null || Math.abs(k - y) < Math.abs(best - y) ? k : best), null);
+  if (item.type === "card") {
+    const region = getIndexItem(`region:${item.region}`);
+    return region?.years.length ? nearest(region.years, item.year) : null;
+  }
+  if (presentNow || !item.years.length) return currentYear;
+  return nearest(item.years, currentYear);
+}
 
 // ---- 検索 ----
 // 語ごとに、一致した欄の重み（完全一致・前方一致ほど高い）を足し合わせた点数で並べる。
