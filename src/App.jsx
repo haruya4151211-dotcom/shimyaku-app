@@ -678,9 +678,9 @@ function FontStyles() {
       }
       /* 年代の切り替えの勢力図クロスフェード：新しい勢力は早めに立ち上がり（ease-out）、旧領は後半にかけてほどける（ease-in）。
          どちらも不透明度だけを動かすので、描画の負荷は合成（compositing）に収まる */
-      .territory-in { animation: territoryIn 720ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+      .territory-in { animation: territoryIn 450ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
       @keyframes territoryIn { from { opacity: 0; } to { opacity: 1; } }
-      .territory-out { animation: territoryOut 720ms cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards; }
+      .territory-out { animation: territoryOut 450ms cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards; }
       @keyframes territoryOut { from { opacity: 1; } to { opacity: 0; } }
       @media (prefers-reduced-motion: reduce) {
         .territory-in { animation: none; }
@@ -3348,7 +3348,7 @@ function EraScrubber({ value, onChange, keyYears }) {
 const MAP_SHEET_HEIGHT_VH = { half: 56, full: 92 };
 const SEARCH_FLY_MS = 900; // 検索結果へカメラを寄せる時間
 const SPOTLIGHT_MS = 7000; // 検索結果を強調表示しておく時間
-const TERRITORY_FADE_MS = 720; // 年代の切り替えで勢力図が入れ替わるクロスフェードの時間（CSS の .territory-in / -out と合わせる）
+const TERRITORY_FADE_MS = 450; // 年代の切り替えで勢力図が入れ替わるクロスフェードの時間（CSS の .territory-in / -out と合わせる）
 const MAP_SHEET_UP_THRESHOLD = -60; // これ以上上にドラッグしたらフル展開
 const MAP_SHEET_DOWN_THRESHOLD = 70; // これ以上下にドラッグしたら畳む/閉じる
 
