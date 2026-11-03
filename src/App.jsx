@@ -676,6 +676,16 @@ function FontStyles() {
           #12182a;
         border-top: 1px solid rgba(255,255,255,0.08);
       }
+      /* 年代の切り替えの勢力図クロスフェード：新しい勢力は早めに立ち上がり（ease-out）、旧領は後半にかけてほどける（ease-in）。
+         どちらも不透明度だけを動かすので、描画の負荷は合成（compositing）に収まる */
+      .territory-in { animation: territoryIn 720ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+      @keyframes territoryIn { from { opacity: 0; } to { opacity: 1; } }
+      .territory-out { animation: territoryOut 720ms cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards; }
+      @keyframes territoryOut { from { opacity: 1; } to { opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .territory-in { animation: none; }
+        .territory-out { display: none; }
+      }
       /* 検索結果のスポットライト：周囲の暗転はすっと入って数秒でほどけ、輪は外へ広がりながら消える脈動を繰り返す */
       .spot-dim { animation: spotDim 4.6s ease forwards; }
       @keyframes spotDim { 0% { opacity: 0; } 10% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
@@ -3338,6 +3348,7 @@ function EraScrubber({ value, onChange, keyYears }) {
 const MAP_SHEET_HEIGHT_VH = { half: 56, full: 92 };
 const SEARCH_FLY_MS = 900; // 検索結果へカメラを寄せる時間
 const SPOTLIGHT_MS = 7000; // 検索結果を強調表示しておく時間
+const TERRITORY_FADE_MS = 720; // 年代の切り替えで勢力図が入れ替わるクロスフェードの時間（CSS の .territory-in / -out と合わせる）
 const MAP_SHEET_UP_THRESHOLD = -60; // これ以上上にドラッグしたらフル展開
 const MAP_SHEET_DOWN_THRESHOLD = 70; // これ以上下にドラッグしたら畳む/閉じる
 
@@ -3969,6 +3980,44 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   const periodBlurb = activePeriod?.blurbByYear ? activePeriod.blurbByYear(year) : activePeriod?.blurb ?? {};
   const periodKeyYears = activePeriod?.hasContent && activePeriod.keyYears?.length ? activePeriod.keyYears : ERA_BOUNDARY_YEARS;
 
+  // ---- 年代の切り替えで勢力図が変わるときのクロスフェード ----
+  // 表示中の勢力図（スナップショット）が入れ替わったら、前の年の勢力のうち形・色・名前が変わるもの（消える・縮む・分裂する勢力）を
+  // 「残像」として下に残して徐々に消し、新しく現れる・形が変わる勢力だけをふわっと浮かび上がらせる。変わらない勢力はそのまま。
+  // 重なる部分は新しい形が上に来るため、膨張は外側へにじみ出るように、縮小・分裂は旧領がほどけるように見える。カメラは一切動かさない
+  const [shownTerritory, setShownTerritory] = useState({ regions: periodRegions, background: periodBackground, year, n: 0 });
+  const [territoryFade, setTerritoryFade] = useState(null);
+  if (shownTerritory.regions !== periodRegions || shownTerritory.background !== periodBackground) {
+    const prev = shownTerritory;
+    const n = prev.n + 1;
+    setShownTerritory({ regions: periodRegions, background: periodBackground, year, n });
+    if (inCoveredEra && (prev.regions.length || prev.background.length)) {
+      const shapeOf = (r, y) => (r.maritime ? r.routes : r.shape === "path" ? r.dByYear(y) : r.pointsByYear(y));
+      const sameRegion = (a, b, ya, yb) => !!a && !!b && a.fill === b.fill && shapeOf(a, ya) === shapeOf(b, yb)
+        && a.labelX === b.labelX && a.labelY === b.labelY && a.labelLines.join("\n") === b.labelLines.join("\n");
+      const nextById = new Map(periodRegions.map((r) => [r.id, r]));
+      const prevById = new Map(prev.regions.map((r) => [r.id, r]));
+      const nextBg = new Map(periodBackground.map((t) => [t.name, t]));
+      const prevBg = new Map(prev.background.map((t) => [t.name, t]));
+      setTerritoryFade({
+        key: n,
+        ghosts: prev.regions
+          .filter((r) => !r.maritime && !sameRegion(r, nextById.get(r.id), prev.year, year))
+          .map((r) => ({ id: r.id, shape: r.shape, d: shapeOf(r, prev.year), fill: r.fill, stroke: r.strokeColor, labelX: r.labelX, labelY: r.labelY, labelLines: r.labelLines, labelSize: r.labelSize, minZoom: r.maritime ? 1 : (() => { const b = getShapeBBox(shapeOf(r, prev.year)); return getLabelStyle(b.width * b.height).minZoom; })() })),
+        entering: new Set(periodRegions.filter((r) => !sameRegion(prevById.get(r.id), r, prev.year, year)).map((r) => r.id)),
+        bgGhosts: prev.background.filter((t) => nextBg.get(t.name)?.d !== t.d || nextBg.get(t.name)?.fill !== t.fill),
+        bgEntering: new Set(periodBackground.filter((t) => prevBg.get(t.name)?.d !== t.d || prevBg.get(t.name)?.fill !== t.fill).map((t) => t.name)),
+      });
+    }
+  }
+  useEffect(() => {
+    if (!territoryFade) return;
+    const t = setTimeout(() => setTerritoryFade(null), TERRITORY_FADE_MS + 80);
+    return () => clearTimeout(t);
+  }, [territoryFade?.key]); // eslint-disable-line
+  // 新しく現れる・形が変わる勢力の要素：key を切り替えるたびに付け直してフェードインを毎回やり直す
+  const enterKey = (kind, id) => (territoryFade?.[kind].has(id) ? `${id}~${territoryFade.key}` : id);
+  const enterClass = (kind, id) => (territoryFade?.[kind].has(id) ? " territory-in" : "");
+
   const selectedRegion = periodRegions.find((r) => r.id === selectedId);
   const matchedCards = useMemo(
     () => cards.filter((c) => c.region === selectedId).sort((a, b) => a.difficulty - b.difficulty),
@@ -4033,8 +4082,8 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     const startDy = -((r.labelLines.length - 1) * lineHeight) / 2;
     return (
       <g
-        key={r.id}
-        className="region-hitbox"
+        key={enterKey("entering", r.id)}
+        className={`region-hitbox${enterClass("entering", r.id)}`}
         onClick={() => openRegion(r.id)}
         tabIndex={0}
         role="button"
@@ -4072,8 +4121,8 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     const k = textScale(s.size, GEO_STYLE.site.minPx), fs = s.size * k;
     return { k, r: fs * 0.32, labelX: s.x + fs * 0.75, labelY: s.y + fs * 0.34 };
   };
-  const { hiddenLabels, hiddenGeo, dimmedGeo } = (() => {
-    if (!panZoom.ready) return { hiddenLabels: new Set(), hiddenGeo: new Set(), dimmedGeo: new Set() };
+  const { hiddenLabels, hiddenGeo, dimmedGeo, ghostLabels } = (() => {
+    if (!panZoom.ready) return { hiddenLabels: new Set(), hiddenGeo: new Set(), dimmedGeo: new Set(), ghostLabels: new Set() };
     const boxes = [];
     const spotKey = spotlight?.key;
     const first = (r) => r.id === selectedId || `r:${r.id}` === spotKey;
@@ -4108,6 +4157,12 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
       const b = textBox(`s:${sl.name}`, m.labelX, m.labelY, sl.size, m.k, sl.name.length, 1, "start", "baseline");
       geo.push({ ...b, x: b.x - m.r * 2, w: b.w + m.r * 2 });
     }
+    // 残像の勢力名は、その倍率で出る大きさで、新しい勢力名・都市名と重ならないものだけ出す（同じ勢力の新しい名前とは重なってよい）
+    const ghostLabels = new Set((territoryFade?.ghosts ?? []).filter((g) => {
+      if (fade(g.minZoom - 0.3) <= 0) return false;
+      const b = textBox(`r:${g.id}`, g.labelX, g.labelY, g.labelSize, textScale(g.labelSize, 11), Math.max(...g.labelLines.map((l) => l.length)), g.labelLines.length);
+      return !political.some((p) => p.key !== b.key && b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h);
+    }).map((g) => g.id));
     const hiddenGeo = hideOverlappingLabels(spotFirst(geo));
     const overlaps = (g, p) => g.x < p.x + p.w && p.x < g.x + g.w && g.y < p.y + p.h && p.y < g.y + g.h;
     const dimmedGeo = new Set(geo.filter((g) => !hiddenGeo.has(g.key) && g.key !== spotKey && political.some((p) => overlaps(g, p))).map((g) => g.key));
@@ -4117,7 +4172,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     // 強調中の勢力名・都市名に重なる地理の名前は隠し、勢力名・都市名を最前面で読めるようにする
     const spotPolitical = political.find((p) => p.key === spotKey);
     if (spotPolitical) for (const g of geo) if (overlaps(g, spotPolitical)) hiddenGeo.add(g.key);
-    return { hiddenLabels, hiddenGeo, dimmedGeo };
+    return { hiddenLabels, hiddenGeo, dimmedGeo, ghostLabels };
   })();
   // 地理の文字：暗い縁取り（paint-order: stroke）で勢力の塗りや国名の上でも字形を保ち、種類ごとに色・書体・字間を変える
   const geoText = (key, name, x, y, size, cls, opacity, anchor = "middle") => {
@@ -4396,10 +4451,18 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
 
                       {/* 背景装飾（非インタラクティブな周辺国）：黒い未着色の穴を作らず、実際に版図として視認できる濃さで塗る。
                           勢力タップの妨げにならないようpointerEvents:noneかつMAP_REGIONSより先に描画 */}
+                      {/* 年代の切り替えで消える・形が変わる背景の国（残像）。新しい背景の下で徐々に消す */}
+                      {territoryFade?.bgGhosts.length > 0 && (
+                        <g key={`bg-ghost-${territoryFade.key}`} className="territory-out" style={{ pointerEvents: "none" }}>
+                          {territoryFade.bgGhosts.map((t) => (
+                            <path key={t.name} d={t.d} fill={t.fill} fillOpacity="0.5" stroke={t.fill} strokeOpacity="0.6" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+                          ))}
+                        </g>
+                      )}
                       {periodBackground.map((t) => {
                         const bgLabelOpacity = Math.max(0, Math.min(1, (panZoom.zoom - 1.05) / 0.3));
                         return (
-                          <g key={t.name} style={{ pointerEvents: "none" }}>
+                          <g key={enterKey("bgEntering", t.name)} className={enterClass("bgEntering", t.name).trim() || undefined} style={{ pointerEvents: "none" }}>
                             <path d={t.d} fill={t.fill} fillOpacity="0.5" stroke={t.fill} strokeOpacity="0.6" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
                             <text
                               x={t.labelX} y={t.labelY}
@@ -4416,6 +4479,14 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                         );
                       })}
 
+                      {/* 年代の切り替えで消える・縮む・分裂する勢力（残像）：新しい勢力図の下で徐々に消す */}
+                      {territoryFade?.ghosts.length > 0 && (
+                        <g key={`ghost-${territoryFade.key}`} className="territory-out" style={{ pointerEvents: "none" }}>
+                          {territoryFade.ghosts.map((g) => (g.shape === "path"
+                            ? <path key={g.id} d={g.d} className="region-ellipse-unselected" fill={g.fill} stroke={g.stroke} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                            : <polygon key={g.id} points={g.d} className="region-ellipse-unselected" fill={g.fill} stroke={g.stroke} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />))}
+                        </g>
+                      )}
                       {[...periodRegions]
                         .sort((a, b) => (b.maritime ? 1 : 0) - (a.maritime ? 1 : 0) || (a.id === selectedId ? 1 : 0) - (b.id === selectedId ? 1 : 0))
                         .map((r) => {
@@ -4453,8 +4524,8 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
 
                         return (
                           <g
-                            key={r.id}
-                            className="region-hitbox"
+                            key={enterKey("entering", r.id)}
+                            className={`region-hitbox${enterClass("entering", r.id)}`}
                             onClick={() => openRegion(r.id)}
                             tabIndex={0}
                             role="button"
@@ -4505,6 +4576,22 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
                           </g>
                         );
                       })}
+
+                      {/* 残像の勢力名：新しい勢力の塗りに沈まないよう塗りの上に描き、勢力の形と一緒に消す */}
+                      {ghostLabels.size > 0 && territoryFade && (
+                        <g key={`ghost-label-${territoryFade.key}`} className="territory-out" style={{ pointerEvents: "none" }}>
+                          {territoryFade.ghosts.filter((g) => ghostLabels.has(g.id)).map((g) => {
+                            const lineHeight = g.labelSize * 1.05;
+                            return (
+                              <text key={g.id} x={g.labelX} y={g.labelY} textAnchor="middle" className="font-body" fontSize={g.labelSize} fontWeight={700} fill="#F1F5F9"
+                                transform={`translate(${g.labelX},${g.labelY}) scale(${textScale(g.labelSize, 11)}) translate(${-g.labelX},${-g.labelY})`}
+                                style={{ filter: "drop-shadow(0 1px 2.5px rgba(10,14,20,0.55))" }}>
+                                {g.labelLines.map((line, i) => <tspan key={i} x={g.labelX} dy={i === 0 ? -((g.labelLines.length - 1) * lineHeight) / 2 : lineHeight}>{line}</tspan>)}
+                              </text>
+                            );
+                          })}
+                        </g>
+                      )}
 
                       {/* 首都マーカー：歴史地図アトラス風の「○地名」注記。タップ不可の装飾レイヤーで、わずかな拡大でフェードイン。
                           文字・円のサイズも地図の勢力ラベルと同様にズーム倍率を打ち消して常に一定の見た目サイズを保つ */}
