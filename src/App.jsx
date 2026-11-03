@@ -3848,7 +3848,7 @@ function useMapPanZoom(containerRef, enabled) {
     const onTouchMove = (e) => {
       if (e.touches.length === 2) {
         if (g.mode !== "pinch") beginPinch(e.touches); // 1本指のパン中にもう1本が触れたらピンチへ切り替える
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault(); // ページのスクロールが始まった後の取り消せないイベントは止めない（ブラウザの警告を出さない）
         const t = e.touches;
         const d = Math.hypot(t[1].clientX - t[0].clientX, t[1].clientY - t[0].clientY);
         const [mx, my] = localPoint((t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2);
@@ -3866,7 +3866,7 @@ function useMapPanZoom(containerRef, enabled) {
         const sz = sizeRef.current;
         const canPanY = sz.h / (mapBaseScale(sz) * g.startCam.zoom) < VIEWBOX_H;
         if (Math.abs(dx) > Math.abs(dy) || canPanY) {
-          e.preventDefault();
+          if (e.cancelable) e.preventDefault();
           trackVelocity(e.touches[0].clientX, e.touches[0].clientY);
           applyPan(dx, canPanY ? dy : 0);
         }
@@ -3965,8 +3965,11 @@ function useMapPanZoom(containerRef, enabled) {
 function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyTheme, onJumpToCard, searchTarget, onSearchHandled }) {
   // sliderYear はスライダーの年（つまみの表示に即座に反映）。地図の描画は year（遅延値）で行い、
   // 連続ドラッグ中は地図の再描画を後回しにしてつまみの追従を優先する（React が古い描画を中断して最新の年だけを描く）
+  // mapYear は地図に表示する年。勢力図の入れ替わりはクロスフェードを1つずつ順番に再生するため、演出の途中で届いた年は
+  // 次の演出まで待たせる（下の requestMapYear）。さらに描画は遅延値（year）で行い、つまみの追従を常に優先する
   const [sliderYear, setYear] = useState(() => ERAS_DATA[selectedEraId]?.defaultMapYear ?? 1648);
-  const year = useDeferredValue(sliderYear);
+  const [mapYear, setMapYear] = useState(sliderYear);
+  const year = useDeferredValue(mapYear);
   const [selectedId, setSelectedId] = useState(null);
   // 検索で選んだ項目の強調（スポットライト）。key は文字の重なり判定と同じ（r: 勢力 / c: 都市 / s: 地理・遺跡 / v: 河川）。
   // 強調中はズーム倍率による出し分けと重なりによる非表示を上書きして最前面に出し、まわりを暗くしてパルスで示す
@@ -4004,29 +4007,37 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   // 表示中の勢力図（スナップショット）が入れ替わったら、前の年の勢力のうち形・色・名前が変わるもの（消える・縮む・分裂する勢力）を
   // 「残像」として下に残して徐々に消し、新しく現れる・形が変わる勢力だけをふわっと浮かび上がらせる。変わらない勢力はそのまま。
   // 重なる部分は新しい形が上に来るため、膨張は外側へにじみ出るように、縮小・分裂は旧領がほどけるように見える。カメラは一切動かさない
-  // 判定は年を変える操作（changeYear）の中で行い、描画は地図（遅延値の year）がその年に追いついてから始める。
-  // 連続ドラッグで勢力図が次々に入れ替わるときは、前の演出が終わらないうちの切り替えを即座の切り替えにして演出を重ねない
+  // 演出は1つずつ順番に再生する：勢力図が変わる年が届いたら、演出中でなければすぐにクロスフェードを始め、演出中なら最新の年だけを
+  // 覚えておいて、今の演出が終わった瞬間にそこへ向けて次のクロスフェードを始める。高速にドラッグしても演出が重ならず（描画は
+  // 0.45秒に1回の勢力図の入れ替えだけ）、瞬時の切り替えも起きない。指を離した年へは必ずクロスフェードで着地する
   const [territoryFadeState, setTerritoryFade] = useState(null);
-  const territoryFade = territoryFadeState && territoryFadeState.year === year ? territoryFadeState : null;
-  const shownSnapshotRef = useRef(null); // 直近に表示を指示した勢力図 { regions, background, year }
-  const lastSnapshotChangeRef = useRef(-Infinity); // 直近に勢力図が入れ替わった時刻（performance.now）
-  const fadeTimerRef = useRef(null);
-  useEffect(() => () => clearTimeout(fadeTimerRef.current), []);
+  // 地図（遅延値）がその勢力図を描き終えてから演出を出す
+  const territoryFade = territoryFadeState && territoryFadeState.regions === periodRegions ? territoryFadeState : null;
+  const shownYearRef = useRef(mapYear); // 地図に表示を指示した年
+  const fadeActiveRef = useRef(false); // クロスフェードの再生中か
+  const queuedYearRef = useRef(null); // 再生中に届いた、次に表示する年
+  const fadeSafetyRef = useRef(null);
+  useEffect(() => () => clearTimeout(fadeSafetyRef.current), []);
   const snapshotAt = (y) => {
     const p = getActiveEraPeriod(y);
     const ok = p && p.hasContent && y >= p.contentRange[0] && y <= p.contentRange[1];
     return ok ? { regions: p.regionsByYear ? p.regionsByYear(y) : p.regions ?? [], background: p.backgroundByYear ? p.backgroundByYear(y) : p.background ?? [], year: y } : null;
   };
-  const planTerritoryFade = (y) => {
-    const prev = shownSnapshotRef.current ?? snapshotAt(year);
+  const showMapYear = (y) => { shownYearRef.current = y; setMapYear(y); };
+  const finishTerritoryFade = () => {
+    clearTimeout(fadeSafetyRef.current);
+    fadeActiveRef.current = false;
+    setTerritoryFade(null);
+    const queued = queuedYearRef.current;
+    queuedYearRef.current = null;
+    if (queued !== null) requestMapYear(queued);
+  };
+  const requestMapYear = (y) => {
+    if (fadeActiveRef.current) { queuedYearRef.current = y; return; }
+    const prev = snapshotAt(shownYearRef.current);
     const next = snapshotAt(y);
-    shownSnapshotRef.current = next;
-    if (!prev || !next || (prev.regions === next.regions && prev.background === next.background)) return;
-    const now = nowMs();
-    const rapid = now - lastSnapshotChangeRef.current < TERRITORY_FADE_MS; // 前の演出の途中で次の勢力図へ進んだ
-    lastSnapshotChangeRef.current = now;
-    clearTimeout(fadeTimerRef.current);
-    if (rapid) { setTerritoryFade(null); return; }
+    const reduceMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!prev || !next || (prev.regions === next.regions && prev.background === next.background) || reduceMotion) { showMapYear(y); return; }
     const shapeOf = (r, yy) => (r.maritime ? r.routes : r.shape === "path" ? r.dByYear(yy) : r.pointsByYear(yy));
     const sameRegion = (a, b) => !!a && !!b && a.fill === b.fill && shapeOf(a, prev.year) === shapeOf(b, next.year)
       && a.labelX === b.labelX && a.labelY === b.labelY && a.labelLines.join("\n") === b.labelLines.join("\n");
@@ -4034,9 +4045,10 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
     const prevById = new Map(prev.regions.map((r) => [r.id, r]));
     const nextBg = new Map(next.background.map((t) => [t.name, t]));
     const prevBg = new Map(prev.background.map((t) => [t.name, t]));
+    fadeActiveRef.current = true;
     setTerritoryFade({
-      key: now,
-      year: y,
+      key: nowMs(),
+      regions: next.regions,
       ghosts: prev.regions
         .filter((r) => !r.maritime && !sameRegion(r, nextById.get(r.id)))
         .map((r) => {
@@ -4047,9 +4059,17 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
       bgGhosts: prev.background.filter((t) => nextBg.get(t.name)?.d !== t.d || nextBg.get(t.name)?.fill !== t.fill),
       bgEntering: new Set(next.background.filter((t) => prevBg.get(t.name)?.d !== t.d || prevBg.get(t.name)?.fill !== t.fill).map((t) => t.name)),
     });
-    // 地図の描画が遅れても演出が終わりきるよう、余裕をみて片付ける
-    fadeTimerRef.current = setTimeout(() => setTerritoryFade(null), TERRITORY_FADE_MS + 400);
+    showMapYear(y);
+    // 通常は演出が画面に出てから TERRITORY_FADE_MS 後に終える（下の effect）。描画されないまま止まらないよう保険も掛ける
+    clearTimeout(fadeSafetyRef.current);
+    fadeSafetyRef.current = setTimeout(finishTerritoryFade, TERRITORY_FADE_MS + 1200);
   };
+  // 演出が実際に画面に出た時点から数えて、再生し終えたら片付けて、待っている年があれば次の演出へ進む
+  useEffect(() => {
+    if (!territoryFade) return;
+    const t = setTimeout(finishTerritoryFade, TERRITORY_FADE_MS + 30);
+    return () => clearTimeout(t);
+  }, [territoryFade?.key]); // eslint-disable-line
   // 新しく現れる・形が変わる勢力の要素：key を切り替えるたびに付け直してフェードインを毎回やり直す
   const enterKey = (kind, id) => (territoryFade?.[kind].has(id) ? `${id}~${territoryFade.key}` : id);
   const enterClass = (kind, id) => (territoryFade?.[kind].has(id) ? " territory-in" : "");
@@ -4078,8 +4098,8 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
   const latestYearRef = useRef(sliderYear);
   const changeYear = (y) => {
     latestYearRef.current = y;
-    planTerritoryFade(y);
     setYear(y);
+    requestMapYear(y);
     if (!scrubbingRef.current) syncEraToYear(y);
   };
   const onScrubDrag = (dragging) => {
@@ -4467,6 +4487,7 @@ function MapView({ cards, selectedEraId, onSelectEra, onStudyRegion, onStudyThem
               <div style={{ width: "100%", height: "100%" }}>
                 {/* viewBoxはカメラ（useMapPanZoom）から毎フレーム計算され、地図領域と同じ縦横比になる */}
                 <svg
+                  data-map-year={year}
                   viewBox={panZoom.view.viewBox}
                   preserveAspectRatio="xMidYMid meet"
                   className="w-full h-full block"
