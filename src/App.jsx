@@ -15,6 +15,8 @@ import {
 } from './data/historyData';
 import { MAP_VIEWBOX_W, MAP_VIEWBOX_H, lonLatBounds } from './data/mapProjection';
 import { WATER_KINDS, GEO_TIER_ZOOM } from './data/atlas/geography';
+import SearchModal from './search/SearchModal';
+import { isMacLike } from './search/searchIndex';
 import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from "react";
 import { Star, Heart, RotateCw, RotateCcw, Filter, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ArrowRight, X, BookMarked, RefreshCw, Check, Tag, Map as MapIcon, BookOpen, Info, Search } from "lucide-react";
 
@@ -187,6 +189,18 @@ export default function App() {
   const [presets, setPresets, presetsLoaded] = useStorageState(STORAGE_PRESETS_KEY, []);
 
   const [view, setView] = useState("study"); // 'study' | 'favorites'
+  // 横断検索のモーダル：ヘッダーの虫眼鏡ボタン、または Cmd+K（Mac）/ Ctrl+K（Windows など）で開閉する
+  const [searchOpen, setSearchOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   // ここから下は「適用中（Applied）」の出題条件。実際のセッションはこれらの値だけを見る
   const [selectedThemes, setSelectedThemes] = useState(new Set());
   const [selectedRegions, setSelectedRegions] = useState(new Set());
@@ -487,7 +501,9 @@ export default function App() {
     <div className="min-h-screen w-full" style={{ background: "#1B2430" }}>
       <FontStyles />
       <div className="max-w-2xl mx-auto px-4 pb-16">
-        <Header view={view} setView={setView} favCount={favorites.length} />
+        <Header view={view} setView={setView} favCount={favorites.length} onSearch={() => setSearchOpen(true)} />
+        {/* 結果を選んだときの時代移動・ハイライト・カード表示はステップ2で onSelect につなぐ */}
+        <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
         {!dataLoaded ? (
           <div className="text-center py-24" style={{ color: "#C7CDD9", fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
@@ -652,6 +668,9 @@ function FontStyles() {
           #12182a;
         border-top: 1px solid rgba(255,255,255,0.08);
       }
+      /* 検索ボタンのキー案内は、マウスなど細かく指せる環境（PC）でだけ出す */
+      .search-btn-kbd { display: none; }
+      @media (hover: hover) and (pointer: fine) { .search-btn-kbd { display: inline-block; } }
       .glass-chip {
         background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
         backdrop-filter: blur(10px);
@@ -1235,17 +1254,30 @@ function FontStyles() {
   );
 }
 
-function Header({ view, setView, favCount }) {
+function Header({ view, setView, favCount, onSearch }) {
   return (
     <header className="pt-10 pb-6">
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <div className="flex items-center gap-2" style={{ color: "#C9A227" }}>
             <span className="text-xs tracking-[0.3em] font-body">SEKAISHI ACTIVE RECALL — PROTOTYPE</span>
           </div>
           <h1 className="font-display text-3xl mt-1" style={{ color: "#EFE3C8" }}>史脈</h1>
           <p className="font-body text-sm mt-1" style={{ color: "#8A93A6" }}>覚えるのではなく、思い出す。</p>
         </div>
+        {/* 横断検索：タップ1回で開く。キーボードのある環境では Cmd+K / Ctrl+K の案内も添える */}
+        <button
+          type="button"
+          onClick={(e) => { spawnRipple(e); onSearch(); }}
+          aria-label="キーワード検索を開く"
+          aria-keyshortcuts={isMacLike() ? "Meta+K" : "Control+K"}
+          className="fluid-tap glass-chip shrink-0 flex items-center gap-2 rounded-full font-body"
+          style={{ height: 40, minWidth: 40, padding: "0 12px", marginTop: 18, color: "#EFE3C8" }}
+        >
+          <Search size={17} aria-hidden="true" />
+          <span className="search-btn-label" style={{ fontSize: 12.5, color: "#c7d3ea" }}>検索</span>
+          <kbd className="search-btn-kbd" style={{ fontSize: 11, color: "#8A93A6", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 6, padding: "1px 5px", fontFamily: "inherit" }}>{isMacLike() ? "⌘K" : "Ctrl K"}</kbd>
+        </button>
       </div>
 
       <div className="flex gap-1.5 mt-5 font-body text-xs">

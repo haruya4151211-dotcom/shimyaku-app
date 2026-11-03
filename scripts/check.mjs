@@ -17,6 +17,7 @@ import { ENTITIES } from "../geo/regions.mjs";
 import { WORLD_BLURB } from "../src/data/worldCards.js";
 import { WORLD2_BLURB } from "../src/data/worldCards2.js";
 import { WORLD3_BLURB } from "../src/data/worldCards3.js";
+import { getSearchIndex, search, normalize, matchRanges } from "../src/search/searchIndex.js";
 
 // 許可リスト：答えの語が、別の語の一部として含まれるだけのもの（伏せる必要がない）
 const ALLOWED_CONTAINING_WORDS = [
@@ -216,6 +217,31 @@ for (const [eraId, era] of Object.entries(ERAS_DATA)) {
     for (const pts of openSegments(d)) for (let i = 1; i < pts.length; i++) m = Math.min(m, segDist(p, pts[i - 1], pts[i]));
     if (m > 2.5) err("地理", `河川「${r.name}」のラベルが流路から離れている（${m.toFixed(1)}）`);
   }
+}
+
+// 6. 横断検索：索引が全カード・全地図要素を含み、名前・解答で引けること、表記ゆれを吸収すること
+{
+  const index = getSearchIndex();
+  const keys = new Set(index.map((i) => i.key));
+  const allCards = Object.values(ERAS_DATA).flatMap((e) => e.cards);
+  for (const c of allCards) if (!keys.has(`card:${c.id}`)) err("検索", `カード ${c.id} が索引にない`);
+  for (const [periodId, maps] of Object.entries(MAP_PERIODS_BY_ID)) for (const m of maps) for (const y of m.keyYears) {
+    for (const r of m.regionsByYear(y)) if (!keys.has(`region:${r.id}`)) err("検索", `${periodId} ${y}年: 勢力「${r.id}」が索引にない`);
+    for (const c of m.capitalsByYear(y)) if (!keys.has(`city:${c.name}`)) err("検索", `${periodId} ${y}年: 都市「${c.name}」が索引にない`);
+  }
+  for (const g of GEO_LABELS) if (!keys.has(`${g.kind === "site" || g.kind === "oasis" ? "city" : "geo"}:${g.name}`)) warn("検索", `地理「${g.name}」がどの年の地図にも出ないため索引にない`);
+  for (const r of GEO_RIVERS) if (!keys.has(`geo:${r.name}`)) err("検索", `河川「${r.name}」が索引にない`);
+  // 名前・解答で検索したとき、その項目が結果に出ること
+  const hit = (q, key) => { const r = search(q, { limitPerCategory: 1000 }); return Object.values(r.groups).some((g) => g.results.some((x) => x.item.key === key)); };
+  for (const item of index) {
+    if (item.type === "card") { for (const a of item.answers) if (!hit(a, item.key)) err("検索", `カード ${item.id} が解答「${a}」で見つからない`); }
+    else if (!hit(item.name, item.key)) err("検索", `「${item.name}」が名前で見つからない`);
+  }
+  const same = [["ヴェネツィア", "べねつぃあ"], ["ヴァイキング", "バイキング"], ["チチェン＝イツァ", "ちちぇんいつぁ"], ["ｱﾃﾈ", "アテネ"], ["ＡＢＣ", "abc"], ["ヴォルガ川", "ボルガ川"]];
+  for (const [a, b] of same) if (normalize(a) !== normalize(b)) err("検索", `表記ゆれ「${a}」と「${b}」が同じにならない（${normalize(a)} / ${normalize(b)}）`);
+  const ranges = matchRanges("ヴェネツィア共和国", ["べねつぃあ"]);
+  if (JSON.stringify(ranges) !== "[[0,6]]") err("検索", `ハイライト位置の逆算がずれている（${JSON.stringify(ranges)}）`);
+  console.log(`検索索引: ${index.length}件（勢力 ${index.filter((i) => i.type === "region").length}・都市 ${index.filter((i) => i.type === "city").length}・地理 ${index.filter((i) => i.type === "geo").length}・カード ${index.filter((i) => i.type === "card").length}）`);
 }
 
 const uniq = (a) => [...new Set(a)];
