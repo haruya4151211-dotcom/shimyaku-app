@@ -22,10 +22,11 @@
 | フレームワーク | React 19 + Vite 8（JavaScript。TypeScript は未使用） |
 | スタイル | Tailwind CSS 4（`@tailwindcss/vite`）＋ App.jsx 内の `<style>`（`FontStyles`）に独自 CSS |
 | アイコン | lucide-react |
-| Lint | oxlint（`.oxlintrc.json`）。**警告26件が現在の基準値**（増やさないこと） |
+| Lint | oxlint（`.oxlintrc.json`）。**警告26件が現在の基準値**（増やさないこと）。`tests/recovered/` は Mac の `.git/info/exclude` で除外しているので数えない（除外がない環境に置くと +2 件の 28 件） |
 | 地図データ生成 | Node スクリプト（`geo/`）。Natural Earth 10m（admin-1 と河川）＋ topojson / polygon-clipping |
 | 保存 | `appStorage` アダプター：`window.storage` → `localStorage` → メモリの順にフォールバック（キー `shimyaku:progress` / `shimyaku:favorites` / `shimyaku:presets`） |
-| ローカルの Node | v26.10.0 で動作確認（`engines` や `.nvmrc` の指定はない） |
+| Node | 26 系（`.nvmrc`、`package.json` の `engines` は >=22）。Mac は v26.10.0、Codespaces は `.devcontainer` で 26 系 |
+| UI テスト | Playwright（`@playwright/test` 1.64.1 固定、同梱の Chromium）。詳細は [tests/ui/README.md](tests/ui/README.md) |
 
 ### コマンド
 
@@ -36,6 +37,8 @@
 | `npm run lint` | oxlint |
 | `npm run check` | データ検査（`scripts/check.mjs`）。エラーがあれば終了コード1。**変更のたびに必ず実行** |
 | `npm run geo` | 勢力の輪郭（`geo/build.mjs`）と河川（`geo/rivers.mjs`）を生成し直す |
+| `npm run test:ui` | UI テスト（PC 幅・スマホ 3 幅、Mac で約 30〜32 分）。失敗があれば終了コード1。初回は `npm run test:ui:install` |
+| `npm run test:ui:perf` | 性能の計測（本番ビルド） |
 
 `npm run geo` には Natural Earth の元データが必要です（`geo/.cache/` に保存、gitignore 済み・約80MB）。
 URL は `geo/lib.mjs` の `SOURCE_URL` と `geo/rivers.mjs` の `RIVERS_URL`。生成物（`src/data/generated/`）はコミット済みなので、
@@ -71,6 +74,11 @@ geo/
   build.mjs / lib.mjs  輪郭の生成（重なり・すき間・存続期間の矛盾を検査）
   rivers.mjs           河川の生成
 scripts/check.mjs      npm run check の本体
+tests/ui/              UI テスト（Playwright）。使い方・テストの足し方は tests/ui/README.md
+playwright.config.js   UI テストの設定。プロジェクトは desktop（1280×900）／mobile（390×844）／mobile-375（375×667）／
+                       mobile-430（430×900）の 4 つ（後ろ 2 つは @viewport の印のテストだけ）。開発サーバーの自動起動。
+                       性能用は playwright.perf.config.js
+.devcontainer/         Codespaces の環境（Node 26 系・Chromium）
 README.md              コマンドと「新しい年代を足す手順」
 ```
 
@@ -111,7 +119,7 @@ README.md              コマンドと「新しい年代を足す手順」
 - **やり取りはすべて日本語**。
 - 依頼は多くが「ステップ1（データ・カード）→ ステップ2（地図・描画・連動）」の2段階で来る。
   WHY と WHAT が示され、HOW（実装手法・数値）は「良きに計らって」任されることが多い。任された部分は自分で判断して実装し、判断の理由を報告する。
-- 完了時の流れ：**検証（`npm run check`・ビルド・lint・画面テスト・スクリーンショットでの目視）→ 日本語で結果を報告 → Git コミット → main へ Push**。
+- 完了時の流れ：**検証（`npm run check`・ビルド・lint・UI テスト `npm run test:ui`・スクリーンショットでの目視）→ 日本語で結果を報告 → Git コミット → main へ Push**。
   コミットメッセージは依頼文の例に合わせ、末尾に `Co-Authored-By:` 行を付ける。
   **ただし依頼でコミット・Push を求められていないときはしない**（例：分析だけの依頼、今回のドキュメント作成）。
 - 報告では、うまくいかなかったこと・再現しなかった失敗・仕様の解釈の違いも隠さずに書く。
@@ -120,8 +128,13 @@ README.md              コマンドと「新しい年代を足す手順」
 ## 7. 開発時の注意事項
 
 - 変更後は必ず `npm run check`（エラー0）、`npm run build`、`npx oxlint`（警告26件を超えない）を通す。
-- **画面テスト（ヘッドレス Chrome＋CDP の Node スクリプト）はリポジトリに入っていない**（MacBook Air の一時フォルダにある）。
-  iPad / Codespaces では現状実行できない。詳細と対策案は開発ログの「未解決の課題」。
+- **UI テストは `npm run test:ui`**（Mac・Codespaces 共通）。地図・検索・シートなど画面に関わる変更では必ず流す。
+  入力は実際の入力イベントで送り、時間ではなく状態を待つ。失敗を skip や期待値の緩和で隠さない（tests/ui/README.md）。
+  テストは使い捨てのブラウザ環境で動き、利用者の localStorage や普段の Chrome には触れない。
+- **カード・勢力・都市を変えると、UI テストの data-baseline（データの回帰検知）が「基準との違い」で失敗する**。違いが意図どおりかを
+  確かめてから `npm run test:ui:baseline` で基準（`tests/ui/baseline/data-baseline.json`）を更新し、データの変更と一緒にコミットする。
+- 以前の CDP 方式の画面テストの復元版が `tests/recovered/`（未追跡）にある。移行済みで参考用（扱いはユーザーの判断待ち）。
+  Mac の `.git/info/exclude`（手元だけの設定）で除外しているので、git status・lint に出ない。Git に追加しないこと。
 - `src/data/generated/` は手で編集しない（`npm run geo` で生成）。
 - 開発サーバーでの描画は React の開発用チェックで重い。性能を測るときは `npm run build` → `vite preview` の本番ビルドで測る。
 - App.jsx は巨大な単一ファイル。編集前に該当箇所を grep で特定し、近くのコメントを読んでから変える。

@@ -9,7 +9,19 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "geo": "node geo/build.mjs && node geo/rivers.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "test:ui": "playwright test",
+    "test:ui:desktop": "playwright test --project=desktop",
+    "test:ui:mobile": "playwright test --project=mobile",
+    "test:ui:viewports": "playwright test --project=mobile-375 --project=mobile-430",
+    "test:ui:baseline": "node tests/ui/tools/update-baseline.mjs",
+    "test:ui:ux-pending": "UI_UX_PENDING=1 playwright test ux-pending",
+    "test:ui:perf": "playwright test -c playwright.perf.config.js",
+    "test:ui:install": "playwright install chromium",
+    "test:ui:report": "playwright show-report test-results/report"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -18,6 +30,7 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",

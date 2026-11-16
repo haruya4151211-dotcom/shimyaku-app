@@ -10,8 +10,13 @@
 | `npm run build` | 本番ビルド |
 | `npm run check` | データ検査（答えの漏れ、地図とカードの整合、ラベル・都市の位置、データ構造）。エラーがあれば終了コード1 |
 | `npm run geo` | 勢力の輪郭データを生成し直す（`src/data/generated/geoPaths.js`）。重なり・すき間・存続期間の矛盾があればエラー |
+| `npm run test:ui` | UI テスト（Playwright。PC 幅・スマホ幅）。失敗があれば終了コード1。初回は `npm run test:ui:install` |
+| `npm run test:ui:perf` | 性能の計測（本番ビルドを作って年代スライダーの高速ドラッグを測る） |
 
 `npm run geo` には Natural Earth の元データが必要（`geo/lib.mjs` の `SOURCE_URL` から `geo/.cache/` に保存。リポジトリには含めない）。
+
+UI テストの使い方・テストの足し方は [tests/ui/README.md](tests/ui/README.md)。Node は 26 系（`.nvmrc`）。
+GitHub Codespaces では `.devcontainer/` により Node と UI テスト用の Chromium が自動で入る。
 
 ## 地図データの構成（存続期間ベース）
 

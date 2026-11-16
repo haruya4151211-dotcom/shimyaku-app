@@ -1,0 +1,27 @@
+// GitHub Codespaces（iPad Pro からの開発）用の環境。MacBook Air と同じ Node 26 系・同じ版の Playwright Chromium をそろえる。
+// 作成時に依存を入れ、UI テスト用の Chromium と、それが Linux で動くのに必要なライブラリ（--with-deps）を入れる。
+// UI テストはコンテナの中のヘッドレス Chromium で動くので、iPad のブラウザ側の設定は要らない。
+{
+  "name": "shimyaku-app",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "26" }
+  },
+  "postCreateCommand": "npm ci && npx playwright install --with-deps chromium",
+  "forwardPorts": [5173],
+  // Codespaces はコンテナ内で開かれたポートを自動で転送して通知する。UI テストのサーバー（5299・5399）はコンテナの中の
+  // ブラウザだけが使うので転送も通知も不要（テストのたびに通知が出るのを防ぐ）。テスト結果の HTML（npm run test:ui:report、
+  // 9323）は iPad のブラウザで見るために転送する
+  "portsAttributes": {
+    "5173": { "label": "開発サーバー（npm run dev）", "onAutoForward": "notify" },
+    "5299": { "label": "UI テスト用サーバー", "onAutoForward": "ignore" },
+    "5399": { "label": "性能テスト用サーバー（本番ビルド）", "onAutoForward": "ignore" },
+    "9323": { "label": "UI テストの結果（npm run test:ui:report）", "onAutoForward": "openBrowser" }
+  },
+  "hostRequirements": { "memory": "8gb" },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-playwright.playwright"]
+    }
+  }
+}

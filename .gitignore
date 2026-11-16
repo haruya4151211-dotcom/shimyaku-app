@@ -25,3 +25,8 @@ dist-ssr
 
 # geo/build.mjs が使う Natural Earth の元データ（約80MB。geo/lib.mjs の SOURCE_URL から取得）
 geo/.cache/
+
+# UI テスト（Playwright）の出力。Tailwind は .gitignore 外のファイルを走査するため、ここに入れないとテスト中に書き出す
+# スクリーンショット・ログで CSS の再生成（HMR）が起き、テスト中の画面が描き直される
+test-results/
+playwright-report/
