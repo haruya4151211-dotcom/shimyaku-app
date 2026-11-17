@@ -94,6 +94,12 @@
 - 演出時間：0.72秒 → **0.45秒**【決定】（ユーザーが「もう少し短縮」と要望）。
 - 演出は1つずつ順番に再生し、演出中に届いた年は待たせて次の演出で追いかける。ドラッグ中も瞬時の切り替えはせず、指を離した年へ必ずクロスフェードで着地する（`c3db76b`）。
 
+### Git 運用（2026-11-18）
+- MacBook Air と iPad Pro の Codespaces を併用する。作業はブランチで行い、main へは PR で統合する【決定】。同じブランチを両環境で同時に編集しない【決定】。
+  pull は fast-forward だけ（Mac はグローバル設定、Codespaces は devcontainer）。コミットの名義は GitHub の noreply アドレスにそろえた
+  （それ以前の Mac のコミットは仮の名義のまま、書き換えない）。詳細は CLAUDE.md の「Git 運用」。
+- Codespaces での UI テストの通し実行（2026-11-18 に報告、iPad Pro・Node 26.13.1・npm 11.20.0）：191 件中 成功 176・失敗 6・スキップ 9 で Mac と一致。所要 58.2 分（Mac は約 31 分）。
+
 ---
 
 ## 3. 過去に発生した問題と解決方法
@@ -124,7 +130,7 @@
 - `npm run build`：成功。`npx oxlint`：**警告26件**（以前からの基準値。未使用変数など）。
 - 画面テスト：21本すべて失敗0（下記。2026-11-15 に Playwright の UI テストへ移行。下の「UI テスト基盤」）。
 
-### UI テスト基盤（2026-11-15 整備、未コミット）
+### UI テスト基盤（2026-11-15 整備。`feature/playwright-ui-tests` の `6cfea31`、main へは PR で統合予定）
 - `npm run test:ui`（Playwright 1.64.1・同梱 Chromium。プロジェクトは desktop 1280×900／mobile 390×844 タッチ／
   mobile-375 375×667・mobile-430 430×900（@viewport の印のテストだけ））。使い方は [tests/ui/README.md](../tests/ui/README.md)。
 - 方式の選定：CDP 直書き（依存なし）と Playwright を比べ、Playwright にした。理由は

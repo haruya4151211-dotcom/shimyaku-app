@@ -119,7 +119,9 @@ README.md              コマンドと「新しい年代を足す手順」
 - **やり取りはすべて日本語**。
 - 依頼は多くが「ステップ1（データ・カード）→ ステップ2（地図・描画・連動）」の2段階で来る。
   WHY と WHAT が示され、HOW（実装手法・数値）は「良きに計らって」任されることが多い。任された部分は自分で判断して実装し、判断の理由を報告する。
-- 完了時の流れ：**検証（`npm run check`・ビルド・lint・UI テスト `npm run test:ui`・スクリーンショットでの目視）→ 日本語で結果を報告 → Git コミット → main へ Push**。
+- 完了時の流れ：**検証（`npm run check`・ビルド・lint・UI テスト `npm run test:ui`・スクリーンショットでの目視）→ 日本語で結果を報告 →
+  作業ブランチ（`feature/…` など）にコミット → そのブランチを Push → GitHub の PR で main へ統合（マージはユーザーが行う）**。
+  main への直接のコミット・Push はしない。ステージは `git add -A` / `git add .` を使わず、ファイルを明示する（運用の詳細は 7 章の後の「Git 運用」）。
   コミットメッセージは依頼文の例に合わせ、末尾に `Co-Authored-By:` 行を付ける。
   **ただし依頼でコミット・Push を求められていないときはしない**（例：分析だけの依頼、今回のドキュメント作成）。
 - 報告では、うまくいかなかったこと・再現しなかった失敗・仕様の解釈の違いも隠さずに書く。
@@ -140,6 +142,23 @@ README.md              コマンドと「新しい年代を足す手順」
 - App.jsx は巨大な単一ファイル。編集前に該当箇所を grep で特定し、近くのコメントを読んでから変える。
 - `git push` が認証待ちで止まったことがある。`GIT_TERMINAL_PROMPT=0` とタイムアウトを付けて実行するとよい。
 - 秘密情報（API キー等）はこのプロジェクトでは使っていない。
+
+## Git 運用（MacBook Air と iPad Pro の Codespaces の併用）
+
+- **1 つのブランチは、同時には 1 つの環境だけで編集する**。両環境で並行して作業するときは別々のブランチを使う。
+- 環境を移るとき：元の環境でコミット → Push（作業途中でも WIP として Push）→ 移った先で `git fetch` → `git switch <ブランチ>` →
+  `git pull --ff-only`。未 Push の作業を残して移らない（Codespace は停止・自動削除で未 Push の変更が消える）。
+- 作業を始める前に `git status` と `git fetch` を実行し、ローカルがリモートより遅れていないか・別の環境の未取り込みの変更がないかを確かめる。
+- pull は fast-forward だけにする（`pull.ff only`。Mac はグローバル設定、Codespaces は devcontainer の作成時に設定）。
+  進めない（履歴が分岐した）ときは止めて報告する。reset・rebase・force push・既存コミットの書き換えはユーザーの承認なしにしない。
+- main は PR 経由でだけ更新する。マージ後は両環境で main を `git pull --ff-only` で取り込み、マージ済みのブランチを削除する。
+- 片方の環境に限る作業：`npm run geo`（元データ約 80MB が Mac の `geo/.cache/` にある）。依存の変更（package.json・package-lock.json）は
+  一度に一方の環境だけで行う。`tests/ui/baseline/data-baseline.json` が競合したら手でマージせず、マージ後のデータで
+  `npm run test:ui:baseline` を実行して作り直す。
+- コミットの名義は GitHub の noreply アドレス（Keep my email addresses private と、それを公開するコマンドラインの Push の拒否が有効）。
+  Mac は `~/.gitconfig` に設定済み、Codespaces は GitHub が設定する。2026-11-18 より前の Mac のコミットは仮の名義（`…@MacBook-Air-2.local`）で、
+  書き換えない。
+- 手元だけの設定（Mac の `.git/info/exclude` による `tests/recovered/` の除外、Git の名義・pull の設定）は、Codespaces には引き継がれない。
 
 ## 8. 詳細な資料
 
